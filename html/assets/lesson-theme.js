@@ -78,16 +78,11 @@
       const previousFile = lessonFiles[currentIndex - 1];
       addLink(previousFile, 'previous', previousFile.includes('Seminar') ? ' · Seminar' : previousFile.includes('Tiep_Theo') ? ' · Tiếp theo' : '');
     }
-    const indexLink = document.createElement('a');
-    indexLink.href = 'index.html';
-    indexLink.className = 'lesson-navigation-index';
-    indexLink.textContent = 'Mục lục';
-    navigation.appendChild(indexLink);
     if (currentIndex < lessonFiles.length - 1) {
       const nextFile = lessonFiles[currentIndex + 1];
       addLink(nextFile, 'next', nextFile.includes('Seminar') ? ' · Seminar' : nextFile.includes('Tiep_Theo') ? ' · Tiếp theo' : '');
     }
-    (document.querySelector('main') || body).appendChild(navigation);
+    body.appendChild(navigation);
   }
 
   let scheduled = false;
