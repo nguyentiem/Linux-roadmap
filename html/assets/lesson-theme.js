@@ -66,7 +66,7 @@
     function addLink(file, direction, extraLabel) {
       const link = document.createElement('a');
       link.href = file;
-      link.className = `lesson-navigation-link lesson-navigation-${direction}`;
+      link.className = `lesson-home lesson-navigation-${direction}`;
       const number = file.match(/(?:Bai_|bai)(\d+)/i)?.[1];
       link.textContent = direction === 'previous'
         ? `← Bài trước · Bài ${number}${extraLabel}`
