@@ -7,13 +7,6 @@
   progress.setAttribute('aria-hidden', 'true');
   body.appendChild(progress);
 
-  const home = document.createElement('a');
-  home.className = 'lesson-home';
-  home.href = 'index.html';
-  home.textContent = '← Tất cả bài học';
-  home.setAttribute('aria-label', 'Trở về mục lục tất cả bài học');
-  body.appendChild(home);
-
   // Keep this sequence in the same order as the course index, including both parts of lesson 13.
   const lessonFiles = [
     'Bai_01_Nen_tang_may_tinh_va_he_dieu_hanh.html',
@@ -58,10 +51,27 @@
   ];
   const currentFile = decodeURIComponent(location.pathname.split('/').pop());
   const currentIndex = lessonFiles.indexOf(currentFile);
+  const navigation = document.createElement('nav');
+  navigation.className = 'lesson-navigation';
+  navigation.setAttribute('aria-label', 'Điều hướng bài học');
+
+  const home = document.createElement('a');
+  home.className = 'lesson-home';
+  home.href = 'index.html';
+  home.textContent = '← Tất cả bài học';
+  home.setAttribute('aria-label', 'Trở về mục lục tất cả bài học');
+  navigation.appendChild(home);
+
+  const backToTop = document.createElement('button');
+  backToTop.className = 'lesson-top';
+  backToTop.type = 'button';
+  backToTop.textContent = '↑ Về đầu trang';
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  navigation.appendChild(backToTop);
+
   if (currentIndex !== -1) {
-    const navigation = document.createElement('nav');
-    navigation.className = 'lesson-navigation';
-    navigation.setAttribute('aria-label', 'Điều hướng giữa các bài học');
 
     function addLink(file, direction, extraLabel) {
       const link = document.createElement('a');
@@ -74,16 +84,28 @@
       navigation.appendChild(link);
     }
 
+    function addUnavailable(label) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.disabled = true;
+      navigation.appendChild(button);
+    }
+
     if (currentIndex > 0) {
       const previousFile = lessonFiles[currentIndex - 1];
       addLink(previousFile, 'previous', previousFile.includes('Seminar') ? ' · Seminar' : previousFile.includes('Tiep_Theo') ? ' · Tiếp theo' : '');
+    } else {
+      addUnavailable('← Bài trước');
     }
     if (currentIndex < lessonFiles.length - 1) {
       const nextFile = lessonFiles[currentIndex + 1];
       addLink(nextFile, 'next', nextFile.includes('Seminar') ? ' · Seminar' : nextFile.includes('Tiep_Theo') ? ' · Tiếp theo' : '');
+    } else {
+      addUnavailable('Bài sau →');
     }
-    body.appendChild(navigation);
   }
+  body.appendChild(navigation);
 
   let scheduled = false;
   function updateProgress() {
