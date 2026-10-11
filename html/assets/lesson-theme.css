@@ -54,12 +54,13 @@ body.lesson-page .lesson-progress {
 body.lesson-page .lesson-navigation {
   position: fixed; z-index: 999; right: 18px; bottom: 18px;
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
-  width: min(380px, calc(100vw - 36px)); margin: 0; padding: 0;
+  width: min(380px, calc(100vw - 36px)); height: auto; max-height: none;
+  overflow: visible; margin: 0; padding: 0;
   border: 0; background: transparent;
 }
 body.lesson-page .lesson-navigation > :is(a, button) {
   display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 46px;
-  padding: 9px 12px; border: 1px solid #b5dcd7; border-radius: 999px;
+  margin: 0; padding: 9px 12px; border: 1px solid #b5dcd7; border-radius: 999px;
   background: #fff; color: #075c62 !important; text-align: center;
   font: 700 14px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;
   text-decoration: none; box-shadow: 0 8px 28px rgba(21,83,89,.16);
