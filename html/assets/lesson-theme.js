@@ -24,7 +24,7 @@
     'Bai_13_Shell_Scripting_Seminar.html',
     'Bai_13_Shell_Scripting_Tiep_Theo.html',
     'Bai_14_Boot_Shutdown_Linux_Day_Du.html',
-    'Bai_15_Systemd_Log_va_Cuu_ho_dich_vu.html',
+    'Bai_15_systemd_log_cuu_ho_dich_vu.html',
     'Bai_16_System_Call_Vong_Doi_Chuong_Trinh.html',
     'Bai_17_Quan_ly_bo_nho_Page_Fault.html',
     'Bai_18_Thuat_toan_lap_lich_CPU.html',
