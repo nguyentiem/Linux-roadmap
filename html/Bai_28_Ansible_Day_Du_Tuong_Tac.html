@@ -1,0 +1,568 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Bài 28 Ansible đầy đủ, minh họa, lab, code và tương tác JavaScript độc lập"><title>Bài 28 — Tự động hóa cấu hình với Ansible</title><style>
+:root{color-scheme:dark;--bg:#0b1220;--surface:#131e30;--surface2:#1c2a40;--text:#e6edf8;--muted:#9fb0c7;--line:#31425b;--accent:#7db5ff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;margin:0;line-height:1.77;font-size:16px}body.light{color-scheme:light;--bg:#f7f9fc;--surface:#fff;--surface2:#eef3fa;--text:#18253a;--muted:#596a80;--line:#d8e1ee;--accent:#1459b5}header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}.toolbar{max-width:1120px;margin:auto;display:flex;align-items:center;gap:12px;padding:10px 22px}.toolbar b{flex:1}.toolbar button,button{cursor:pointer;border:1px solid var(--line);border-radius:9px;background:var(--surface2);color:var(--text);padding:8px 13px;font:inherit;font-size:13px}.toolbar button:hover,button:hover{border-color:var(--accent)}button:disabled{opacity:.4;cursor:not-allowed}.layout{max-width:1190px;margin:auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:34px;padding:24px}nav{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;border-right:1px solid var(--line);padding-right:16px;font-size:13px}nav a{display:block;color:var(--muted);text-decoration:none;padding:6px 8px;border-radius:7px}nav a:hover{color:var(--accent);background:var(--surface2)}article{min-width:0;max-width:850px;padding-bottom:100px}h1{font-size:clamp(28px,4vw,42px);line-height:1.22;margin:20px 0 14px;letter-spacing:-.03em}h2{font-size:clamp(22px,3vw,29px);margin:64px 0 20px;border-top:1px solid var(--line);padding-top:28px;line-height:1.35}h3{font-size:21px;margin:36px 0 12px;line-height:1.35}h4{font-size:16px;line-height:1.5}p{margin:13px 0}li{margin:5px 0}ul{padding-left:26px}.muted,small{color:var(--muted)}.panel{border:1px solid var(--line);border-radius:15px;padding:19px;margin:20px 0;background:var(--surface)}.cards,.twocol{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.cards>div{background:var(--surface2);padding:18px;text-align:center;border-radius:11px;display:flex;align-items:center;flex-direction:column;gap:3px}.cards strong{font-size:27px}.twocol{grid-template-columns:repeat(2,minmax(0,1fr))}.twocol .panel{margin:0;min-width:0}.tag,.pill{font-size:12px;border-radius:30px;padding:3px 9px;background:var(--surface2);white-space:nowrap}.tag{float:right}.good{color:#4ade80;background:#14532d33}.warn{color:#fbbf24;background:#78350f33}.code{margin:16px 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#0a1322;color:#dbeafe}.codehead{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:#172338;color:#a5b4ca;font-size:12px}.codehead button{padding:4px 9px;color:#dbeafe;background:#263750}pre{white-space:pre;overflow-x:auto;padding:16px;margin:0;font-size:13px;line-height:1.65;tab-size:2}p code,li code{background:var(--surface2);padding:2px 5px;border-radius:4px;font-size:.89em}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:11px 13px;border:1px solid var(--line);vertical-align:top}th{background:var(--surface2)}.tablewrap{overflow-x:auto;margin:20px 0}.diagram{display:block;max-width:480px;width:100%;margin:10px auto;color:var(--text)}svg text{fill:currentColor}.math{text-align:center;font-size:24px;font-family:Georgia,serif;margin:24px}aside{border-left:3px solid var(--accent);background:var(--surface);padding:14px 20px;margin:20px 0;border-radius:0 8px 8px 0}.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:15px 0}.controls button.selected{background:#1d4ed8;color:white;border-color:#60a5fa}.flowline,.statebox,.pipeitem{border:1px solid var(--line);border-radius:9px;background:var(--surface2);padding:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}.down{text-align:center;color:var(--muted);padding:8px}.filebox{background:#0a1322;color:#dbeafe;border-radius:9px;padding:12px}.filebox pre{padding:8px 0;min-height:60px}.statebox{flex-direction:column;align-items:flex-start;overflow-wrap:anywhere}.restored{margin-top:10px;align-items:center;background:#14532d22}.pipeline{max-width:570px;margin:12px auto}.pipeitem{display:flex;flex-direction:column;align-items:stretch;gap:0}.quiztop{display:flex;justify-content:space-between}.question{border-bottom:1px solid var(--line);padding:12px 0 20px}.choice{display:block;margin:9px 0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.choice:has(input:checked){border-color:var(--accent);background:var(--surface2)}.choice input{accent-color:#3b82f6}.feedback{margin-top:10px;padding:12px;border-radius:8px;background:var(--surface2)}.quizbuttons{display:flex;gap:10px;margin-top:18px}.quizbuttons button:first-child{background:#2563eb;color:white}.score{font-size:24px;text-align:center;font-weight:700;margin:20px}.toclabel{font-weight:700;margin:10px 8px}.printonly{display:none}@media(max-width:850px){.layout{display:block;padding:14px 18px}nav{position:relative;top:auto;max-height:200px;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:20px}.twocol{grid-template-columns:1fr}article{max-width:none}.toolbar{padding:10px 14px}.toolbar b{font-size:13px}}@media print{header,nav,.codehead button,.controls,.quizbuttons{display:none!important}.layout{display:block}body{background:white;color:black}.panel,.code{break-inside:avoid}.code{color:#111;background:#f4f4f4}.codehead{background:#ddd;color:#111}.printonly{display:block}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="28"><header><div class="toolbar"><b>📘 Bài 28 · Ansible</b><button id="themeButton" onclick="themeToggle()">☀️ Giao diện sáng</button><button onclick="window.print()">🖨️ In / PDF</button></div></header><div class="layout"><nav><div class="toclabel">MỤC LỤC</div><a href="#section-0">Phần I. Đặt vấn đề: Tại sao Ansible ra đời?</a><a href="#section-1">Phần II. Ansible thực chất là gì?</a><a href="#section-2">Phần III. Kiến trúc Ansible hoạt động như thế nào?</a><a href="#section-3">Phần IV. Sáu thành phần quan trọng nhất của Ansible</a><a href="#section-4">Phần V. Idempotency — Khái niệm quan trọng nhất</a><a href="#section-5">Phần VI. Lab thực hành Bài 28 — Từ đầu đến cuối</a><a href="#section-6">Phần VII. Configuration Drift — Khi cấu hình bị thay đổi ngoài Ansible</a><a href="#section-7">Phần VIII. Kết hợp Ansible với systemd — Kiến thức Bài 15</a><a href="#section-8">Phần IX. Ansible và Hardening — Kết nối Bài 27</a><a href="#section-9">Phần X. Git, Infrastructure as Code và quy trình triển khai</a><a href="#section-10">Phần XI. Rollback — Có Git là đủ chưa?</a><a href="#section-11">Phần XII. Những lỗi thường gặp khi sử dụng Ansible</a><a href="#section-12">Phần XIII. Phân biệt Ansible, Terraform, Docker và Kubernetes</a><a href="#section-13">Phần XIV. Ansible trong Embedded Linux và IoT</a><a href="#section-14">Phần XV. Bài kiểm tra tư duy Senior</a><a href="#section-15">Phần XVI. Bài tập nâng cao để thực sự nắm vững</a></nav><article><h1>Bài 28 — Tự động hóa cấu hình Linux với Ansible</h1>
+<p><span class="muted">Linux System Administration · DevOps · Infrastructure as Code · Configuration Management</span></p>
+<p>Trong bài này, chúng ta sẽ không chỉ học cách viết một file YAML rồi chạy <code>ansible-playbook</code>. Mục tiêu quan trọng hơn là hiểu <strong>tư duy quản trị hạ tầng của một Senior Linux Engineer hoặc DevOps Engineer</strong>: làm thế nào để quản lý hàng chục, hàng trăm máy chủ một cách nhất quán, có thể kiểm chứng, phát hiện cấu hình bị thay đổi và khôi phục trạng thái mong muốn.</p>
+<p>Để hiểu sâu, ta sẽ kết nối Ansible với những kiến thức đã học ở các bài trước:</p>
+<ul><li><b>Bài 13 — Shell scripting:</b> Tại sao có Bash rồi vẫn cần Ansible?</li><li><b>Bài 15 — systemd:</b> Ansible quản lý service, unit file và restart như thế nào?</li><li><b>Bài 25 — Firewall:</b> Làm sao cập nhật firewall mà không tự khóa SSH?</li><li><b>Bài 26–27 — Security và Hardening:</b> Làm sao bảo đảm cấu hình bảo mật nhất quán trên nhiều máy?</li><li><b>Bài 29 — Observability:</b> Làm sao biết một thay đổi Ansible thực sự thành công?</li></ul>
+<h2 id="section-0">Phần I. Đặt vấn đề: Tại sao Ansible ra đời?</h2>
+<h3>1. Một tình huống thực tế</h3>
+<p>Giả sử bạn đang quản lý hệ thống gồm 100 máy chủ Linux.</p>
+<div class="panel"><b>Hệ thống của một công ty</b><div class="cards"><div>🛡️<strong>10</strong><small>Proxy servers</small></div><div>🖥️<strong>60</strong><small>App servers</small></div><div>🗄️<strong>30</strong><small>DB servers</small></div></div></div>
+<p>Công ty yêu cầu:</p>
+<ul><li>Cài đặt một gói phần mềm mới trên toàn bộ máy chủ ứng dụng.</li><li>Cập nhật cấu hình SSH để giảm rủi ro tấn công.</li><li>Bảo đảm một service luôn chạy và tự khởi động sau reboot.</li><li>Cập nhật cấu hình Nginx cho nhóm proxy.</li><li>Có khả năng khôi phục cấu hình trước đó nếu phát sinh lỗi.</li></ul>
+<p>Nếu chỉ quản lý một máy, bạn có thể SSH vào rồi chạy:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo apt update
+sudo apt install nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx</code></pre></div>
+<p>Nhưng nếu có 100 máy thì sao? Bạn sẽ SSH vào từng máy rồi chạy lại những lệnh đó? Giả sử mỗi máy mất 5 phút, 100 máy cần khoảng 500 phút, chưa tính kiểm tra và sửa lỗi.</p>
+<p>Đáng lo hơn, quá trình thao tác thủ công có thể khiến cấu hình không đồng nhất. Ví dụ:</p>
+<ul><li>Máy A sử dụng Nginx với cấu hình mới.</li><li>Máy B vẫn sử dụng cấu hình cũ.</li><li>Máy C quên enable service.</li><li>Máy D có firewall khác các máy còn lại.</li></ul>
+<p>Hiện tượng này được gọi là <strong>configuration drift</strong> — cấu hình thực tế dần lệch khỏi cấu hình chuẩn.</p>
+<h3>2. Vậy viết Bash script để chạy trên 100 máy có được không?</h3>
+<p>Được. Bạn hoàn toàn có thể viết:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>for host in server1 server2 server3; do
+    ssh &quot;$host&quot; &quot;sudo apt install -y nginx&quot;
+done</code></pre></div>
+<p>Nhưng thử suy nghĩ:</p>
+<ul><li><b>Câu hỏi 1:</b> Nếu Nginx đã được cài đặt rồi, bạn có cần chạy lại thao tác cài đặt không?</li><li><b>Câu hỏi 2:</b> Nếu SSH đến server2 thất bại, bạn sẽ xử lý và ghi nhận lỗi thế nào?</li><li><b>Câu hỏi 3:</b> Nếu 100 máy dùng hai bản phân phối Linux khác nhau, tất cả đều dùng <code>apt</code> được không?</li><li><b>Câu hỏi 4:</b> Nếu chỉ thay đổi một dòng cấu hình Nginx, bạn có nên restart toàn bộ service không?</li><li><b>Câu hỏi 5:</b> Làm thế nào để chứng minh rằng sau khi script chạy, toàn bộ hệ thống đã đạt trạng thái mong muốn?</li></ul>
+<p>Bash có thể giải quyết những vấn đề này, nhưng bạn phải tự xây dựng rất nhiều logic. Đó chính là lý do các công cụ Configuration Management như Ansible, Puppet, Chef và Salt ra đời.</p>
+<h2 id="section-1">Phần II. Ansible thực chất là gì?</h2>
+<h3>3. Định nghĩa đơn giản</h3>
+<p><strong>Ansible là công cụ tự động hóa giúp mô tả trạng thái mong muốn của máy chủ và thực hiện những thay đổi cần thiết để đưa máy chủ về trạng thái đó.</strong> Có hai cách tư duy rất khác nhau.</p>
+<div class="twocol"><div class="panel"><b>Imperative — Ra lệnh từng bước</b><span class="tag">Shell script</span>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>mkdir -p /srv/myapp
+chmod 755 /srv/myapp
+systemctl start myapp</code></pre></div>
+<p>Bạn mô tả máy phải thực hiện những hành động gì.</p>
+</div><div class="panel"><b>Declarative — Khai báo kết quả</b><span class="tag">Ansible</span>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Ensure directory exists
+  ansible.builtin.file:
+    path: /srv/myapp
+    state: directory
+    mode: &quot;0755&quot;</code></pre></div>
+<p>Bạn mô tả thư mục phải tồn tại với quyền truy cập cụ thể.</p>
+</div></div>
+<p>Điểm khác biệt cốt lõi là: Imperative tập trung vào <strong>hành động</strong>. Declarative tập trung vào <strong>trạng thái cuối cùng</strong>. Tuy nhiên, cần hiểu chính xác: Ansible không hoàn toàn declarative. Playbook vẫn thực thi các task theo thứ tự và có thể chứa lệnh mang tính imperative như <code>shell</code> hoặc <code>command</code>.</p>
+<h3>4. Ví dụ đời sống: Người quản lý khách sạn</h3>
+<p>Hãy tưởng tượng bạn là người quản lý một khách sạn có 100 phòng. Bạn muốn mỗi phòng có một chiếc giường, hai chiếc gối, một chiếc bàn và điều hòa đặt 25°C.</p>
+<p>Cách làm imperative: “Vào phòng, đặt giường, thêm gối, kê bàn, chỉnh điều hòa.” Nếu phòng đã có hai chiếc gối mà bạn vẫn thêm hai chiếc nữa, phòng sẽ có bốn chiếc.</p>
+<p>Cách làm theo desired state: “Kiểm tra từng phòng. Phòng nào thiếu gối thì bổ sung. Phòng nào đã đủ thì giữ nguyên. Điều hòa nào sai nhiệt độ thì chỉnh lại.” Đó là tư duy Ansible.</p>
+<div class="panel"><b>Mô hình Desired State</b><svg class="diagram" viewBox="0 0 340 230" role="img" aria-label="Desired state đi vào Ansible; đúng trạng thái thì không thay đổi, sai lệch thì sửa"><rect x="82" y="8" width="176" height="43" rx="9" fill="#2563eb" fill-opacity=".2" stroke="#60a5fa"/><text x="170" y="26" font-size="12" font-weight="600" text-anchor="middle">Desired State</text><text x="170" y="40" font-size="10" text-anchor="middle">Trạng thái mong muốn</text><path d="M170 51V82" stroke="#94a3b8" stroke-width="2"/><path d="M165 76L170 83L175 76" fill="none" stroke="#94a3b8" stroke-width="2"/><rect x="82" y="84" width="176" height="43" rx="9" fill="#64748b" fill-opacity=".2" stroke="#94a3b8"/><text x="170" y="102" font-size="12" font-weight="600" text-anchor="middle">Ansible</text><text x="170" y="116" font-size="10" text-anchor="middle">Kiểm tra và áp dụng</text><path d="M170 127V150M85 150H255M85 150V170M255 150V170" fill="none" stroke="#94a3b8" stroke-width="2"/><rect x="12" y="171" width="146" height="45" rx="9" fill="#16a34a" fill-opacity=".15" stroke="#22c55e"/><text x="85" y="190" font-size="12" text-anchor="middle">Đã đúng</text><text x="85" y="205" font-size="10" text-anchor="middle">Không thay đổi</text><rect x="182" y="171" width="146" height="45" rx="9" fill="#d97706" fill-opacity=".15" stroke="#f59e0b"/><text x="255" y="190" font-size="12" text-anchor="middle">Có sai lệch</text><text x="255" y="205" font-size="10" text-anchor="middle">Sửa về trạng thái chuẩn</text></svg></div>
+<p>Một điểm rất quan trọng ở cấp độ Senior: <strong>Desired state không có nghĩa là Ansible tự động theo dõi máy chủ 24/7.</strong> Thông thường Ansible chỉ kiểm tra và sửa cấu hình khi playbook được thực thi. Nếu muốn kiểm tra định kỳ, bạn cần một hệ thống lập lịch hoặc điều phối riêng.</p>
+<h2 id="section-2">Phần III. Kiến trúc Ansible hoạt động như thế nào?</h2>
+<h3>5. Control Node và Managed Node</h3>
+<p><b>Control Node:</b> Máy cài Ansible, chứa inventory, playbook và điều khiển việc thực thi. <b>Managed Node:</b> Máy được Ansible quản lý. Với Linux, Ansible thường kết nối qua SSH, thực thi module trên máy đích rồi thu thập kết quả.</p>
+<div class="panel"><svg class="diagram" viewBox="0 0 350 230" role="img" aria-label="Control Node Ansible kết nối SSH tới ba server Linux"><rect x="87" y="6" width="176" height="65" rx="10" fill="#2563eb" fill-opacity=".2" stroke="#60a5fa"/><text x="175" y="25" font-size="13" font-weight="600" text-anchor="middle">Control Node</text><text x="175" y="42" font-size="11" text-anchor="middle">Ansible + Playbook</text><text x="175" y="57" font-size="10" text-anchor="middle">Inventory + Variables</text><path d="M175 71V106M57 106H293M57 106V136M175 106V136M293 106V136" stroke="#94a3b8" stroke-width="2" fill="none"/><rect x="9" y="137" width="96" height="55" rx="8" fill="#64748b" fill-opacity=".15" stroke="#94a3b8"/><text x="57" y="155" text-anchor="middle" font-size="11" font-weight="600">Server 1</text><text x="57" y="170" text-anchor="middle" font-size="10">Linux</text><text x="57" y="183" text-anchor="middle" font-size="9">SSH / Python</text><rect x="127" y="137" width="96" height="55" rx="8" fill="#64748b" fill-opacity=".15" stroke="#94a3b8"/><text x="175" y="155" text-anchor="middle" font-size="11" font-weight="600">Server 2</text><text x="175" y="170" text-anchor="middle" font-size="10">Linux</text><text x="175" y="183" text-anchor="middle" font-size="9">SSH / Python</text><rect x="245" y="137" width="96" height="55" rx="8" fill="#64748b" fill-opacity=".15" stroke="#94a3b8"/><text x="293" y="155" text-anchor="middle" font-size="11" font-weight="600">Server 3</text><text x="293" y="170" text-anchor="middle" font-size="10">Linux</text><text x="293" y="183" text-anchor="middle" font-size="9">SSH / Python</text><text x="175" y="220" text-anchor="middle" font-size="11">Kết nối, áp dụng cấu hình, nhận kết quả</text><text x="185" y="99" font-size="10">SSH</text></svg></div>
+<p>Khác với một số hệ thống quản lý cấu hình khác, Ansible thường không yêu cầu cài một agent Ansible chạy thường trực trên các máy Linux đích. Nhưng điều đó không có nghĩa máy đích không cần phần mềm nào. Nhiều module Ansible cần Python tương thích trên managed node; một số module hoặc phương thức kết nối có yêu cầu khác.</p>
+<h3>6. Luồng thực thi thực tế</h3>
+<p>Giả sử bạn chạy:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-playbook -i inventory.ini site.yml</code></pre></div>
+<p>Ở mức khái niệm, quá trình gồm:</p>
+<ul><li>Ansible đọc inventory để xác định máy đích.</li><li>Đọc playbook và các biến liên quan.</li><li>Kết nối đến managed node.</li><li>Thu thập facts nếu được cấu hình.</li><li>Thực thi từng task bằng module.</li><li>Module kiểm tra trạng thái hiện tại và áp dụng thay đổi nếu cần.</li><li>Trả về kết quả <code>ok</code>, <code>changed</code>, <code>failed</code> hoặc <code>skipped</code>.</li><li>Chạy các handler được thông báo tại thời điểm phù hợp.</li></ul>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>TASK [Ensure directory exists]
+ok: [server1]
+
+TASK [Write configuration]
+changed: [server1]
+
+PLAY RECAP
+server1 : ok=2 changed=1 unreachable=0 failed=0</code></pre></div>
+<p>Hãy chú ý: <code>ok=2</code> không có nghĩa hai task đều thay đổi hệ thống. Trong recap, <code>ok</code> là số task hoàn thành thành công, bao gồm cả task có thay đổi.</p>
+<h2 id="section-3">Phần IV. Sáu thành phần quan trọng nhất của Ansible</h2>
+<h3>7. Inventory — Danh sách máy cần quản lý</h3>
+<p>Inventory trả lời câu hỏi: “Tôi muốn cấu hình những máy nào?”</p>
+<div class="code"><div class="codehead"><span>ini</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>[webservers]
+web01 ansible_host=192.168.1.10
+web02 ansible_host=192.168.1.11
+
+[databases]
+db01 ansible_host=192.168.1.20
+
+[webservers:vars]
+ansible_user=deploy</code></pre></div>
+<ul><li><code>webservers</code> là một nhóm máy.</li><li><code>web01</code> là tên định danh trong inventory.</li><li><code>ansible_host</code> là địa chỉ thực để kết nối.</li><li><code>ansible_user</code> là user dùng khi kết nối.</li></ul>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-inventory -i inventory.ini --list
+ansible -i inventory.ini webservers \
+  -m ansible.builtin.ping</code></pre></div>
+<p><b>Câu hỏi phản biện:</b> <code>ansible.builtin.ping</code> có giống lệnh <code>ping</code> trong Linux không? Không. Lệnh <code>ping</code> truyền thống sử dụng ICMP Echo Request. Trong khi đó, <code>ansible.builtin.ping</code> kiểm tra khả năng kết nối và thực thi module Ansible, thường thông qua SSH và Python đối với máy Linux. Vì vậy, một máy có thể chặn ICMP nhưng vẫn trả về <code>pong</code> từ Ansible.</p>
+<h3>8. Playbook — Bản mô tả công việc</h3>
+<p>Playbook là file YAML chứa một hoặc nhiều play. Một play xác định nhóm host và các công việc cần thực hiện.</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>---
+- name: Configure web servers
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present</code></pre></div>
+<div class="tablewrap"><table><tr>th>Thành phần</th>th>Ý nghĩa</th></tr><tr>td>name</td>td>Tên mô tả dễ đọc</td></tr><tr>td>hosts</td>td>Nhóm máy áp dụng</td></tr><tr>td>become</td>td>Yêu cầu nâng quyền</td></tr><tr>td>tasks</td>td>Danh sách công việc</td></tr><tr>td>ansible.builtin.apt</td>td>Module quản lý gói APT</td></tr><tr>td>state: present</td>td>Bảo đảm gói được cài đặt</td></tr></table></div>
+<p>Điểm đáng chú ý: <code>become: true</code> không mặc định đồng nghĩa với việc đăng nhập SSH bằng root. Thông thường Ansible đăng nhập bằng user được cấu hình, sau đó dùng cơ chế nâng quyền như <code>sudo</code>.</p>
+<h3>9. Module — Đơn vị thực hiện hành động</h3>
+<p>Module là thành phần trực tiếp xử lý một loại công việc.</p>
+<div class="tablewrap"><table><tr>th>Module</th>th>Công dụng</th></tr><tr>td>ansible.builtin.file</td>td>Quản lý file, directory, symlink và metadata</td></tr><tr>td>ansible.builtin.copy</td>td>Sao chép hoặc tạo file</td></tr><tr>td>ansible.builtin.template</td>td>Sinh file từ template Jinja2</td></tr><tr>td>ansible.builtin.apt</td>td>Quản lý package trên hệ dùng APT</td></tr><tr>td>ansible.builtin.package</td>td>Giao diện quản lý package tổng quát</td></tr><tr>td>ansible.builtin.systemd_service</td>td>Quản lý systemd unit</td></tr><tr>td>ansible.builtin.user</td>td>Quản lý tài khoản</td></tr><tr>td>ansible.builtin.command</td>td>Chạy command không qua shell</td></tr><tr>td>ansible.builtin.shell</td>td>Chạy lệnh thông qua shell</td></tr></table></div>
+<p><b>Tại sao Senior Engineer thường ưu tiên module chuyên dụng hơn shell?</b> Bởi vì module thường đã chứa logic kiểm tra trạng thái, so sánh thay đổi, xử lý lỗi và hỗ trợ check mode.</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Ensure Nginx installed
+  ansible.builtin.apt:
+    name: nginx
+    state: present</code></pre></div>
+<p>Nếu Nginx đã được cài đúng, task thường không cần tạo thay đổi. Trong khi đó:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Install Nginx using shell
+  ansible.builtin.shell: apt install -y nginx</code></pre></div>
+<p>Ansible không tự suy ra được ý nghĩa đầy đủ của lệnh shell để quyết định package đã ở trạng thái mong muốn hay chưa. Task shell thường báo <code>changed</code> khi thực thi thành công, trừ khi bạn cung cấp logic thích hợp.</p>
+<h3>10. Variables — Tham số hóa cấu hình</h3>
+<p>Giả sử bạn muốn triển khai cùng một playbook lên hai môi trường: Development dùng port 8080; Production dùng port 80. Không nên sao chép toàn bộ playbook chỉ để thay đổi một giá trị.</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>vars:
+  app_port: 8080</code></pre></div>
+<p>Và tham chiếu:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>content: &quot;PORT={{ app_port }}\n&quot;</code></pre></div>
+<p>Đây là cú pháp biểu thức Jinja2. Biến giúp tách logic cấu hình khỏi dữ liệu cấu hình. Tuy nhiên, không nên tùy tiện lưu mật khẩu, private key hoặc token trực tiếp trong YAML. Có thể sử dụng Ansible Vault hoặc hệ thống quản lý secrets phù hợp.</p>
+<h3>11. Template — Sinh cấu hình động</h3>
+<p>Giả sử một file cấu hình có nội dung:</p>
+<div class="code"><div class="codehead"><span>ini</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>[server]
+port = 8080
+workers = 4</code></pre></div>
+<p>Bạn muốn số worker và port thay đổi theo từng môi trường. Tạo <code>app.conf.j2</code>:</p>
+<div class="code"><div class="codehead"><span>jinja2</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>[server]
+port = {{ app_port }}
+workers = {{ app_workers }}</code></pre></div>
+<p>Playbook:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Generate application config
+  ansible.builtin.template:
+    src: app.conf.j2
+    dest: /etc/myapp/app.conf
+    owner: root
+    group: root
+    mode: &quot;0644&quot;</code></pre></div>
+<p>Ansible sẽ render template trên control node, sau đó đưa nội dung kết quả đến managed node. Đây là cách hữu ích để quản lý những file cấu hình như Nginx configuration, systemd unit file, application configuration và SSH daemon configuration.</p>
+<h3>12. Handler — Chỉ hành động khi có thay đổi</h3>
+<p>Giả sử bạn thay đổi cấu hình Nginx. Thông thường Nginx cần reload để nhận cấu hình mới. Nhưng nếu file cấu hình không thay đổi thì sao? Bạn có cần reload mỗi lần chạy playbook không? Không nhất thiết. Handler giải quyết vấn đề đó.</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>tasks:
+  - name: Update Nginx config
+    ansible.builtin.template:
+      src: nginx.conf.j2
+      dest: /etc/nginx/nginx.conf
+      mode: &quot;0644&quot;
+    notify: Reload Nginx
+
+handlers:
+  - name: Reload Nginx
+    ansible.builtin.systemd_service:
+      name: nginx
+      state: reloaded</code></pre></div>
+<div class="panel"><b>Thử mô phỏng handler</b><div class="controls"><button class="selected" id="changeYes" onclick="handlerDemo(true)">File thay đổi</button><button id="changeNo" onclick="handlerDemo(false)">File không đổi</button></div><div class="flowline">📄 Task: Update config <span id="taskStatus" class="pill warn">changed</span></div><div class="down">↓</div><div class="flowline">🔔 Notify handler <span id="notifyStatus">Có</span></div><div class="down">↓</div><div class="flowline">🔄 Reload Nginx <span id="reloadStatus" class="pill good">Sẽ chạy</span></div><small>Minh họa logic cơ bản. Handler thường được thực thi ở cuối phần task tương ứng, không phải ngay tại dòng notify.</small></div>
+<p>Một điểm chuyên sâu: Nếu nhiều task cùng thông báo một handler, Ansible thường chỉ thực thi handler đó một lần tại mỗi điểm flush. Ngoài ra, handler không phải cơ chế transaction. Nếu play thất bại trước khi handler được chạy, bạn phải xem xét chính sách xử lý failure và handler.</p>
+<h2 id="section-4">Phần V. Idempotency — Khái niệm quan trọng nhất</h2>
+<h3>13. Định nghĩa từ toán học</h3>
+<p>Một phép biến đổi f được gọi là idempotent nếu:</p>
+<div class="math">f(f(x)) = f(x)</div>
+<p><strong>Áp dụng một thao tác lần thứ hai không làm kết quả thay đổi thêm so với lần đầu.</strong> Ví dụ đời sống: Lệnh “đảo trạng thái đèn” không idempotent; lệnh “bảo đảm đèn đang bật” là idempotent.</p>
+<h3>14. Ví dụ sai: Shell append</h3>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>echo &quot;hello&quot; &gt;&gt; /tmp/status.txt</code></pre></div>
+<p>Chạy lần thứ nhất:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>hello</code></pre></div>
+<p>Chạy lần thứ hai:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>hello
+hello</code></pre></div>
+<p>Chạy lần thứ ba:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>hello
+hello
+hello</code></pre></div>
+<p>Mỗi lần thực thi, file lại thay đổi.</p>
+<div class="panel"><b>Thí nghiệm tương tác: Idempotency</b><div class="controls"><button id="modeAppend" class="selected" onclick="setMode('append')">Append &gt;&gt;</button><button id="modeDesired" onclick="setMode('desired')">Desired state</button></div><div class="controls"><span id="runCount">Số lần chạy: 0</span><button onclick="runDemo()">▶ Chạy lại</button><button onclick="resetDemo()">Reset</button></div><div class="filebox"><small>status.txt</small><pre id="fileOutput">(file chưa có nội dung)</pre></div><p id="fileExplanation">Hãy thử chạy nhiều lần.</p></div>
+<p>Trong Ansible, bạn có thể thay bằng:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Ensure status file content
+  ansible.builtin.copy:
+    dest: /tmp/status.txt
+    content: &quot;hello\n&quot;
+    mode: &quot;0644&quot;</code></pre></div>
+<p>Module sẽ quản lý nội dung file theo giá trị mong muốn, thay vì nối thêm dữ liệu mỗi lần.</p>
+<h3>15. Tại sao idempotency quan trọng trong production?</h3>
+<p>Hãy xét tình huống playbook đang cấu hình 100 máy. Đến máy thứ 51, kết nối mạng bị gián đoạn. Bạn cần chạy lại playbook.</p>
+<p>Nếu các task không idempotent, 50 máy đã xử lý có thể bị thay đổi thêm lần nữa, dẫn đến lỗi hoặc dữ liệu trùng lặp. Nếu các task được thiết kế idempotent, chạy lại thường an toàn hơn:</p>
+<ul><li>Máy đã đúng trạng thái sẽ được giữ nguyên.</li><li>Máy còn thiếu cấu hình sẽ tiếp tục được xử lý.</li><li>Máy có cấu hình sai sẽ được điều chỉnh.</li></ul>
+<p>Tuy nhiên, <strong>idempotency không đồng nghĩa với atomicity, transaction hay rollback</strong>. Một playbook có thể idempotent nhưng vẫn để hệ thống ở trạng thái triển khai dở dang nếu bị ngắt giữa chừng.</p>
+<h2 id="section-5">Phần VI. Lab thực hành Bài 28 — Từ đầu đến cuối</h2>
+<p>Chúng ta sẽ thực hành ngay trên <code>localhost</code> trong VM Linux, chưa cần máy chủ từ xa.</p>
+<h3>16. Chuẩn bị môi trường</h3>
+<p>Kiểm tra Ansible:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible --version</code></pre></div>
+<p>Nếu chưa cài trên Ubuntu/Debian:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo apt update
+sudo apt install -y ansible</code></pre></div>
+<p>Phiên bản và bộ collection được cung cấp phụ thuộc repository của hệ điều hành. Tạo thư mục:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>mkdir -p ~/linux-lab/ansible
+cd ~/linux-lab/ansible</code></pre></div>
+<p>Cấu trúc ban đầu:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>linux-lab/
+└── ansible/
+    ├── inventory.ini
+    └── site.yml</code></pre></div>
+<h3>17. Tạo inventory</h3>
+<p>File <code>inventory.ini</code>:</p>
+<div class="code"><div class="codehead"><span>ini</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>[lab]
+localhost ansible_connection=local</code></pre></div>
+<p>Ở đây, <code>ansible_connection=local</code> có nghĩa Ansible thực thi trên máy local, không cần SSH vào chính nó. Điều này rất phù hợp để học vì loại bỏ những vấn đề SSH, firewall và key management trong giai đoạn đầu.</p>
+<h3>18. Tạo playbook</h3>
+<p>File <code>site.yml</code>:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>---
+- name: Configure Linux course directory
+  hosts: lab
+  become: true
+
+  vars:
+    course_message: &quot;Managed by Ansible&quot;
+
+  tasks:
+    - name: Ensure course directory exists
+      ansible.builtin.file:
+        path: /srv/linux-ansible-lab
+        state: directory
+        owner: root
+        group: root
+        mode: &quot;0755&quot;
+
+    - name: Write course marker
+      ansible.builtin.copy:
+        dest: /srv/linux-ansible-lab/status.txt
+        content: &quot;{{ course_message }}\n&quot;
+        owner: root
+        group: root
+        mode: &quot;0644&quot;</code></pre></div>
+<p>Hãy phân tích từng phần. <b>Task thứ nhất</b> bảo đảm directory <code>/srv/linux-ansible-lab</code> tồn tại, thuộc sở hữu root và có permission <code>0755</code>. Nếu directory chưa tồn tại, module tạo nó. Nếu directory đã tồn tại nhưng permission sai, module sửa permission. Nếu mọi thứ đã đúng, module không cần thay đổi.</p>
+<p><b>Task thứ hai</b> bảo đảm file <code>status.txt</code> chứa chính xác nội dung:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Managed by Ansible</code></pre></div>
+<p>Ký tự <code>\n</code> biểu diễn newline ở cuối dòng. Đây là chi tiết nhỏ nhưng hữu ích: khi quản lý file cấu hình bằng desired state, ngay cả newline cũng có thể ảnh hưởng đến việc Ansible xác định nội dung có thay đổi hay không.</p>
+<h3>19. Kiểm tra cú pháp</h3>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-playbook \
+  -i inventory.ini \
+  site.yml \
+  --syntax-check</code></pre></div>
+<p>Kết quả kỳ vọng:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>playbook: site.yml</code></pre></div>
+<p><b>Syntax check thành công không chứng minh playbook chạy đúng.</b> Nó chỉ xác nhận một số điều kiện về cú pháp và cấu trúc. Nó không bảo đảm đường dẫn hợp lệ, package tồn tại, service chạy được hay ứng dụng hoạt động đúng.</p>
+<h3>20. Check mode — Dự báo thay đổi</h3>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-playbook \
+  -i inventory.ini \
+  site.yml \
+  --check \
+  --diff \
+  --ask-become-pass</code></pre></div>
+<ul><li><code>--check</code>: yêu cầu mô phỏng những thay đổi được module hỗ trợ.</li><li><code>--diff</code>: hiển thị khác biệt nếu module hỗ trợ.</li><li><code>--ask-become-pass</code>: yêu cầu mật khẩu nâng quyền khi cần.</li></ul>
+<p>Tại sao nói check mode là dự báo chứ không phải chạy thử hoàn hảo? Giả sử task đầu tạo một directory mới, task sau cần đọc file bên trong directory đó. Trong check mode, directory có thể chưa thực sự được tạo. Task phía sau vì thế có thể thất bại hoặc đưa ra kết quả không giống lần chạy thật. Ngoài ra, không phải module nào cũng hỗ trợ check mode đầy đủ. Vì vậy, Senior Engineer thường kết hợp check mode với môi trường staging và các phép thử thật.</p>
+<h3>21. Chạy lần đầu</h3>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-playbook \
+  -i inventory.ini \
+  site.yml \
+  --ask-become-pass</code></pre></div>
+<p>Trên môi trường sạch, bạn có thể thấy:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>TASK [Ensure course directory exists]
+changed: [localhost]
+
+TASK [Write course marker]
+changed: [localhost]
+
+PLAY RECAP
+localhost : ok=2 changed=2 unreachable=0 failed=0</code></pre></div>
+<p>Đây là kết quả minh họa, không phải output được thực thi trực tiếp trong máy của bạn. Kiểm tra:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ls -ld /srv/linux-ansible-lab
+ls -l /srv/linux-ansible-lab/status.txt
+cat /srv/linux-ansible-lab/status.txt</code></pre></div>
+<h3>22. Chạy lần thứ hai</h3>
+<p>Chạy lại chính xác lệnh trước:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-playbook \
+  -i inventory.ini \
+  site.yml \
+  --ask-become-pass</code></pre></div>
+<p>Nếu không có thay đổi bên ngoài, kết quả mong đợi:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>TASK [Ensure course directory exists]
+ok: [localhost]
+
+TASK [Write course marker]
+ok: [localhost]
+
+PLAY RECAP
+localhost : ok=2 changed=0 unreachable=0 failed=0</code></pre></div>
+<p>Đây là bằng chứng thực nghiệm cơ bản về idempotency của hai task trong môi trường đang kiểm thử. Tuy nhiên, một lần <code>changed=0</code> không chứng minh playbook luôn idempotent trong mọi điều kiện. Ví dụ, task phụ thuộc vào timestamp, dữ liệu ngẫu nhiên hoặc nguồn dữ liệu thay đổi vẫn có thể tạo kết quả khác trong lần chạy sau.</p>
+<h2 id="section-6">Phần VII. Configuration Drift — Khi cấu hình bị thay đổi ngoài Ansible</h2>
+<h3>23. Drift là gì?</h3>
+<p>Giả sử trạng thái mong muốn:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Managed by Ansible</code></pre></div>
+<p>Nhưng một người quản trị SSH vào máy và chỉnh file:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>echo &quot;Modified manually&quot; | \
+  sudo tee /srv/linux-ansible-lab/status.txt</code></pre></div>
+<p>Lúc này trạng thái thực tế đã khác desired state.</p>
+<div class="panel"><div class="twocol"><div class="statebox"><small>Desired state</small><b>Managed by Ansible</b><span class="pill good">Chuẩn</span></div><div class="statebox"><small>Actual state</small><b>Modified manually</b><span class="pill warn">Drift</span></div></div><div class="down">↓ Chạy lại playbook</div><div class="statebox restored">✓ <b>Managed by Ansible</b><small>File được đưa về nội dung chuẩn</small></div></div>
+<p>Chạy lại playbook:</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ansible-playbook \
+  -i inventory.ini \
+  site.yml \
+  --ask-become-pass</code></pre></div>
+<p>Ansible sẽ nhận ra nội dung file không đúng và ghi lại giá trị mong muốn. Đây gọi là <strong>drift remediation</strong> — khắc phục sai lệch cấu hình.</p>
+<h3>24. Câu hỏi phản biện</h3>
+<p>Nếu người quản trị thay đổi file để sửa một lỗi production khẩn cấp, rồi Ansible chạy lại và ghi đè thay đổi đó, chuyện gì xảy ra? Câu trả lời: lỗi có thể xuất hiện trở lại. Đây là lý do Configuration Management cần đi kèm quy trình thay đổi cấu hình.</p>
+<ul><li>Xác định lý do thay đổi khẩn cấp.</li><li>Đưa thay đổi cần giữ vào nguồn desired state.</li><li>Review và kiểm thử.</li><li>Triển khai lại.</li><li>Xác nhận hệ thống hoạt động đúng.</li></ul>
+<h2 id="section-7">Phần VIII. Kết hợp Ansible với systemd — Kiến thức Bài 15</h2>
+<h3>25. Bài toán thực tế</h3>
+<p>Giả sử bạn phát triển một ứng dụng Linux có tên <code>myapp</code>. Ứng dụng cần một tài khoản service riêng, một thư mục chứa chương trình, một systemd unit, tự khởi động khi boot, và restart khi binary hoặc unit thay đổi. Đây là tình huống rất phổ biến trong Embedded Linux, Industrial Gateway và Edge Computing.</p>
+<p>Ví dụ một gateway chạy ứng dụng đọc CAN bus rồi gửi dữ liệu lên server. Bạn muốn 50 gateway có cùng cấu hình service.</p>
+<h3>26. Tạo systemd unit bằng template</h3>
+<p>File <code>templates/myapp.service.j2</code>:</p>
+<div class="code"><div class="codehead"><span>ini</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>[Unit]
+Description=My Linux Application
+After=network.target
+
+[Service]
+Type=simple
+User=myapp
+Group=myapp
+ExecStart=/opt/myapp/myapp
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+<p><code>After=network.target</code> chỉ quy định quan hệ thứ tự với target đó, không bảo đảm mạng đã có kết nối hoặc IP sẵn sàng. Nếu ứng dụng thật sự cần mạng hoạt động, phải thiết kế dependency và cơ chế retry phù hợp.</p>
+<h3>27. Playbook triển khai service</h3>
+<p>Ví dụ dưới đây giả định bạn đã có binary <code>files/myapp</code> tương thích với kiến trúc và hệ điều hành của máy đích.</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>---
+- name: Deploy myapp service
+  hosts: lab
+  become: true
+
+  tasks:
+    - name: Create service account
+      ansible.builtin.user:
+        name: myapp
+        system: true
+        create_home: false
+        shell: /usr/sbin/nologin
+        state: present
+
+    - name: Create application directory
+      ansible.builtin.file:
+        path: /opt/myapp
+        state: directory
+        owner: root
+        group: root
+        mode: &quot;0755&quot;
+
+    - name: Deploy application binary
+      ansible.builtin.copy:
+        src: files/myapp
+        dest: /opt/myapp/myapp
+        owner: root
+        group: root
+        mode: &quot;0755&quot;
+      notify: Restart myapp
+
+    - name: Deploy systemd unit
+      ansible.builtin.template:
+        src: templates/myapp.service.j2
+        dest: /etc/systemd/system/myapp.service
+        owner: root
+        group: root
+        mode: &quot;0644&quot;
+      notify:
+        - Reload systemd
+        - Restart myapp
+
+    - name: Enable and start service
+      ansible.builtin.systemd_service:
+        name: myapp
+        enabled: true
+        state: started
+        daemon_reload: true
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Restart myapp
+      ansible.builtin.systemd_service:
+        name: myapp
+        state: restarted</code></pre></div>
+<h3>28. Phân tích ở cấp độ Senior</h3>
+<p><b>Thứ nhất: <code>started</code> khác <code>restarted</code>.</b></p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>state: started</code></pre></div>
+<p>Có nghĩa bảo đảm service đang chạy. Nếu nó đã chạy, Ansible thường không restart. Trong khi:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>state: restarted</code></pre></div>
+<p>Là yêu cầu restart, kể cả service đang chạy đúng. Vì vậy không nên đặt <code>restarted</code> trong task thông thường nếu không có lý do.</p>
+<p><b>Thứ hai: daemon-reload khác restart service.</b> Khi sửa systemd unit, systemd manager cần đọc lại định nghĩa unit.</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo systemctl daemon-reload</code></pre></div>
+<p>Nhưng lệnh này không tự restart ứng dụng đang chạy. Để áp dụng thay đổi ảnh hưởng đến tiến trình, bạn có thể cần restart service.</p>
+<p><b>Thứ ba: Thứ tự handler rất quan trọng.</b> Trong ví dụ, handler <code>Reload systemd</code> được khai báo trước <code>Restart myapp</code>, nên khi cả hai được thông báo, reload được thực hiện trước restart. Tuy nhiên, task <code>Enable and start service</code> cũng đã dùng <code>daemon_reload: true</code> để bảo đảm systemd đọc unit trước khi start. Vì vậy lần chạy đầu không phụ thuộc vào handler cuối play để khởi động service.</p>
+<p>Đây là một điểm thiết kế đáng chú ý: handler thường chạy muộn, nên nếu task phía trước cần ngay kết quả của thay đổi, phải xử lý dependency đó một cách tường minh.</p>
+<p><b>Thứ tư: Restart thành công không có nghĩa ứng dụng khỏe mạnh.</b> Một service có thể vừa start thành công nhưng sau đó crash, không xử lý request hoặc không kết nối được đến thiết bị CAN. Vì vậy, cần health check và observability.</p>
+<h2 id="section-8">Phần IX. Ansible và Hardening — Kết nối Bài 27</h2>
+<h3>29. Quản lý cấu hình bảo mật trên nhiều máy</h3>
+<p>Ở Bài 27, chúng ta đã học hardening: giảm bề mặt tấn công, quản lý bản vá, phân quyền và kiểm soát dịch vụ. Nhưng một câu hỏi thực tế xuất hiện: Nếu hardening chỉ được thực hiện thủ công, làm sao chứng minh 100 máy đang tuân thủ cùng một baseline? Đây là nơi Ansible phát huy tác dụng.</p>
+<ul><li>SSH không cho đăng nhập trực tiếp bằng root.</li><li>Các service không cần thiết được vô hiệu hóa.</li><li>File nhạy cảm có quyền phù hợp.</li><li>Firewall chỉ mở port được phê duyệt.</li><li>Package được quản lý theo chính sách phiên bản.</li></ul>
+<p>Bạn có thể biểu diễn từng yêu cầu thành task có thể kiểm tra.</p>
+<h3>30. Ví dụ quản lý SSH</h3>
+<p>Một ví dụ minh họa với file drop-in:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Disable SSH root login
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/90-hardening.conf
+    content: |
+      PermitRootLogin no
+    owner: root
+    group: root
+    mode: &quot;0644&quot;
+  notify: Validate and reload SSH</code></pre></div>
+<p>Nhưng đây chưa phải một quy trình triển khai an toàn hoàn chỉnh. Tại sao? Vì cấu hình SSH có thể bị ảnh hưởng bởi thứ tự đọc file, các directive đã khai báo trước đó, <code>Include</code>, <code>Match</code> và đặc điểm bản phân phối.</p>
+<div class="code"><div class="codehead"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo sshd -t
+sudo sshd -T</code></pre></div>
+<p>Với trường hợp có <code>Match</code>, cần kiểm tra theo ngữ cảnh kết nối thích hợp. Một handler có thể xác thực cú pháp trước khi reload:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>handlers:
+  - name: Validate and reload SSH
+    ansible.builtin.command:
+      cmd: /usr/sbin/sshd -t
+    changed_when: false
+    notify: Reload SSH
+
+  - name: Reload SSH
+    ansible.builtin.systemd_service:
+      name: ssh
+      state: reloaded</code></pre></div>
+<p>Đây chỉ là ví dụ về ý tưởng kiểm tra trước khi reload. Đường dẫn <code>sshd</code>, tên unit và hành vi của cấu hình drop-in cần xác minh theo hệ điều hành. Với cấu hình SSH quan trọng, tốt hơn nên validate nội dung trước khi ghi đè file đang sử dụng, chẳng hạn dùng khả năng <code>validate</code> của module phù hợp.</p>
+<aside><b>Nguyên tắc production:</b> Luôn duy trì một đường truy cập dự phòng khi thay đổi SSH hoặc firewall, đặc biệt với máy chủ ở xa. Một playbook hardening không được coi là thành công nếu cấu hình bảo mật chặt hơn nhưng đội vận hành mất khả năng quản trị.</aside>
+<h2 id="section-9">Phần X. Git, Infrastructure as Code và quy trình triển khai</h2>
+<h3>31. Tại sao cần Git?</h3>
+<p>Giả sử hôm qua hệ thống hoạt động bình thường. Hôm nay bạn triển khai cấu hình mới và ứng dụng bắt đầu lỗi. Bạn cần trả lời:</p>
+<ul><li>Ai thay đổi cấu hình?</li><li>Thay đổi lúc nào?</li><li>Dòng nào đã thay đổi?</li><li>Vì sao thay đổi?</li><li>Làm sao khôi phục phiên bản trước?</li></ul>
+<p>Nếu tất cả cấu hình chỉ tồn tại trực tiếp trên server, việc điều tra sẽ khó khăn. Git giúp quản lý lịch sử phiên bản của desired state.</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>infrastructure/
+├── inventories/
+│   ├── staging.ini
+│   └── production.ini
+├── group_vars/
+│   ├── webservers.yml
+│   └── databases.yml
+├── templates/
+│   └── nginx.conf.j2
+├── roles/
+│   └── nginx/
+└── site.yml</code></pre></div>
+<p>Quy trình triển khai điển hình:</p>
+<div class="panel"><b>Pipeline thay đổi cấu hình</b><div class="pipeline"><div class="pipeitem"><b>1. Developer thay đổi YAML</b><small>Git commit / Pull request</small></div><div class="down">↓</div><div class="pipeitem"><b>2. Review và kiểm tra</b><small>Syntax, lint, kiểm thử</small></div><div class="down">↓</div><div class="pipeitem"><b>3. Triển khai staging</b><small>Chạy thật và kiểm tra health</small></div><div class="down">↓</div><div class="pipeitem"><b>4. Triển khai canary</b><small>Một hoặc vài máy production</small></div><div class="down">↓</div><div class="pipeitem"><b>5. Triển khai theo batch</b><small>Theo dõi lỗi và sẵn sàng rollback</small></div></div></div>
+<h3>32. Triển khai theo batch với serial</h3>
+<p>Giả sử bạn có 100 web server. Nếu triển khai đồng thời cả 100 máy và cấu hình mới bị lỗi, toàn bộ dịch vụ có thể bị ảnh hưởng. Ansible cho phép chia batch:</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>---
+- name: Rolling configuration update
+  hosts: webservers
+  serial: 10
+  become: true
+
+  tasks:
+    - name: Ensure Nginx installed
+      ansible.builtin.package:
+        name: nginx
+        state: present</code></pre></div>
+<p><code>serial: 10</code> giới hạn play xử lý theo batch tối đa 10 host. Nhưng cần hiểu: <b>batching không tự động bảo đảm zero downtime.</b> Để rolling update an toàn, bạn còn cần:</p>
+<ul><li>Load balancer loại host khỏi traffic trước khi cập nhật.</li><li>Health check sau khi cập nhật.</li><li>Cơ chế dừng rollout nếu lỗi vượt ngưỡng.</li><li>Khả năng đưa host trở lại phục vụ.</li><li>Rollback khi cần.</li></ul>
+<p>Đây là ranh giới giữa biết cú pháp Ansible và biết vận hành production.</p>
+<h2 id="section-10">Phần XI. Rollback — Có Git là đủ chưa?</h2>
+<h3>33. Phân biệt rollback cấu hình và rollback ứng dụng</h3>
+<p>Giả sử bạn thay đổi Nginx configuration. Nếu phiên bản mới lỗi, bạn có thể revert commit trong Git rồi chạy lại playbook. Nhưng nếu playbook đồng thời nâng cấp database schema, thay đổi định dạng dữ liệu, nâng cấp binary ứng dụng hoặc xóa thư mục chứa dữ liệu thì revert Git không nhất thiết đưa hệ thống về trạng thái ban đầu.</p>
+<p>Vì sao? Git lưu phiên bản mã nguồn và cấu hình được commit, không tự lưu toàn bộ trạng thái runtime, database hay filesystem trên máy chủ.</p>
+<div class="tablewrap"><table><tr>th>Thành phần</th>th>Cách khôi phục phù hợp</th></tr><tr>td>File cấu hình</td>td>Revert phiên bản và deploy lại</td></tr><tr>td>Binary ứng dụng</td>td>Triển khai artifact phiên bản trước</td></tr><tr>td>Package</td>td>Pin hoặc cài lại phiên bản tương thích</td></tr><tr>td>Database</td>td>Migration ngược nếu an toàn, hoặc recovery theo kế hoạch</td></tr><tr>td>Dữ liệu</td>td>Backup và quy trình restore</td></tr><tr>td>Firewall/SSH</td>td>Đường truy cập dự phòng và cấu hình đã kiểm thử</td></tr></table></div>
+<p>Đặc biệt với database, không nên mặc định rằng mọi migration đều đảo ngược được.</p>
+<h2 id="section-11">Phần XII. Những lỗi thường gặp khi sử dụng Ansible</h2>
+<h3>34. Dùng latest không kiểm soát</h3>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Install latest package
+  ansible.builtin.apt:
+    name: nginx
+    state: latest</code></pre></div>
+<p>Điều này có thể khiến hai lần chạy playbook ở hai thời điểm khác nhau cài các phiên bản khác nhau. Không phải lúc nào <code>latest</code> cũng sai. Nhưng nếu cần reproducibility, bạn phải quản lý nguồn repository, phiên bản package và chính sách nâng cấp.</p>
+<h3>35. Lạm dụng shell</h3>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Add configuration
+  ansible.builtin.shell: |
+    echo &quot;PORT=8080&quot; &gt;&gt; /etc/myapp.conf</code></pre></div>
+<p>Task này không idempotent. Giải pháp phù hợp hơn là dùng <code>copy</code>, <code>template</code> hoặc module chỉnh sửa file chuyên dụng tùy yêu cầu.</p>
+<h3>36. Không khai báo permission</h3>
+<p>Một số file cấu hình có thể chứa dữ liệu nhạy cảm. Không nên để permission phụ thuộc hoàn toàn vào umask hoặc trạng thái file có sẵn.</p>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>mode: &quot;0600&quot;
+owner: root
+group: root</code></pre></div>
+<p>Permission phải phù hợp với chức năng của file. Không phải file nào cũng nên đặt <code>0600</code>; chẳng hạn cấu hình cần service user đọc phải được phân quyền tương ứng.</p>
+<h3>37. Để secret trong log</h3>
+<div class="code"><div class="codehead"><span>yaml</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>- name: Configure secret
+  ansible.builtin.template:
+    src: secret.conf.j2
+    dest: /etc/myapp/secret.conf
+    mode: &quot;0600&quot;
+  no_log: true</code></pre></div>
+<p><code>no_log: true</code> giúp giảm nguy cơ lộ dữ liệu trong output Ansible, nhưng không thay thế quản lý secret an toàn, kiểm soát quyền file và bảo vệ các hệ thống lưu log khác. Đặc biệt, không dùng <code>--diff</code> tùy tiện với dữ liệu nhạy cảm.</p>
+<h3>38. Không kiểm tra health sau deployment</h3>
+<p>Đây là một trong những sai lầm nguy hiểm nhất. Ansible báo:</p>
+<div class="code"><div class="codehead"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>failed=0</code></pre></div>
+<p>Điều đó có nghĩa những task được thực thi đã không báo thất bại theo logic hiện tại. Nó không chứng minh người dùng truy cập ứng dụng thành công.</p>
+<ul><li>Service đang chạy nhưng trả HTTP 500.</li><li>Nginx hoạt động nhưng backend chết.</li><li>CAN gateway đang chạy nhưng không nhận frame.</li><li>Database service chạy nhưng replication bị lỗi.</li></ul>
+<p>Do đó, sau triển khai cần kiểm tra trạng thái ứng dụng ở đúng tầng.</p>
+<h2 id="section-12">Phần XIII. Phân biệt Ansible, Terraform, Docker và Kubernetes</h2>
+<p>Những công cụ này thường được nhắc cùng nhau nhưng giải quyết những bài toán khác nhau.</p>
+<div class="tablewrap"><table><tr>th>Công cụ</th>th>Trách nhiệm chính</th></tr><tr>td>Ansible</td>td>Tự động hóa cấu hình, triển khai và vận hành</td></tr><tr>td>Terraform</td>td>Quản lý tài nguyên hạ tầng theo khai báo</td></tr><tr>td>Docker</td>td>Đóng gói và chạy ứng dụng trong container</td></tr><tr>td>Kubernetes</td>td>Điều phối container và duy trì trạng thái workload</td></tr></table></div>
+<p>Ví dụ xây dựng một hệ thống web: Terraform tạo VM, network và storage. Ansible cài package, cấu hình hệ điều hành, triển khai service. Docker đóng gói ứng dụng và các dependency. Kubernetes có thể điều phối các container nếu hệ thống sử dụng kiến trúc đó.</p>
+<p>Không phải hệ thống nào cũng cần cả bốn công cụ. Đối với một thiết bị Embedded Linux đơn lẻ, systemd kết hợp Ansible đôi khi đã đủ đáp ứng nhu cầu triển khai và quản lý.</p>
+<h2 id="section-13">Phần XIV. Ansible trong Embedded Linux và IoT</h2>
+<h3>39. Tình huống: Quản lý 50 gateway đọc CAN bus</h3>
+<p>Giả sử bạn có 50 thiết bị Embedded Linux. Mỗi thiết bị có Linux, một interface CAN, ứng dụng đọc CAN frame, systemd service và cấu hình kết nối lên server. Bạn muốn cập nhật phiên bản ứng dụng trên toàn bộ gateway.</p>
+<p>Ansible có thể hỗ trợ:</p>
+<ul><li>Kiểm tra thông tin hệ điều hành và kiến trúc CPU.</li><li>Chép binary phù hợp.</li><li>Tạo directory và cấu hình.</li><li>Triển khai systemd unit.</li><li>Restart service khi cần.</li><li>Kiểm tra service và ứng dụng.</li><li>Triển khai lần lượt theo nhóm thiết bị.</li></ul>
+<p><b>Ansible có phù hợp để cập nhật firmware hoặc toàn bộ root filesystem của thiết bị không?</b> Có thể hỗ trợ điều phối, nhưng không nên mặc định dùng Ansible để thay thế cơ chế firmware update an toàn.</p>
+<p>Với thiết bị nhúng, những yêu cầu như A/B partition, verified boot, rollback sau mất điện và atomic firmware update thường cần các công cụ chuyên dụng như RAUC, SWUpdate hoặc Mender. Ansible phù hợp hơn để điều phối cấu hình và triển khai phần mềm ở tầng hệ điều hành, khi thiết bị có môi trường thực thi đáp ứng yêu cầu.</p>
+<p>Đây là một ví dụ điển hình cho việc chọn công cụ theo bài toán, thay vì dùng một công cụ cho mọi vấn đề.</p>
+<h2 id="section-14">Phần XV. Bài kiểm tra tư duy Senior</h2>
+<div class="panel quiz"><div class="quiztop"><b>Kiểm tra kiến thức</b><span id="quizProgress">0/5 câu</span></div>
+<div class="question" data-correct="1" data-why="Có thể dữ liệu đầu vào, trạng thái hệ thống hoặc nguồn package đã thay đổi. Cần kiểm tra nguyên nhân thay vì kết luận chỉ từ recap."><h4>1. Một playbook chạy lần thứ hai vẫn báo changed=1. Điều đó chắc chắn chứng minh playbook bị lỗi idempotency?</h4>
+<label class="choice"><input type="radio" name="q0" value="0" onchange="quizChange()"> Có, chắc chắn</label>
+<label class="choice"><input type="radio" name="q0" value="1" onchange="quizChange()"> Không, cần xem task và điều kiện thay đổi</label>
+<label class="choice"><input type="radio" name="q0" value="2" onchange="quizChange()"> Không cần quan tâm</label>
+<div class="feedback" hidden></div></div>
+<div class="question" data-correct="1" data-why="daemon-reload khiến systemd đọc lại định nghĩa unit; không tự restart service."><h4>2. Bạn cập nhật unit systemd. daemon-reload có tự restart tiến trình không?</h4>
+<label class="choice"><input type="radio" name="q1" value="0" onchange="quizChange()"> Có</label>
+<label class="choice"><input type="radio" name="q1" value="1" onchange="quizChange()"> Không</label>
+<label class="choice"><input type="radio" name="q1" value="2" onchange="quizChange()"> Chỉ khi dùng root</label>
+<div class="feedback" hidden></div></div>
+<div class="question" data-correct="1" data-why="Task thành công không đồng nghĩa ứng dụng phục vụ đúng. Cần kiểm tra ở tầng ứng dụng."><h4>3. Ansible chạy thành công với failed=0. Ứng dụng chắc chắn hoạt động đúng?</h4>
+<label class="choice"><input type="radio" name="q2" value="0" onchange="quizChange()"> Có</label>
+<label class="choice"><input type="radio" name="q2" value="1" onchange="quizChange()"> Không, cần health check</label>
+<label class="choice"><input type="radio" name="q2" value="2" onchange="quizChange()"> Chỉ cần service enabled</label>
+<div class="feedback" hidden></div></div>
+<div class="question" data-correct="1" data-why="Git chỉ quản lý nội dung được version control, không tự khôi phục dữ liệu và trạng thái database."><h4>4. Có thể dùng Git revert để khôi phục mọi thay đổi database?</h4>
+<label class="choice"><input type="radio" name="q3" value="0" onchange="quizChange()"> Có</label>
+<label class="choice"><input type="radio" name="q3" value="1" onchange="quizChange()"> Không, cần kế hoạch migration và recovery riêng</label>
+<label class="choice"><input type="radio" name="q3" value="2" onchange="quizChange()"> Có nếu dùng YAML</label>
+<div class="feedback" hidden></div></div>
+<div class="question" data-correct="1" data-why="Module copy có thể so sánh nội dung và chỉ cập nhật khi khác trạng thái mong muốn."><h4>5. Chọn cách nào để bảo đảm file có nội dung cố định sau nhiều lần chạy?</h4>
+<label class="choice"><input type="radio" name="q4" value="0" onchange="quizChange()"> shell: echo hello &gt;&gt; file</label>
+<label class="choice"><input type="radio" name="q4" value="1" onchange="quizChange()"> ansible.builtin.copy với content</label>
+<label class="choice"><input type="radio" name="q4" value="2" onchange="quizChange()"> shell: date &gt;&gt; file</label>
+<div class="feedback" hidden></div></div>
+<div class="quizbuttons"><button id="gradeButton" onclick="gradeQuiz()" disabled>Chấm điểm</button><button onclick="resetQuiz()">Làm lại</button></div><div id="quizScore" class="score" hidden></div></div>
+<h2 id="section-15">Phần XVI. Bài tập nâng cao để thực sự nắm vững</h2>
+<p>Đến đây, bạn đã có nền tảng để chuyển từ việc hiểu cú pháp sang thiết kế một hệ thống quản lý cấu hình. Tôi đề xuất một bài lab tổng hợp:</p>
+<p><strong>Xây dựng playbook quản lý một Linux service hoàn chỉnh</strong>, có các yêu cầu sau:</p>
+<ul><li>Tạo user riêng cho ứng dụng, không dùng root.</li><li>Tạo thư mục và phân quyền phù hợp.</li><li>Triển khai binary hoặc script ứng dụng.</li><li>Sinh systemd unit từ template.</li><li>Bảo đảm service được enable và start.</li><li>Restart chỉ khi cấu hình hoặc binary thay đổi.</li><li>Chạy lần hai đạt <code>changed=0</code> trong điều kiện ổn định.</li><li>Cố tình sửa cấu hình thủ công rồi chứng minh Ansible phát hiện và sửa drift.</li><li>Thêm kiểm tra health sau khi triển khai.</li><li>Đưa playbook vào Git và mô tả quy trình rollback.</li></ul>
+<p>Nếu muốn nâng cao thêm, hãy chạy lab trên hai VM, triển khai từng máy một với <code>serial: 1</code>, cố tình làm hỏng cấu hình ở máy đầu tiên và kiểm tra xem quá trình rollout có dừng trước khi ảnh hưởng đến máy tiếp theo hay không.</p>
+<h3>Tổng kết tư duy cốt lõi</h3>
+<p>Điều quan trọng nhất của Bài 28 không phải là ghi nhớ 20 module Ansible. Đó là thay đổi tư duy từ:</p>
+<aside>“Tôi phải chạy những lệnh nào để cấu hình máy chủ?”</aside>
+<p>Sang:</p>
+<aside>“Máy chủ phải ở trạng thái nào, làm sao kiểm tra trạng thái đó, làm sao đưa nó về chuẩn khi bị sai lệch, và làm sao bảo đảm thay đổi không phá hỏng dịch vụ?”</aside>
+<p>Một Senior Engineer sẽ luôn đặt thêm bốn câu hỏi: <strong>Nếu chạy lại thì sao? Nếu chạy thất bại giữa chừng thì sao? Nếu cấu hình mới làm ứng dụng lỗi thì sao? Và làm sao chứng minh hệ thống thực sự khỏe mạnh sau triển khai?</strong></p>
+<p>Đó chính là cầu nối tự nhiên từ <b>Bài 28 — Ansible</b> sang <b>Bài 29 — Observability và vận hành dịch vụ</b>: Ansible giúp bạn đưa hệ thống về cấu hình mong muốn; observability giúp bạn xác định hệ thống có đang thực sự hoạt động đúng hay không.</p></article></div><script>
+function copyCode(button){let t=button.closest('.code').querySelector('code').innerText;navigator.clipboard.writeText(t).then(()=>{button.textContent='Đã sao chép';setTimeout(()=>button.textContent='Sao chép',1200)}).catch(()=>{button.textContent='Không thể sao chép'})}
+function handlerDemo(changed){document.getElementById('changeYes').classList.toggle('selected',changed);document.getElementById('changeNo').classList.toggle('selected',!changed);let t=document.getElementById('taskStatus');t.textContent=changed?'changed':'ok';t.className='pill '+(changed?'warn':'good');document.getElementById('notifyStatus').textContent=changed?'Có':'Không';let r=document.getElementById('reloadStatus');r.textContent=changed?'Sẽ chạy':'Không chạy';r.className='pill '+(changed?'good':'')}
+let runCount=0,runMode='append';function setMode(mode){runMode=mode;document.getElementById('modeAppend').classList.toggle('selected',mode==='append');document.getElementById('modeDesired').classList.toggle('selected',mode==='desired');resetDemo()}
+function resetDemo(){runCount=0;renderDemo()}function runDemo(){runCount=Math.min(10,runCount+1);renderDemo()}function renderDemo(){document.getElementById('runCount').textContent='Số lần chạy: '+runCount;document.getElementById('fileOutput').textContent=runCount===0?'(file chưa có nội dung)':runMode==='append'?Array(runCount).fill('hello').join('\n'):'hello';document.getElementById('fileExplanation').textContent=runCount===0?'Hãy thử chạy nhiều lần.':runMode==='append'?`File có ${runCount} dòng. Mỗi lần chạy lại ghi thêm.`:runCount===1?'File được tạo với nội dung mong muốn.':'File vẫn chỉ có một dòng; không cần thay đổi thêm.'}
+function quizChange(){let n=document.querySelectorAll('.question input:checked').length;document.getElementById('quizProgress').textContent=n+'/5 câu';document.getElementById('gradeButton').disabled=n!==5;document.querySelectorAll('.feedback').forEach(e=>e.hidden=true);document.getElementById('quizScore').hidden=true}
+function gradeQuiz(){let score=0;document.querySelectorAll('.question').forEach(q=>{let selected=q.querySelector('input:checked');let good=Number(selected.value)===Number(q.dataset.correct);if(good)score++;let feedback=q.querySelector('.feedback');feedback.hidden=false;let correct=q.querySelectorAll('.choice')[Number(q.dataset.correct)].innerText.trim();feedback.textContent=(good?'✓ Chính xác. ':'✗ Đáp án đúng: '+correct+'. ')+q.dataset.why});let el=document.getElementById('quizScore');el.hidden=false;el.textContent=`${score}/5 câu trả lời đúng`}
+function resetQuiz(){document.querySelectorAll('.question input').forEach(i=>i.checked=false);quizChange()}
+function themeToggle(){document.body.classList.toggle('light');document.getElementById('themeButton').textContent=document.body.classList.contains('light')?'🌙 Giao diện tối':'☀️ Giao diện sáng'}
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

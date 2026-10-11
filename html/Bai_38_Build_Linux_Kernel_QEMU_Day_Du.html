@@ -1,0 +1,890 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bài 38 — Build Linux Kernel và Linux tối giản trong QEMU</title><style>
+:root{--bg:#f5f7fb;--paper:#fff;--ink:#172437;--muted:#5c6b80;--border:#dce3ee;--accent:#1669c1;--light:#eaf3ff;--code:#101b2a;--shadow:0 12px 40px #172b4a12}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,-apple-system,'Segoe UI',sans-serif}body.dark{--bg:#0c1421;--paper:#131f2e;--ink:#e8edf7;--muted:#a5b3c7;--border:#2d4158;--accent:#6ab1ff;--light:#193653;--code:#09111d}a{color:var(--accent)}.layout{display:grid;grid-template-columns:290px minmax(0,920px);gap:30px;max-width:1290px;margin:auto;padding:30px}.sidebar{position:sticky;top:20px;align-self:start;height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}.sidebar h3{margin:0 0 10px}.sidebar nav{display:flex;flex-direction:column;gap:3px}.sidebar a{font-size:12px;line-height:1.5;text-decoration:none;padding:6px 8px;border-radius:6px;color:var(--muted)}.sidebar a:hover{background:var(--light);color:var(--accent)}main{min-width:0;background:var(--paper);border:1px solid var(--border);border-radius:20px;padding:clamp(22px,4vw,58px);box-shadow:var(--shadow)}h1{font-size:clamp(27px,3vw,42px);line-height:1.22;color:var(--ink);letter-spacing:-.035em}h2{font-size:25px;line-height:1.35;margin-top:58px;padding-top:20px;border-top:1px solid var(--border)}h3{font-size:19px;line-height:1.4;margin-top:30px}h4{font-size:17px}p{margin:14px 0}blockquote{margin:20px 0;padding:12px 20px;background:var(--light);border-left:4px solid var(--accent);border-radius:6px;color:var(--muted)}strong{color:var(--ink)}table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;display:block;overflow-x:auto}th,td{border:1px solid var(--border);padding:10px 13px;text-align:left;vertical-align:top}th{background:var(--light)}ul,ol{padding-left:26px}.code-wrap{margin:18px 0;border-radius:12px;overflow:hidden;background:var(--code);border:1px solid #34455b}.code-head{display:flex;align-items:center;justify-content:space-between;background:#1c2b40;color:#cbd8ea;padding:6px 14px;font-size:12px}.code-head button{border:1px solid #51647c;color:white;background:#2c4059;padding:4px 10px;border-radius:6px;cursor:pointer}pre{margin:0;padding:18px;overflow:auto;line-height:1.6;font-size:13px;color:#dbeaff;tab-size:4}code{font-family:'Cascadia Code',Consolas,monospace}p code,li code,td code{background:var(--light);padding:2px 5px;border-radius:4px;color:var(--accent);font-size:.88em}.widget{border:1px solid var(--border);border-radius:14px;padding:18px;margin:22px 0;background:var(--paper)}.diagram{display:flex;flex-direction:column;align-items:stretch;gap:8px;max-width:660px;margin:auto}.node{border:1px solid var(--border);border-radius:10px;background:var(--light);padding:12px 16px;text-align:center;font-weight:650}.node small{display:block;font-weight:400;color:var(--muted);font-size:12px}.arrow{text-align:center;color:var(--accent);font-size:23px;line-height:1}.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px}.duo .node{min-height:75px}.btn{border:1px solid var(--border);border-radius:8px;padding:9px 13px;background:var(--light);color:var(--ink);cursor:pointer;font:inherit;font-size:14px}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:not-allowed}.controls{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px}.steps{display:flex;gap:6px;margin:0 0 15px}.steps button{flex:1;height:8px;border:0;border-radius:20px;background:var(--border);cursor:pointer}.steps button.active{background:var(--accent)}.widget .panel{background:var(--light);padding:16px;border-radius:10px;min-height:120px}.choice{display:block;padding:9px 12px;margin:8px 0;border:1px solid var(--border);border-radius:9px;cursor:pointer}.choice:hover{border-color:var(--accent)}.feedback{padding:12px;border-radius:8px;background:var(--light);margin-top:12px}.checkrow{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.checkrow input{margin-top:7px;accent-color:var(--accent)}.progress{height:8px;border-radius:10px;background:var(--border);overflow:hidden}.progress div{height:100%;background:#16a34a;width:0;transition:width .3s}.topbar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:20px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted)}.floating{position:fixed;right:20px;bottom:20px;display:flex;gap:7px;z-index:20}.floating button{box-shadow:var(--shadow)}@media(max-width:980px){.layout{display:block;padding:10px}.sidebar{position:static;height:auto;max-height:220px;margin-bottom:12px}.sidebar nav{max-height:150px;overflow:auto}main{padding:24px}}@media print{body{background:white}.layout{display:block;padding:0}.sidebar,.floating,.code-head button,.controls{display:none!important}main{box-shadow:none;border:0;padding:0}.widget,.code-wrap{break-inside:avoid}h2,h3{break-after:avoid}pre{white-space:pre-wrap}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="38"><div class="layout"><aside class="sidebar"><h3>📘 Bài 38</h3><p class="eyebrow">Mục lục · Offline</p><nav><a href="#section-0">Phần I — Tại sao phải tự build Linux Kernel?</a><a href="#section-1">1. Linux có phải một hệ điều hành hoàn chỉnh?</a><a href="#section-2">Phần II — Build Kernel thực chất là gì?</a><a href="#section-3">2. Source code khác kernel đang chạy</a><a href="#section-4">2.1. vmlinux, bzImage, vmlinuz, .ko</a><a href="#section-5">Phần III — Kconfig quyết định kernel có gì</a><a href="#section-6">3. Ý nghĩa của .config</a><a href="#section-7">Phần IV — CPU architecture và toolchain</a><a href="#section-8">4. Tại sao kernel x86 không chạy trực tiếp trên ARM?</a><a href="#section-9">Phần V — Device Tree và ACPI</a><a href="#section-10">5. Kernel biết phần cứng bằng cách nào?</a><a href="#section-11">Phần VI — Initramfs và root filesystem</a><a href="#section-12">6. Tại sao có kernel vẫn chưa đủ?</a><a href="#section-13">6.1. Boot sequence tương tác</a><a href="#section-14">Phần VII — BusyBox: một executable, nhiều tiện ích</a><a href="#section-15">7. Vì sao BusyBox phù hợp embedded?</a><a href="#section-16">Phần VIII — Lab build kernel từ đầu</a><a href="#section-17">8. Chuẩn bị môi trường</a><a href="#section-18">9. Tải source có phiên bản rõ</a><a href="#section-19">10. Cấu hình kernel cho lab</a><a href="#section-20">11. Build và xác minh</a><a href="#section-21">Phần IX — Tạo rootfs và chương trình init</a><a href="#section-22">12. Tạo rootfs và BusyBox static</a><a href="#section-23">13. Tạo chương trình /init đầu tiên</a><a href="#section-24">14. Tạo /dev/console</a><a href="#section-25">15. Đóng gói initramfs</a><a href="#section-26">Phần X — Boot Linux trong QEMU</a><a href="#section-27">16. QEMU làm gì?</a><a href="#section-28">17. Kết quả boot mong đợi</a><a href="#section-29">Phần XI — Debug Kernel Boot theo checkpoint</a><a href="#section-30">18. Phương pháp senior: xác định điểm dừng</a><a href="#section-31">19. Không có console</a><a href="#section-32">20. No working init found</a><a href="#section-33">21. File tồn tại nhưng chạy báo not found</a><a href="#section-34">22. Không đọc được initramfs</a><a href="#section-35">23. PID 1 chết</a><a href="#section-36">24. Tình huống debug tương tác</a><a href="#section-37">Phần XII — Vì sao không có systemd vẫn là Linux?</a><a href="#section-38">25. Kernel, distro và init system khác nhau</a><a href="#section-39">Phần XIII — Embedded Linux thực tế</a><a href="#section-40">26. QEMU x86 khác board thật</a><a href="#section-41">27. Buildroot và Yocto</a><a href="#section-42">Phần XIV — Các vấn đề production sâu hơn</a><a href="#section-43">28. Build máy A chạy, máy B lỗi</a><a href="#section-44">29. Kernel nhỏ hơn chưa chắc tốt hơn</a><a href="#section-45">30. Kernel module compatibility</a><a href="#section-46">31. Root disk cần chuỗi driver đầy đủ</a><a href="#section-47">32. Tối ưu boot time theo bottleneck</a><a href="#section-48">Phần XV — Lab nâng cao</a><a href="#section-49">33. Kiểm tra PID 1</a><a href="#section-50">34. Kiểm tra root filesystem</a><a href="#section-51">35. Quan sát system calls</a><a href="#section-52">36. Thử kernel command line</a><a href="#section-53">Phần XVI — Quy trình build đáng tin cậy</a><a href="#section-54">37. Từ lab thủ công đến CI</a><a href="#section-55">38. Smoke test</a><a href="#section-56">Phần XVII — Tổng hợp tư duy senior</a><a href="#section-57">39. Mối quan hệ cần nhớ</a><a href="#section-58">40. Năm nguyên tắc</a><a href="#section-59">41. Checklist tương tác</a><a href="#section-60">42. Câu hỏi phỏng vấn Senior Embedded Linux</a><a href="#section-61">43. Hướng phát triển tiếp theo</a><a href="#section-62">Phần XVIII — Bổ sung lab và nghiệm thu từ phần tiếp nối</a><a href="#section-63">44. Lab cố tình làm hỏng initramfs</a><a href="#section-64">45. Checklist nghiệm thu cuối bài</a><a href="#section-65">46. Sơ đồ tổng kết end-to-end</a><a href="#section-66">Đọc thêm</a></nav></aside><main><div class="topbar"><span class="eyebrow">Linux / Embedded Linux / QEMU</span><span class="eyebrow">Tài liệu độc lập</span></div><h1>Bài 38 — Build Linux Kernel và Linux tối giản trong QEMU</h1>
+<blockquote>
+<p>Chuyên sâu Linux Kernel · Embedded Linux · Boot Process · Build System · Virtualization · Debugging</p>
+</blockquote>
+<p><strong>Mục tiêu:</strong> Tự biên dịch kernel, tạo root filesystem tối giản bằng BusyBox static, đóng gói initramfs, boot trong QEMU, quan sát PID 1, chẩn đoán lỗi và liên hệ Embedded Linux production. Bài học kết nối <strong>Bài 14 (boot/shutdown), Bài 16 (system call), Bài 23 (driver/I/O), Bài 37 (virtualization)</strong>.</p>
+<hr />
+<h2 id="section-0">Phần I — Tại sao phải tự build Linux Kernel?</h2>
+<h3 id="section-1">1. Linux có phải một hệ điều hành hoàn chỉnh?</h3>
+<p>Trên Ubuntu, chạy:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>uname -r
+ps -p 1 -o pid,comm,args
+</code></pre></div>
+<p>Bạn có thể thấy một kernel <code>6.x.y-generic</code> và PID 1 là <code>systemd</code>. <strong>Nếu xóa systemd, Linux còn chạy được không?</strong> Có, miễn là thay bằng chương trình init phù hợp. Kernel quản lý CPU, RAM, tiến trình, thiết bị, system call. systemd quản lý khởi tạo và dịch vụ ở user space. Shell giúp người dùng tương tác; <code>ls</code>, <code>cat</code>, <code>mount</code> là các chương trình user space.</p>
+<p>&lt;!--DIAGRAM:layers--&gt;</p>
+<p><strong>Ví dụ đời sống:</strong> Kernel giống người điều phối máy móc trong nhà máy; hardware là máy móc; process là công nhân; init/systemd là bộ phận quản lý ca; memory/storage là kho; system call là thủ tục xin tài nguyên. Người điều phối không phụ thuộc vào một bộ phận quản lý ca cụ thể.</p>
+<p><strong>Câu hỏi phản biện:</strong> Nếu không bắt buộc có systemd, vì sao desktop/server thường sử dụng? Vì cần điều phối dependency, theo dõi dịch vụ, restart, logging, session, shutdown, isolation. Init vài dòng chỉ phù hợp lab.</p>
+<h2 id="section-2">Phần II — Build Kernel thực chất là gì?</h2>
+<h3 id="section-3">2. Source code khác kernel đang chạy</h3>
+<p>Tải source từ kernel.org, bạn nhận được C, assembly, Makefile, Kconfig, script, chứ không phải một hệ điều hành đã sẵn sàng chạy.</p>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>linux/
+├── arch/       # x86, arm, arm64, riscv...
+├── block/      # block layer
+├── drivers/    # device drivers
+├── fs/         # VFS và filesystem
+├── include/    # headers
+├── init/       # khởi tạo kernel
+├── kernel/     # scheduler, locking, signal...
+├── mm/         # memory management
+├── net/        # network stack
+├── scripts/    # build utilities
+├── Kconfig
+└── Makefile
+</code></pre></div>
+<p><strong>Build kernel</strong> là chuyển mã nguồn và cấu hình thành các artifact có thể nạp, thực thi hoặc debug.</p>
+<p>&lt;!--DIAGRAM:build--&gt;</p>
+<h3 id="section-4">2.1. <code>vmlinux</code>, <code>bzImage</code>, <code>vmlinuz</code>, <code>.ko</code></h3>
+<table>
+<thead>
+<tr>
+  <th>Artifact</th>
+  <th>Bản chất</th>
+  <th>Công dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>vmlinux</code></td>
+  <td>ELF kernel</td>
+  <td>Debug, symbol, phân tích</td>
+</tr>
+<tr>
+  <td><code>arch/x86/boot/bzImage</code></td>
+  <td>x86 boot image</td>
+  <td>QEMU/bootloader nạp kernel</td>
+</tr>
+<tr>
+  <td><code>vmlinuz</code></td>
+  <td>Tên kernel image thường gặp trong <code>/boot</code></td>
+  <td>Boot distro, thường liên quan image nén</td>
+</tr>
+<tr>
+  <td><code>*.ko</code></td>
+  <td>Kernel module</td>
+  <td>Nạp tính năng/driver khi chạy</td>
+</tr>
+</tbody>
+</table>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>file vmlinux
+file arch/x86/boot/bzImage
+</code></pre></div>
+<p><strong>Tại sao không đưa tất cả driver vào kernel?</strong> Kích thước, RAM, attack surface và bảo trì tăng. Nhưng cắt giảm quá mức khiến kernel không truy cập được root disk.</p>
+<h2 id="section-5">Phần III — Kconfig quyết định kernel có gì</h2>
+<h3 id="section-6">3. Ý nghĩa của <code>.config</code></h3>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>CONFIG_EXT4_FS=y
+CONFIG_E1000=m
+# CONFIG_BTRFS_FS is not set
+</code></pre></div>
+<table>
+<thead>
+<tr>
+  <th>Giá trị</th>
+  <th>Ý nghĩa</th>
+  <th>Kết quả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>y</code></td>
+  <td>Built-in</td>
+  <td>Liên kết vào kernel</td>
+</tr>
+<tr>
+  <td><code>m</code></td>
+  <td>Module (nếu hỗ trợ)</td>
+  <td>Build <code>.ko</code></td>
+</tr>
+<tr>
+  <td><code>n</code></td>
+  <td>Disabled</td>
+  <td>Không build</td>
+</tr>
+</tbody>
+</table>
+<p>Một số tùy chọn chỉ hỗ trợ <code>y/n</code>, một số là số hoặc chuỗi.</p>
+<p><strong>Tại sao <code>CONFIG_EXT4_FS=m</code> có thể gây lỗi boot?</strong> Nếu root disk là ext4 mà module ext4 chỉ nằm trên chính root disk, kernel cần mount root để đọc module nhưng lại cần module để mount root. Đây là dependency cycle. Giải pháp: built-in <code>=y</code>, hoặc initramfs có module, công cụ nạp và logic mount root.</p>
+<p><strong>Kconfig không phải danh sách toggle độc lập:</strong> Một option có <code>depends on</code> hoặc <code>select</code>, nên lệnh bật option chưa bảo đảm kết quả sau khi giải dependency.</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>make defconfig
+make menuconfig
+make olddefconfig
+make savedefconfig
+scripts/config --enable SOME_OPTION
+make olddefconfig
+grep '^CONFIG_SOME_OPTION=' .config
+scripts/config --state SOME_OPTION
+</code></pre></div>
+<p><code>defconfig</code> tạo mặc định; <code>menuconfig</code> chỉnh tương tác; <code>olddefconfig</code> cập nhật theo default; <code>savedefconfig</code> xuất cấu hình rút gọn. Luôn lưu <code>.config</code>, version, toolchain.</p>
+<h2 id="section-7">Phần IV — CPU architecture và toolchain</h2>
+<h3 id="section-8">4. Tại sao kernel x86 không chạy trực tiếp trên ARM?</h3>
+<p>CPU thực thi machine instructions theo ISA, không thực thi C. Compiler tạo code cho x86-64, AArch64 hoặc RISC-V. <strong>Cùng viết bằng C không có nghĩa binary hoán đổi được.</strong></p>
+<p>&lt;!--DIAGRAM:arch--&gt;</p>
+<p><strong>Native build x86-64:</strong></p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>make ARCH=x86_64 defconfig
+make ARCH=x86_64 -j2 bzImage
+</code></pre></div>
+<p><strong>Cross-compile ARM64:</strong></p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j2 Image
+# Artifact thường ở arch/arm64/boot/Image
+</code></pre></div>
+<p><code>ARCH</code> chọn kiến trúc kernel; <code>CROSS_COMPILE</code> chọn prefix toolchain (<code>aarch64-linux-gnu-gcc</code>, <code>...-ld</code>). Cần cross-toolchain và host build dependencies.</p>
+<p><strong>Liên hệ ESP32:</strong> Firmware ESP32 không thể chạy trực tiếp trên x86. Tương tự, hai board ARM64 có thể cần Device Tree, UART, clock, IRQ, MMIO, reset, storage driver khác nhau. ISA giống nhau không có nghĩa board giống nhau.</p>
+<h2 id="section-9">Phần V — Device Tree và ACPI</h2>
+<h3 id="section-10">5. Kernel biết phần cứng bằng cách nào?</h3>
+<p>Một driver UART biết thao tác thanh ghi, nhưng phải biết MMIO base, IRQ, clock, trạng thái và loại controller. Nhiều nền tảng ARM dùng Device Tree:</p>
+<div class="code-wrap"><div class="code-head"><span>dts</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>uart0: serial@10000000 {
+    compatible = &quot;vendor,example-uart&quot;;
+    reg = &lt;0x10000000 0x1000&gt;;
+    interrupts = &lt;5&gt;;
+    status = &quot;okay&quot;;
+};
+</code></pre></div>
+<p>Đây là ví dụ minh họa, không phải cấu hình board cụ thể. <strong>Device Tree là mô tả phần cứng, không phải driver.</strong> Sơ đồ bố trí nhà máy không thay cho người vận hành máy. PC x86 thường dựa vào ACPI, PCI enumeration và các cơ chế firmware khác; lab QEMU x86 không yêu cầu tự tạo DTB.</p>
+<h2 id="section-11">Phần VI — Initramfs và root filesystem</h2>
+<h3 id="section-12">6. Tại sao có kernel vẫn chưa đủ?</h3>
+<p>Kernel khởi tạo CPU, RAM, scheduler, driver, sau đó cần chuyển sang user space. Chương trình đầu tiên ở đâu? Trong root filesystem, có thể được cung cấp ban đầu bằng initramfs.</p>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>/
+├── bin/
+├── dev/
+├── etc/
+├── proc/
+├── sbin/
+├── sys/
+├── tmp/
+└── usr/
+</code></pre></div>
+<p>Root filesystem là cây mount bắt đầu từ <code>/</code>, không đồng nghĩa một phân vùng trên SSD. Có thể dùng SD/eMMC, NFS, tmpfs, initramfs...</p>
+<p><strong>Initramfs</strong> là cpio archive (thường gzip) được kernel giải nén vào <code>rootfs</code> trong RAM:</p>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>initramfs.cpio.gz
+  └── /
+      ├── init
+      ├── bin/busybox
+      ├── bin/sh -&gt; busybox
+      ├── dev/console
+      ├── proc/
+      └── sys/
+</code></pre></div>
+<p>Initramfs hiện đại khác legacy initrd block-device image. Initramfs không đòi hỏi tạo partition ext4 ban đầu.</p>
+<h3 id="section-13">6.1. Boot sequence tương tác</h3>
+<p>&lt;!--INTERACTIVE:boot--&gt;</p>
+<p><strong>Câu hỏi:</strong> Tắt QEMU thì dữ liệu lưu ở đâu? Rootfs trong RAM mất các thay đổi không được lưu vào storage bền vững. Điều này thuận tiện cho lab nhưng production cần thiết kế persistent data, read-only rootfs, overlayfs hoặc A/B update.</p>
+<h2 id="section-14">Phần VII — BusyBox: một executable, nhiều tiện ích</h2>
+<h3 id="section-15">7. Vì sao BusyBox phù hợp embedded?</h3>
+<p>Thay vì đóng gói nhiều binary của coreutils, util-linux, procps, BusyBox tích hợp nhiều applet:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>busybox ls
+busybox cat
+busybox mount
+busybox sh
+</code></pre></div>
+<p>Symlink <code>/bin/sh -&gt; busybox</code> cho phép BusyBox chạy applet shell dựa trên tên được gọi. BusyBox là user space, vẫn dùng Linux system calls (<code>open/read/write/...</code>).</p>
+<p><strong>Static vs dynamic linking:</strong> Binary static chứa code thư viện đã được liên kết và không cần dynamic ELF interpreter khi khởi chạy; binary dynamic cần loader và shared libraries đúng ABI. Static vẫn cần đúng kiến trúc và kernel API tương thích.</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>file /usr/bin/busybox
+readelf -l /usr/bin/busybox
+</code></pre></div>
+<p>Nếu <code>readelf</code> hiển thị <code>INTERP</code> như <code>/lib64/ld-linux-x86-64.so.2</code>, binary cần dynamic interpreter. Thiếu interpreter có thể gây <code>No such file or directory</code> ngay cả khi executable tồn tại.</p>
+<h2 id="section-16">Phần VIII — Lab build kernel từ đầu</h2>
+<h3 id="section-17">8. Chuẩn bị môi trường</h3>
+<p>Giả định Ubuntu/Debian x86-64, có đủ nhiều GiB disk và RAM. <strong>Không cài kernel thử nghiệm vào boot của host.</strong></p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>uname -m
+nproc
+free -h
+df -h &quot;$HOME&quot;
+
+sudo apt update
+sudo apt install -y \
+    build-essential flex bison bc libelf-dev libssl-dev \
+    libncurses-dev cpio gzip xz-utils wget file binutils \
+    qemu-system-x86 busybox-static
+
+mkdir -p ~/linux-lab/{kernel,downloads,artifacts,logs}
+</code></pre></div>
+<table>
+<thead>
+<tr>
+  <th>Công cụ</th>
+  <th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>GCC / make</td>
+  <td>Compile và điều phối build</td>
+</tr>
+<tr>
+  <td>flex / bison / bc</td>
+  <td>Công cụ hỗ trợ Kbuild</td>
+</tr>
+<tr>
+  <td>libelf-dev / libssl-dev</td>
+  <td>ELF và crypto build support</td>
+</tr>
+<tr>
+  <td>libncurses-dev</td>
+  <td><code>menuconfig</code></td>
+</tr>
+<tr>
+  <td>cpio / gzip</td>
+  <td>Initramfs</td>
+</tr>
+<tr>
+  <td>QEMU</td>
+  <td>Máy ảo</td>
+</tr>
+<tr>
+  <td>busybox-static</td>
+  <td>User space tối giản</td>
+</tr>
+<tr>
+  <td>file / readelf</td>
+  <td>Kiểm tra ELF</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tại sao không chạy <code>-j$(nproc)</code> ngay?</strong> Build song song quá mức có thể gây RAM pressure, swap và OOM; <code>-j2</code> là lựa chọn lab thận trọng.</p>
+<h3 id="section-18">9. Tải source có phiên bản rõ</h3>
+<p>Chọn stable release thực sự từ <a href="https://www.kernel.org/">kernel.org</a>. Ví dụ biến sau <strong>phải thay</strong> bằng version đã chọn; <code>v6.x</code> chỉ đúng với nhánh 6.x.</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>cd ~/linux-lab/downloads
+KVER=&quot;PHIEN_BAN_DA_CHON&quot;
+wget &quot;https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz&quot;
+</code></pre></div>
+<p>Xác minh checksum/chữ ký theo hướng dẫn nhà phát hành, kiểm tra khóa ký đáng tin cậy. Hash xác minh integrity; hash từ nguồn không đáng tin cậy không tự chứng minh authenticity.</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>cd ~/linux-lab/kernel
+tar -xf &quot;../downloads/linux-${KVER}.tar.xz&quot;
+cd &quot;linux-${KVER}&quot;
+make kernelversion
+gcc --version
+make --version
+</code></pre></div>
+<h3 id="section-19">10. Cấu hình kernel cho lab</h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>make defconfig
+scripts/config --enable BLK_DEV_INITRD
+scripts/config --enable RD_GZIP
+scripts/config --enable DEVTMPFS
+scripts/config --enable SERIAL_8250
+scripts/config --enable SERIAL_8250_CONSOLE
+scripts/config --enable BINFMT_ELF
+scripts/config --enable BINFMT_SCRIPT
+scripts/config --enable PROC_FS
+scripts/config --enable SYSFS
+make olddefconfig
+</code></pre></div>
+<table>
+<thead>
+<tr>
+  <th>Option</th>
+  <th>Vì sao cần</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>BLK_DEV_INITRD</code></td>
+  <td>Initrd/initramfs được cấp lúc boot</td>
+</tr>
+<tr>
+  <td><code>RD_GZIP</code></td>
+  <td>Hỗ trợ gzip initramfs</td>
+</tr>
+<tr>
+  <td><code>DEVTMPFS</code></td>
+  <td>Device nodes qua devtmpfs</td>
+</tr>
+<tr>
+  <td><code>SERIAL_8250</code></td>
+  <td>UART 8250/16550</td>
+</tr>
+<tr>
+  <td><code>SERIAL_8250_CONSOLE</code></td>
+  <td>Kernel serial console</td>
+</tr>
+<tr>
+  <td><code>BINFMT_ELF</code></td>
+  <td>Chạy ELF executable</td>
+</tr>
+<tr>
+  <td><code>BINFMT_SCRIPT</code></td>
+  <td>Chạy script có shebang</td>
+</tr>
+<tr>
+  <td><code>PROC_FS</code></td>
+  <td><code>/proc</code></td>
+</tr>
+<tr>
+  <td><code>SYSFS</code></td>
+  <td><code>/sys</code></td>
+</tr>
+</tbody>
+</table>
+<p>Kiểm tra lại sau <code>olddefconfig</code>, vì Kconfig dependency có thể khiến yêu cầu không thành công:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>grep -E 'CONFIG_(BLK_DEV_INITRD|RD_GZIP|DEVTMPFS|SERIAL_8250|SERIAL_8250_CONSOLE|BINFMT_ELF|BINFMT_SCRIPT|PROC_FS|SYSFS)=' .config
+</code></pre></div>
+<p>Các chức năng thiết yếu trước khi nạp module cần được built-in (<code>=y</code>). Serial console quan trọng: <strong>không thấy log không đồng nghĩa kernel chưa boot</strong>.</p>
+<h3 id="section-20">11. Build và xác minh</h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>make -j2 bzImage
+ls -lh arch/x86/boot/bzImage
+file arch/x86/boot/bzImage
+file vmlinux
+</code></pre></div>
+<p><strong>Build success ≠ boot success ≠ functional correctness ≠ production readiness.</strong> Build thành công không chứng minh đủ driver storage, rootfs, network hay tính ổn định runtime.</p>
+<h2 id="section-21">Phần IX — Tạo rootfs và chương trình init</h2>
+<h3 id="section-22">12. Tạo rootfs và BusyBox static</h3>
+<p>Vẫn trong thư mục source kernel:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>kernel_image=&quot;$PWD/arch/x86/boot/bzImage&quot;
+rootfs_dir=$(mktemp -d &quot;$HOME/linux-lab/rootfs.XXXXXX&quot;)
+mkdir -p &quot;$rootfs_dir&quot;/{bin,dev,proc,sys,tmp}
+
+BUSYBOX=&quot;$(command -v busybox)&quot;
+file &quot;$BUSYBOX&quot;
+readelf -l &quot;$BUSYBOX&quot;
+&quot;$BUSYBOX&quot; --list
+</code></pre></div>
+<p><strong>Dừng lại nếu BusyBox không phải static đúng kiến trúc</strong> hoặc thiếu applet cần dùng. Đường dẫn BusyBox thay đổi theo distro.</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>cp &quot;$BUSYBOX&quot; &quot;$rootfs_dir/bin/busybox&quot;
+ln -s busybox &quot;$rootfs_dir/bin/sh&quot;
+find &quot;$rootfs_dir&quot; -maxdepth 2
+</code></pre></div>
+<h3 id="section-23">13. Tạo chương trình <code>/init</code> đầu tiên</h3>
+<p><strong>Đặt vấn đề:</strong> Kernel đã khởi tạo CPU, memory, scheduler, giải nén initramfs. Ai là chương trình user space đầu tiên? Trong lab, kernel command line <code>rdinit=/init</code> yêu cầu thực thi <code>/init</code>, tạo PID 1.</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>cat &gt; &quot;$rootfs_dir/init&quot; &lt;&lt;'EOF'
+#!/bin/sh
+/bin/busybox mount -t devtmpfs devtmpfs /dev
+/bin/busybox mount -t proc proc /proc
+/bin/busybox mount -t sysfs sysfs /sys
+echo 'Minimal Linux ready'
+while true; do
+    /bin/sh
+    echo 'Shell exited; PID 1 stays alive'
+done
+EOF
+chmod +x &quot;$rootfs_dir/init&quot;
+</code></pre></div>
+<h4>13.1. Shebang và execve</h4>
+<p>Dòng <code>#!/bin/sh</code> được kernel xử lý thông qua <code>BINFMT_SCRIPT</code>. Kernel tìm <code>/bin/sh</code>, phân giải symlink sang BusyBox rồi thực thi shell với script <code>/init</code>. Nếu <code>/bin/sh</code> thiếu, <code>/init</code> có thể tồn tại mà vẫn không chạy được.</p>
+<p>&lt;!--DIAGRAM:shebang--&gt;</p>
+<h4>13.2. Mount <code>/dev</code>, <code>/proc</code>, <code>/sys</code></h4>
+<p><code>devtmpfs</code> cung cấp device nodes như <code>/dev/console</code>, <code>/dev/null</code>, <code>/dev/ttyS0</code>. Device node không chứa dữ liệu file thông thường mà biểu diễn interface thiết bị. <code>procfs</code> cho thông tin kernel/tiến trình động (<code>/proc/cmdline</code>, <code>/proc/meminfo</code>); <code>sysfs</code> biểu diễn device và kernel objects (<code>/sys/class</code>, <code>/sys/devices</code>).</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code># Chạy bên trong guest sau khi boot:
+/bin/busybox cat /proc/cmdline
+/bin/busybox cat /proc/meminfo
+/bin/busybox ls /sys/class
+</code></pre></div>
+<p><strong>Ví dụ đời sống:</strong> <code>/proc</code> như bảng trạng thái trực tiếp của nhà máy; <code>/sys</code> như danh bạ thiết bị và thông số, không phải file text được lưu sẵn trên SSD.</p>
+<h4>13.3. Tại sao PID 1 không được kết thúc?</h4>
+<p>Nếu <code>/init</code> chỉ <code>echo Hello</code> rồi exit, init của hệ thống guest kết thúc và kernel thường panic. Vòng <code>while true</code> tạo shell mới khi shell cũ kết thúc, giữ PID 1 sống. Nhưng đây chưa phải init production: cần reaping zombie, signal handling, shutdown, restart backoff, mount failure handling.</p>
+<p><strong>Ví dụ cải thiện lab</strong> (vẫn không phải production init):</p>
+<div class="code-wrap"><div class="code-head"><span>sh</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>#!/bin/sh
+BB=/bin/busybox
+$BB mount -t devtmpfs devtmpfs /dev || echo 'Failed to mount /dev'
+$BB mount -t proc proc /proc || echo 'Failed to mount /proc'
+$BB mount -t sysfs sysfs /sys || echo 'Failed to mount /sys'
+echo 'Minimal Linux ready'
+while true; do
+    /bin/sh
+    echo 'Shell exited'
+    /bin/busybox sleep 1
+done
+</code></pre></div>
+<p>Khoảng nghỉ ngăn restart loop tiêu thụ CPU nếu shell thoát tức thì. Production phải xử lý lỗi filesystem thiết yếu rõ ràng.</p>
+<h3 id="section-24">14. Tạo <code>/dev/console</code></h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>sudo mknod -m 600 &quot;$rootfs_dir/dev/console&quot; c 5 1
+ls -l &quot;$rootfs_dir/dev/console&quot;
+# crw------- ... 5, 1 ... console
+</code></pre></div>
+<p><code>c</code> là character device, <code>5</code> major, <code>1</code> minor. Major/minor là device number giúp kernel định tuyến I/O. Console node cần có trong archive <strong>trước</strong> khi <code>/init</code> mount devtmpfs, vì kernel có thể cần mở console khi khởi chạy init. Nếu host cấm <code>mknod</code>, dùng VM build hoặc <code>gen_init_cpio</code> với device-node specification phù hợp.</p>
+<h3 id="section-25">15. Đóng gói initramfs</h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>initramfs_file=&quot;$rootfs_dir.cpio.gz&quot;
+(cd &quot;$rootfs_dir&quot; &amp;&amp; find . -print0 | cpio --null -o --format=newc --owner=0:0) | gzip &gt; &quot;$initramfs_file&quot;
+</code></pre></div>
+<p><code>find -print0</code> và <code>cpio --null</code> xử lý tên file có khoảng trắng/newline an toàn. <code>newc</code> là định dạng cpio cho initramfs; <code>--owner=0:0</code> ghi UID/GID root vào archive. Đây <strong>không</strong> phải ext4 disk image.</p>
+<p>&lt;!--DIAGRAM:archive--&gt;</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>gzip -t &quot;$initramfs_file&quot;
+gzip -dc &quot;$initramfs_file&quot; | cpio -it
+# Mong đợi: . bin bin/busybox bin/sh dev dev/console proc sys tmp init
+</code></pre></div>
+<p><strong>Phản biện:</strong> <code>gzip -t</code> thành công có chứng minh archive boot được không? Không: bên trong gzip có thể không phải cpio <code>newc</code>, hoặc thiếu <code>/init</code>, interpreter, permission.</p>
+<h2 id="section-26">Phần X — Boot Linux trong QEMU</h2>
+<h3 id="section-27">16. QEMU làm gì?</h3>
+<p>QEMU cung cấp CPU/RAM/serial/interrupt controller ảo. Lab <strong>không gắn disk host</strong>. Guest kernel và guest rootfs độc lập với host.</p>
+<p>&lt;!--DIAGRAM:qemu--&gt;</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>qemu-system-x86_64 \
+  -m 256M -smp 1 \
+  -kernel &quot;$kernel_image&quot; -initrd &quot;$initramfs_file&quot; \
+  -append 'console=ttyS0 rdinit=/init' \
+  -nographic -no-reboot -nic none
+</code></pre></div>
+<table>
+<thead>
+<tr>
+  <th>Tham số</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>-m 256M</code></td>
+  <td>RAM guest 256 MiB</td>
+</tr>
+<tr>
+  <td><code>-smp 1</code></td>
+  <td>Một vCPU</td>
+</tr>
+<tr>
+  <td><code>-kernel</code></td>
+  <td>Kernel image</td>
+</tr>
+<tr>
+  <td><code>-initrd</code></td>
+  <td>Initramfs</td>
+</tr>
+<tr>
+  <td><code>-append</code></td>
+  <td>Kernel command line</td>
+</tr>
+<tr>
+  <td><code>console=ttyS0</code></td>
+  <td>Serial console đầu tiên trong cấu hình x86 phù hợp</td>
+</tr>
+<tr>
+  <td><code>rdinit=/init</code></td>
+  <td>Init trong initramfs</td>
+</tr>
+<tr>
+  <td><code>-nographic</code></td>
+  <td>Không có GUI, terminal serial</td>
+</tr>
+<tr>
+  <td><code>-no-reboot</code></td>
+  <td>Không tự reboot</td>
+</tr>
+<tr>
+  <td><code>-nic none</code></td>
+  <td>Không cấu hình NIC mặc định qua option này</td>
+</tr>
+</tbody>
+</table>
+<p>Không cần <code>-enable-kvm</code>; QEMU có thể chạy bằng TCG emulation chậm hơn. Nếu không có <code>/dev/kvm</code>, lab vẫn có thể chạy.</p>
+<h3 id="section-28">17. Kết quả boot mong đợi</h3>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>Linux version ...
+...
+Run /init as init process
+...
+Minimal Linux ready
+</code></pre></div>
+<p>Trong guest:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>/bin/busybox uname -a
+/bin/busybox cat /proc/cmdline
+/bin/busybox ps
+/bin/busybox mount
+/bin/busybox cat /proc/meminfo
+</code></pre></div>
+<p><code>uname -a</code> phản ánh <strong>guest kernel</strong>, không phải host kernel. BusyBox shell có thể báo <code>can't access tty; job control turned off</code> do chưa thiết lập controlling terminal đầy đủ; đó khác lỗi boot. Có thể cải thiện bằng <code>setsid</code>/<code>cttyhack</code> nếu applet có sẵn, nhưng phải giữ đúng vòng đời PID 1. Thoát QEMU <code>-nographic</code>: <strong>Ctrl+A rồi X</strong>. Rootfs RAM mất thay đổi sau thoát.</p>
+<h2 id="section-29">Phần XI — Debug Kernel Boot theo checkpoint</h2>
+<h3 id="section-30">18. Phương pháp senior: xác định điểm dừng</h3>
+<p>Đừng thay hàng loạt <code>.config</code> rồi hy vọng. Phân biệt: (1) QEMU chạy chưa; (2) kernel in log chưa; (3) giải nén initramfs chưa; (4) thực thi <code>/init</code> chưa; (5) mount và shell chạy chưa.</p>
+<p>&lt;!--DIAGRAM:checkpoints--&gt;</p>
+<h3 id="section-31">19. Không có console</h3>
+<p>Các giả thuyết: kernel không chạy; kernel chạy nhưng console sai; thiếu driver 8250 console; frontend QEMU sai; panic trước console. Kiểm tra:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>grep -E 'CONFIG_SERIAL_8250(_CONSOLE)?=' .config
+# Kernel command line:
+# console=ttyS0
+</code></pre></div>
+<p>Trong QEMU x86 cấu hình UART COM1 legacy tương ứng, có thể thử:</p>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>earlycon=uart8250,io,0x3f8,115200 console=ttyS0,115200 rdinit=/init
+</code></pre></div>
+<p><code>0x3f8</code> không phải địa chỉ UART chung cho mọi nền tảng. <strong>Không thấy log chưa chứng minh kernel treo.</strong></p>
+<h3 id="section-32">20. No working init found</h3>
+<p>Các nguyên nhân: <code>/init</code> thiếu, không executable, shebang sai, <code>BINFMT_SCRIPT</code> thiếu, <code>/bin/sh</code> thiếu, BusyBox sai kiến trúc, thiếu ELF loader. Debug theo chuỗi dependency:</p>
+<p>&lt;!--DIAGRAM:initdebug--&gt;</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>ls -l &quot;$rootfs_dir/init&quot; &quot;$rootfs_dir/bin/sh&quot;
+file &quot;$rootfs_dir/bin/busybox&quot;
+readelf -l &quot;$rootfs_dir/bin/busybox&quot;
+gzip -dc &quot;$initramfs_file&quot; | cpio -it
+</code></pre></div>
+<p><strong>Lỗi phổ biến:</strong> sửa file trong rootfs nhưng không đóng gói lại cpio; QEMU vẫn boot archive cũ.</p>
+<h3 id="section-33">21. File tồn tại nhưng chạy báo <code>not found</code></h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>ls -l /bin/myapp
+/bin/myapp
+# not found
+</code></pre></div>
+<p>Có thể thiếu ELF interpreter:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>readelf -l myapp
+# Requesting program interpreter: /lib64/ld-linux-x86-64.so.2
+</code></pre></div>
+<p>Kernel tìm executable nhưng không tìm được interpreter nên <code>execve</code> có thể trả <code>ENOENT</code>. Host library không tự xuất hiện trong guest. Cần đúng ABI, loader, shared libraries hoặc binary static phù hợp.</p>
+<h3 id="section-34">22. Không đọc được initramfs</h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>file &quot;$initramfs_file&quot;
+gzip -t &quot;$initramfs_file&quot;
+gzip -dc &quot;$initramfs_file&quot; | cpio -it
+grep CONFIG_BLK_DEV_INITRD .config
+grep CONFIG_RD_GZIP .config
+</code></pre></div>
+<p>Kiểm tra QEMU dùng đúng archive vừa build, không chỉ kiểm tra file gzip tồn tại. <code>gzip</code> hợp lệ chưa chắc <code>cpio</code> hợp lệ.</p>
+<h3 id="section-35">23. PID 1 chết</h3>
+<div class="code-wrap"><div class="code-head"><span>sh</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>#!/bin/sh
+echo Hello
+# script kết thúc =&gt; init hệ thống chết, kernel thường panic
+</code></pre></div>
+<p>Lab giữ PID 1 sống bằng vòng lặp. Production cần reap child processes, xử lý signal, restart/backoff, shutdown và filesystem cleanup. PID 1 trong container có semantics đặc biệt trong PID namespace, nhưng không đồng nhất với PID 1 host.</p>
+<h3 id="section-36">24. Tình huống debug tương tác</h3>
+<p>&lt;!--INTERACTIVE:quiz--&gt;</p>
+<h2 id="section-37">Phần XII — Vì sao không có systemd vẫn là Linux?</h2>
+<h3 id="section-38">25. Kernel, distro và init system khác nhau</h3>
+<table>
+<thead>
+<tr>
+  <th>Thành phần</th>
+  <th>Bản chất</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Linux Kernel</td>
+  <td>Nhân hệ điều hành</td>
+</tr>
+<tr>
+  <td>Ubuntu / Debian</td>
+  <td>Distribution</td>
+</tr>
+<tr>
+  <td>systemd</td>
+  <td>Init/service management suite</td>
+</tr>
+<tr>
+  <td>BusyBox</td>
+  <td>User-space utilities</td>
+</tr>
+<tr>
+  <td>glibc / musl</td>
+  <td>C library implementations</td>
+</tr>
+<tr>
+  <td>QEMU</td>
+  <td>Emulator/VM monitor</td>
+</tr>
+<tr>
+  <td>Initramfs</td>
+  <td>Initial root filesystem archive</td>
+</tr>
+</tbody>
+</table>
+<p>Hệ thống có thể là Linux Kernel + BusyBox + init script; hoặc Linux + musl + OpenRC; hoặc Linux + systemd. <strong>Linux được xác định bởi Linux Kernel</strong>, không phải một init system cụ thể. BusyBox vẫn sử dụng system call để yêu cầu kernel thực hiện I/O, process, memory... Lưu ý API libc và syscall không nhất thiết ánh xạ một-một.</p>
+<h2 id="section-39">Phần XIII — Embedded Linux thực tế</h2>
+<h3 id="section-40">26. QEMU x86 khác board thật</h3>
+<p>QEMU mô phỏng phần cứng được cấu hình; board thật có SoC, DDR, clock/reset, IRQ, UART, eMMC/SD, firmware, bootloader, Device Tree khác nhau.</p>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>Boot ROM
+   ↓
+SPL / early bootloader (tùy board)
+   ↓
+U-Boot hoặc bootloader khác
+   ↓
+Linux Kernel + Device Tree (nếu dùng)
+   ↓
+Root filesystem
+   ↓
+PID 1
+</code></pre></div>
+<p>Cùng ARM64 ISA không đủ; kernel cần tương thích board, boot protocol, driver và DT/ACPI tương ứng. QEMU không thay thế kiểm thử trên hardware thật.</p>
+<h3 id="section-41">27. Buildroot và Yocto</h3>
+<p>Khi cần SSH, TLS, network tools, database, Python, logging, OTA, tự copy binary và library trở nên khó bảo trì. Buildroot xây toolchain/kernel/rootfs/packages theo cấu hình; Yocto sử dụng recipe/layer/metadata để tạo distribution tùy biến với nhiều biến thể.</p>
+<table>
+<thead>
+<tr>
+  <th>Tiêu chí</th>
+  <th>Tự làm</th>
+  <th>Buildroot</th>
+  <th>Yocto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Học cơ chế</td>
+  <td>Rất tốt</td>
+  <td>Tốt</td>
+  <td>Tốt nhưng phức tạp</td>
+</tr>
+<tr>
+  <td>Rootfs nhỏ</td>
+  <td>Có</td>
+  <td>Có</td>
+  <td>Có</td>
+</tr>
+<tr>
+  <td>Package management lúc build</td>
+  <td>Thủ công</td>
+  <td>Tích hợp</td>
+  <td>Recipe/layer</td>
+</tr>
+<tr>
+  <td>Độ phức tạp</td>
+  <td>Thấp ban đầu</td>
+  <td>Trung bình</td>
+  <td>Cao hơn</td>
+</tr>
+<tr>
+  <td>Mở rộng sản phẩm</td>
+  <td>Khó</td>
+  <td>Phù hợp nhiều hệ thống cố định</td>
+  <td>Mạnh cho distribution tùy biến</td>
+</tr>
+</tbody>
+</table>
+<p>Không có lựa chọn luôn tốt hơn; tùy vòng đời sản phẩm, OTA, quy mô đội và yêu cầu bảo trì.</p>
+<h2 id="section-42">Phần XIV — Các vấn đề production sâu hơn</h2>
+<h3 id="section-43">28. Build máy A chạy, máy B lỗi</h3>
+<p>Nguồn khác biệt: GCC, binutils, source, <code>.config</code>, dependencies, environment, target toolchain. Lưu metadata:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>make kernelversion &gt; kernel-version.txt
+gcc --version &gt; gcc-version.txt
+cp .config kernel.config
+sha256sum arch/x86/boot/bzImage &gt; bzImage.sha256
+</code></pre></div>
+<p><strong>Repeatable build</strong> là chạy lại quy trình; <strong>reproducible build</strong> là tái tạo artifact giống nhau theo tiêu chí xác định với đầu vào/điều kiện kiểm soát. Timestamp, build path, user, metadata có thể ảnh hưởng.</p>
+<h3 id="section-44">29. Kernel nhỏ hơn chưa chắc tốt hơn</h3>
+<p>Tắt driver storage có thể giảm image nhưng làm boot thất bại; tắt <code>PROC_FS</code> làm công cụ phụ thuộc <code>/proc</code> không hoạt động. Phải xác định mục tiêu: flash, RAM, boot time, attack surface, maintenance. Driver dưới dạng module không nhất thiết giảm tổng firmware nếu vẫn đóng gói module.</p>
+<h3 id="section-45">30. Kernel module compatibility</h3>
+<p>Module <code>.ko</code> build cho kernel A không tự tương thích kernel B. ABI, <code>vermagic</code>, symbols và config khác nhau:</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>modinfo mydriver.ko
+uname -r
+insmod mydriver.ko
+</code></pre></div>
+<p>Không giả định version gần nhau là có thể hoán đổi. Out-of-tree modules phải build/test với target kernel thực tế.</p>
+<h3 id="section-46">31. Root disk cần chuỗi driver đầy đủ</h3>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>eMMC host controller
+    ↓
+MMC subsystem
+    ↓
+Block layer
+    ↓
+Partition recognition
+    ↓
+Filesystem driver (ví dụ ext4)
+    ↓
+Mount root
+    ↓
+Execute init
+</code></pre></div>
+<p>Kernel boot từ RAM trong QEMU không kiểm chứng eMMC controller. Initramfs có thể chứa module và tools để mount root thật, nhưng không tự chữa mọi thiếu sót driver hoặc module support.</p>
+<h3 id="section-47">32. Tối ưu boot time theo bottleneck</h3>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>Firmware time + Bootloader time + Kernel init time + User-space init time = Total boot time
+</code></pre></div>
+<p>Có thể thêm <code>printk.time=1</code> để hiển thị timestamp kernel log khi hỗ trợ. Nếu bootloader mất 3 giây, giảm shell script 100 ms xuống 50 ms ít ảnh hưởng. <strong>Đo rồi mới tối ưu.</strong></p>
+<h2 id="section-48">Phần XV — Lab nâng cao</h2>
+<h3 id="section-49">33. Kiểm tra PID 1</h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>/bin/busybox ps
+/bin/busybox cat /proc/1/status
+/bin/busybox cat /proc/1/cmdline
+</code></pre></div>
+<p>PID 1 có thể được hiển thị dưới tên <code>init</code> hoặc <code>sh</code> tùy script/BusyBox; không mặc định là systemd.</p>
+<h3 id="section-50">34. Kiểm tra root filesystem</h3>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>/bin/busybox mount
+/bin/busybox cat /proc/mounts
+</code></pre></div>
+<p>Không có ổ cứng vẫn có filesystem: <code>rootfs</code>, <code>procfs</code>, <code>sysfs</code>, <code>devtmpfs</code>...</p>
+<h3 id="section-51">35. Quan sát system calls</h3>
+<p>BusyBox không nhất thiết có <code>strace</code> applet. Nếu muốn trace, đưa binary strace phù hợp cùng dependencies hoặc dùng kernel tracing tương thích. Ví dụ logic:</p>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>Shell → execve() → BusyBox cat
+                  ↓
+       openat('/proc/cmdline')
+                  ↓
+             read() → write(stdout) → close()
+</code></pre></div>
+<h3 id="section-52">36. Thử kernel command line</h3>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>console=ttyS0 rdinit=/init loglevel=7
+console=ttyS0 rdinit=/init quiet
+</code></pre></div>
+<p>Thay đổi lượng log không đồng nghĩa thay đổi tình trạng kernel.</p>
+<h2 id="section-53">Phần XVI — Quy trình build đáng tin cậy</h2>
+<h3 id="section-54">37. Từ lab thủ công đến CI</h3>
+<div class="code-wrap"><div class="code-head"><span>text</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>linux-product/
+├── configs/kernel.config
+├── configs/busybox.config
+├── scripts/build-kernel.sh
+├── scripts/build-rootfs.sh
+├── scripts/pack-initramfs.sh
+├── scripts/run-qemu.sh
+├── rootfs-overlay/init
+├── manifests/toolchain.txt
+├── tests/smoke-test.sh
+└── README.md
+</code></pre></div>
+<p>Kiểm soát source revision, toolchain, config, rootfs, build scripts, artifact hash, test results, release metadata. Không để sản phẩm chỉ build được trên laptop một người.</p>
+<p><strong>Ghi log serial</strong> (ví dụ output ra file, không còn tương tác terminal như <code>-nographic</code>):</p>
+<div class="code-wrap"><div class="code-head"><span>bash</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>qemu-system-x86_64 \
+  -m 256M -smp 1 \
+  -kernel &quot;$kernel_image&quot; -initrd &quot;$initramfs_file&quot; \
+  -append 'console=ttyS0 rdinit=/init' \
+  -display none \
+  -serial file:&quot;$HOME/linux-lab/logs/serial.log&quot; \
+  -monitor none -no-reboot -nic none
+</code></pre></div>
+<h3 id="section-55">38. Smoke test</h3>
+<table>
+<thead>
+<tr>
+  <th>Kiểm tra</th>
+  <th>Chứng minh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Kernel log xuất hiện</td>
+  <td>Kernel bắt đầu chạy</td>
+</tr>
+<tr>
+  <td><code>Minimal Linux ready</code></td>
+  <td>Init tới checkpoint</td>
+</tr>
+<tr>
+  <td><code>/proc/cmdline</code></td>
+  <td>procfs hoạt động</td>
+</tr>
+<tr>
+  <td><code>/sys</code> mount</td>
+  <td>sysfs hoạt động</td>
+</tr>
+<tr>
+  <td>BusyBox chạy</td>
+  <td>User-space executable hoạt động</td>
+</tr>
+<tr>
+  <td>PID 1 còn sống</td>
+  <td>Init không kết thúc</td>
+</tr>
+<tr>
+  <td>Không thấy panic</td>
+  <td>Không phát hiện panic trong bài test</td>
+</tr>
+</tbody>
+</table>
+<p>Production cần thêm stress, memory pressure, driver/storage, power-loss, security, long-duration, OTA rollback test.</p>
+<h2 id="section-56">Phần XVII — Tổng hợp tư duy senior</h2>
+<h3 id="section-57">39. Mối quan hệ cần nhớ</h3>
+<table>
+<thead>
+<tr>
+  <th>Câu hỏi</th>
+  <th>Bản chất</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Source khác image?</td>
+  <td>Source là đầu vào, image là artifact</td>
+</tr>
+<tr>
+  <td><code>.config</code> quyết định gì?</td>
+  <td>Subsystem, driver, tính năng</td>
+</tr>
+<tr>
+  <td>Toolchain đúng kiến trúc?</td>
+  <td>CPU chạy machine code theo ISA</td>
+</tr>
+<tr>
+  <td>Kernel vẫn cần rootfs?</td>
+  <td>User space không tự có trong kernel</td>
+</tr>
+<tr>
+  <td>Initramfs?</td>
+  <td>Filesystem ban đầu trong RAM</td>
+</tr>
+<tr>
+  <td>BusyBox?</td>
+  <td>Nhiều tiện ích trong một binary</td>
+</tr>
+<tr>
+  <td>PID 1?</td>
+  <td>Init có vòng đời đặc biệt</td>
+</tr>
+<tr>
+  <td>QEMU?</td>
+  <td>Kiểm thử môi trường ảo</td>
+</tr>
+<tr>
+  <td>Build success khác boot success?</td>
+  <td>Compile-time khác runtime</td>
+</tr>
+<tr>
+  <td>QEMU khác board thật?</td>
+  <td>Hardware, firmware, boot, driver khác</td>
+</tr>
+</tbody>
+</table>
+<h3 id="section-58">40. Năm nguyên tắc</h3>
+<ol>
+<li><strong>Hiểu dependency trước khi debug:</strong> <code>/init</code> phụ thuộc shebang, interpreter, ELF, loader.</li>
+<li><strong>Phân biệt boot stages:</strong> lỗi trước kernel khác lỗi khi PID 1 chạy.</li>
+<li><strong>Không đồng nhất build success với correctness:</strong> phải boot và kiểm thử.</li>
+<li><strong>Luôn có observability:</strong> serial console, log, artifact metadata.</li>
+<li><strong>Thiết kế reproducibility:</strong> người khác phải tái tạo được kết quả.</li>
+</ol>
+<h3 id="section-59">41. Checklist tương tác</h3>
+<p>&lt;!--INTERACTIVE:checklist--&gt;</p>
+<h3 id="section-60">42. Câu hỏi phỏng vấn Senior Embedded Linux</h3>
+<ol>
+<li>Vì sao kernel chạy không cần systemd nhưng <code>bzImage</code> một mình chưa tạo user space hữu ích?</li>
+<li>Phân biệt <code>vmlinux</code>, <code>bzImage</code>, module, initramfs.</li>
+<li>Tại sao storage driver <code>=m</code> có thể gây lỗi mount root?</li>
+<li>Vì sao ELF tồn tại mà <code>execve()</code> trả <code>ENOENT</code>?</li>
+<li>Vì sao hai board ARM64 cần Device Tree/driver khác nhau?</li>
+<li>Điều gì xảy ra nếu PID 1 kết thúc?</li>
+<li>Initramfs giải quyết dependency root filesystem như thế nào?</li>
+<li>Tại sao không bật tất cả kernel options?</li>
+<li>Phân biệt kernel không boot và kernel boot không có console?</li>
+<li>Thiết kế CI pipeline build/boot QEMU và verify artifact như thế nào?</li>
+</ol>
+<h3 id="section-61">43. Hướng phát triển tiếp theo</h3>
+<p><strong>Kernel development:</strong> Debug symbols, QEMU GDB stub, breakpoint ở <code>start_kernel()</code>, <code>rest_init()</code>, đường đến init.</p>
+<p><strong>Embedded Linux:</strong> Virtual disk, virtio block, ext4 rootfs, Buildroot, ARM64 cross-build.</p>
+<p><strong>Production:</strong> Read-only rootfs, overlayfs, watchdog, crash recovery, panic handling, secure/verified boot, A/B OTA rollback.</p>
+<h2 id="section-62">Phần XVIII — Bổ sung lab và nghiệm thu từ phần tiếp nối</h2>
+<h3 id="section-63">44. Lab cố tình làm hỏng initramfs</h3>
+<p>Thay shebang <code>/init</code> bằng một đường dẫn không tồn tại, <strong>chỉ trong lab</strong>:</p>
+<div class="code-wrap"><div class="code-head"><span>sh</span><button class="copy-code" type="button">Sao chép</button></div><pre><code>#!/bin/not-exist
+</code></pre></div>
+<p>Đóng gói lại initramfs, boot và quan sát kernel không thực thi được init. Sau đó khôi phục <code>#!/bin/sh</code>. Có thể thử xóa symlink <code>/bin/sh</code>, hoặc dùng BusyBox dynamic thiếu loader, để phân biệt các loại lỗi. Không làm thử trên rootfs production.</p>
+<h3 id="section-64">45. Checklist nghiệm thu cuối bài</h3>
+<p>&lt;!--INTERACTIVE:acceptance--&gt;</p>
+<h3 id="section-65">46. Sơ đồ tổng kết end-to-end</h3>
+<p>&lt;!--DIAGRAM:final--&gt;</p>
+<p><strong>Kết luận:</strong> Hiểu quan hệ giữa kernel, kiến trúc CPU, Kconfig, toolchain, driver, initramfs, BusyBox, PID 1 và phần cứng cho phép bạn chẩn đoán lỗi boot dựa trên bằng chứng, không dựa vào thử ngẫu nhiên. Build thành công là bước đầu, boot thành công là bước tiếp theo, production readiness đòi hỏi kiểm thử sâu hơn.</p>
+<h2 id="section-66">Đọc thêm</h2>
+<ul>
+<li><a href="https://docs.kernel.org/admin-guide/quickly-build-trimmed-linux.html">Linux Kernel — Build Guide</a></li>
+<li><a href="https://docs.kernel.org/filesystems/ramfs-rootfs-initramfs.html">Linux Kernel — Initramfs</a></li>
+<li><a href="https://docs.kernel.org/kbuild/index.html">Linux Kernel — Kbuild</a></li>
+<li><a href="https://www.qemu.org/docs/master/system/invocation.html">QEMU — Invocation</a></li>
+<li><a href="https://buildroot.org/">Buildroot</a></li>
+<li><a href="https://www.yoctoproject.org/">Yocto Project</a></li>
+</ul>
+</main></div><div class="floating"><button class="btn" id="theme">☾ Tối</button><button class="btn" id="print">⎙ In/PDF</button><button class="btn primary" id="top">↑ Đầu trang</button></div><script>
+const diagrams={
+ layers:[['Applications','Browser · Database · Server · CLI'],['User Space','systemd · Shell · glibc · Utilities'],['System Call Interface','Ranh giới user/kernel'],['Linux Kernel','Scheduler · Memory · VFS · Network · Drivers'],['Hardware','CPU · RAM · Storage · UART · NIC']],
+ build:[['Kernel Source','C · Assembly · Kconfig · Makefile'],['Kconfig + .config','Chọn driver và tính năng'],['Kbuild + Compiler + Linker','Compile · Assemble · Link'],['vmlinux / bzImage','ELF debug / x86 boot image'],['Modules .ko','Nếu được cấu hình và build']],
+ arch:[['Source C','Mã nguồn chung'],['Compiler x86-64 / AArch64','Target khác nhau'],['Machine code theo ISA','Không hoán đổi trực tiếp'],['CPU đích','Phải tương thích ISA']],
+ shebang:[['Kernel execve("/init")','Kernel mở executable'],['Shebang #!/bin/sh','BINFMT_SCRIPT'],['/bin/sh → /bin/busybox','Phân giải symbolic link'],['BusyBox shell','Thực thi nội dung script /init']],
+ archive:[['Rootfs directory','/init · /bin · /dev · /proc · /sys'],['find + cpio newc','Đóng gói metadata và file'],['gzip','Nén archive'],['initramfs.cpio.gz','Truyền cho QEMU -initrd']],
+ qemu:[['Host Linux','Compiler · Source · QEMU process'],['QEMU Virtual Machine','CPU/RAM/UART ảo'],['Guest Kernel','bzImage'],['Guest rootfs','initramfs trong RAM'],['PID 1 → BusyBox shell','Không cần systemd']],
+ checkpoints:[['Checkpoint 1','QEMU có khởi động không?'],['Checkpoint 2','Kernel có bắt đầu in log không?'],['Checkpoint 3','Kernel giải nén initramfs không?'],['Checkpoint 4','Kernel chạy /init không?'],['Checkpoint 5','Init mount và shell chạy không?']],
+ initdebug:[['/init tồn tại và executable?','Kiểm tra archive + permission'],['Shebang hợp lệ?','CONFIG_BINFMT_SCRIPT'],['/bin/sh tồn tại?','Symlink đến BusyBox'],['BusyBox đúng ISA?','file/readelf'],['Loader và libraries đầy đủ?','Static hoặc dynamic dependencies']],
+ final:[['Kernel Source','C · Assembly · Kconfig'],['.config + Toolchain','Kbuild / Compiler / Linker'],['bzImage + initramfs','Kernel + user-space files'],['QEMU Boot','CPU · RAM · serial ảo'],['Unpack initramfs','Rootfs trong RAM'],['Execute /init','PID 1'],['BusyBox Shell','Minimal Linux System']]
+};
+for(const el of document.querySelectorAll('.widget[data-widget]')){
+ const key=el.dataset.widget;
+ if(diagrams[key]){let out='<div class="diagram">';diagrams[key].forEach(([title,desc],i)=>{if(i)out+='<div class="arrow">↓</div>';out+=`<div class="node">${title}<small>${desc}</small></div>`});el.innerHTML=out+'</div>';}
+}
+const boot=[['Firmware / QEMU','QEMU tạo máy ảo và nạp kernel/initrd theo cấu hình.'],['Kernel startup','Kernel thiết lập CPU, memory, scheduler và các subsystem cần thiết.'],['Unpack initramfs','Kernel giải nén cpio archive vào rootfs trong RAM.'],['Start /init','Kernel thực thi /init qua exec; init trở thành PID 1.'],['BusyBox shell','Init mount filesystem rồi chạy shell để tương tác.']];
+const bootEl=document.querySelector('[data-widget="boot"]');if(bootEl){let step=0;function render(){bootEl.innerHTML=`<b>Boot sequence tương tác</b><div class="steps">${boot.map((_,i)=>`<button data-step="${i}" class="${i<=step?'active':''}" aria-label="Bước ${i+1}"></button>`).join('')}</div><div class="panel"><b>${step+1}. ${boot[step][0]}</b><p>${boot[step][1]}</p></div><div class="controls"><button class="btn" id="prevBoot" ${step===0?'disabled':''}>← Trước</button><span>${step+1}/${boot.length}</span><button class="btn primary" id="nextBoot">${step===boot.length-1?'Xem lại':'Tiếp theo'} →</button></div>`;bootEl.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{step=+b.dataset.step;render()});bootEl.querySelector('#prevBoot').onclick=()=>{step=Math.max(0,step-1);render()};bootEl.querySelector('#nextBoot').onclick=()=>{step=(step+1)%boot.length;render()}}render()}
+const quiz=[
+ {q:'Xóa /bin/sh nhưng /init vẫn có #!/bin/sh. Điều gì xảy ra?',opts:['Kernel tự dùng Bash của host','Không thực thi được /init','QEMU tự cài shell'],a:1,why:'Shebang yêu cầu /bin/sh trong guest. Kernel không tự dùng shell host.'},
+ {q:'BusyBox dynamic thiếu ELF interpreter. Điều gì có thể xảy ra?',opts:['Vẫn chạy bình thường','Tự tải thư viện qua mạng','Exec thất bại dù binary tồn tại'],a:2,why:'Kernel phải mở interpreter được khai báo trong ELF.'},
+ {q:'Sửa /init nhưng không đóng gói lại cpio.gz. QEMU dùng bản nào?',opts:['/init cũ trong archive','/init mới trên host','Kernel tự đồng bộ'],a:0,why:'QEMU dùng archive -initrd, không đọc trực tiếp rootfs directory.'},
+ {q:'Boot initramfs trong QEMU thành công chứng minh điều gì?',opts:['Đủ driver cho mọi disk thật','Đủ chức năng cho mọi sản phẩm','Lab chạy được, chưa chứng minh đủ storage driver thật'],a:2,why:'RAM rootfs không kiểm tra storage controller và filesystem của root disk thật.'}
+];
+const quizEl=document.querySelector('[data-widget="quiz"]');if(quizEl){let qi=0,selected=-1;function render(){let x=quiz[qi];quizEl.innerHTML=`<b>Debugging challenge · ${qi+1}/${quiz.length}</b><p><strong>${x.q}</strong></p>${x.opts.map((o,i)=>`<label class="choice"><input type="radio" name="quiz" value="${i}" ${selected===i?'checked':''}> ${o}</label>`).join('')}${selected<0?'':`<div class="feedback"><b>${selected===x.a?'✓ Chính xác':'✗ Chưa chính xác'}</b><p>${x.why}</p></div>`}<div class="controls"><span>Chọn đáp án để xem giải thích</span><button class="btn primary" id="nextQuiz">${qi===quiz.length-1?'Làm lại':'Câu tiếp theo'} →</button></div>`;quizEl.querySelectorAll('input').forEach(r=>r.onchange=()=>{selected=+r.value;render()});quizEl.querySelector('#nextQuiz').onclick=()=>{qi=(qi+1)%quiz.length;selected=-1;render()}}render()}
+const checklist=['Build kernel x86-64 và lưu .config','Tạo BusyBox static initramfs','Có /init và /dev/console','Boot QEMU và thấy Minimal Linux ready','Kiểm tra PID 1, /proc, /sys','Cố tình tạo lỗi và debug','Lưu checksum, command line, serial log'];
+const acceptance=['Kernel source có phiên bản xác định','Lưu .config và thông tin compiler','Build được arch/x86/boot/bzImage','BusyBox static đúng kiến trúc','Initramfs có /init và /dev/console','QEMU in Minimal Linux ready','Đọc được /proc/cmdline và /proc/meminfo','PID 1 còn hoạt động','Lưu log và checksum artifact'];
+function makeChecks(key,items){const el=document.querySelector(`[data-widget="${key}"]`);if(!el)return;let checked=new Set();function render(){el.innerHTML=`<b>${key==='acceptance'?'Checklist nghiệm thu':'Checklist hoàn thành Bài 38'} · ${checked.size}/${items.length}</b><div class="progress"><div style="width:${100*checked.size/items.length}%"></div></div>${items.map((x,i)=>`<label class="checkrow"><input type="checkbox" data-id="${i}" ${checked.has(i)?'checked':''}><span>${x}</span></label>`).join('')}${checked.size===items.length?'<p>✓ Đã hoàn thành toàn bộ checklist.</p>':''}`;el.querySelectorAll('input').forEach(x=>x.onchange=()=>{let i=+x.dataset.id;x.checked?checked.add(i):checked.delete(i);render()})}render()}
+makeChecks('checklist',checklist);makeChecks('acceptance',acceptance);
+document.querySelectorAll('.copy-code').forEach(b=>b.onclick=async()=>{let text=b.closest('.code-wrap').querySelector('code').textContent;try{await navigator.clipboard.writeText(text);b.textContent='Đã sao chép ✓'}catch(e){let ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='Đã sao chép ✓'}setTimeout(()=>b.textContent='Sao chép',1600)});
+document.querySelector('#theme').onclick=()=>{document.body.classList.toggle('dark');document.querySelector('#theme').textContent=document.body.classList.contains('dark')?'☀ Sáng':'☾ Tối'};
+document.querySelector('#print').onclick=()=>window.print();document.querySelector('#top').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 07 — Cây thư mục và các loại file trong Linux</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#0b1220;color:#e8edf5;line-height:1.75}header{padding:65px 5vw 45px;background:linear-gradient(120deg,#14233d,#1c3555)}header h1{font-size:clamp(30px,4vw,54px);line-height:1.16;margin:0 0 16px}header p{max-width:900px;color:#b8c9e0}.layout{display:grid;grid-template-columns:275px minmax(0,1fr);gap:28px;max-width:1500px;margin:auto;padding:30px 24px}nav{position:sticky;top:15px;height:calc(100vh - 30px);overflow:auto;background:#101d30;border:1px solid #263d59;border-radius:15px;padding:18px}nav a{display:block;color:#bbcee4;text-decoration:none;font-size:13px;padding:7px 9px;border-radius:6px}nav a:hover{background:#243b58}main{min-width:0}section{background:#111d2e;border:1px solid #263850;border-radius:16px;margin-bottom:22px;padding:clamp(20px,3vw,36px)}h2{color:#9fd5ff;font-size:25px;line-height:1.3;margin-top:0}h3{color:#c4e6ff;margin-top:26px}p{margin:12px 0}pre{background:#08111e;border:1px solid #29415e;border-radius:10px;padding:18px;overflow-x:auto;color:#c6f4d7;line-height:1.6;white-space:pre}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em}p code,td code{background:#24334b;border-radius:4px;padding:2px 5px;color:#a8e6fa}table{border-collapse:collapse;width:100%;margin:16px 0;display:block;overflow-x:auto}th,td{border:1px solid #32455f;padding:10px 14px;text-align:left;min-width:105px}th{background:#1b304a;color:#b9e6ff}.widget{border:1px solid #3b6591;border-radius:12px;background:#172940;padding:20px;margin:20px 0}.widget button,button{background:#2375b9;border:1px solid #58a5dd;color:white;padding:9px 14px;border-radius:8px;margin:6px 6px 6px 0;cursor:pointer}.widget button:hover{background:#318bd3}.widget pre{white-space:pre-wrap}details{border:1px solid #36516e;border-radius:8px;margin:10px 0;padding:10px}summary{cursor:pointer}label{display:block;padding:5px}.good{color:#7ee4a0}.bad{color:#ff9b9b}.progress{font-weight:bold;color:#a8d7ff}footer{padding:35px;text-align:center;color:#92a7bd}@media(max-width:850px){.layout{display:block;padding:12px}nav{position:static;height:auto;max-height:260px;margin-bottom:15px}section{padding:18px}}@media print{body{background:white;color:#111}header,section,nav{background:white;color:#111;border-color:#aaa}pre{color:#111;background:#f4f4f4}nav{display:none}.layout{display:block}h2,h3{color:#12416b}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="07"><header><h1>Bài 07 — Cây thư mục và các loại file</h1><p>Giải thích từ nền tảng đến chuyên sâu · Inode · VFS · Mount · Symlink · procfs · sysfs · Device nodes · Lab · Tương tác JavaScript</p><p>File HTML độc lập: toàn bộ CSS và JavaScript được nhúng trực tiếp, không cần Internet.</p></header><div class="layout"><nav><strong>Mục lục</strong><a href="#s1">1. Vì sao Linux cần cây thư mục?</a><a href="#s2">2. Filesystem, partition và mount</a><a href="#s3">3. Mount che dữ liệu cũ</a><a href="#s4">4. Ý nghĩa các thư mục hệ thống</a><a href="#s5">5. Đường dẫn tuyệt đối, tương đối và working directory</a><a href="#s6">6. Inode, directory entry và dữ liệu</a><a href="#s7">7. Bảy loại file</a><a href="#s8">8. Hard link và symlink</a><a href="#s9">9.1. Tại sao symlink bị hỏng khi đổi tên?</a><a href="#s10">9.2. readlink, realpath và stat</a><a href="#s11">10. Logical path và physical path</a><a href="#s12">11. /proc và procfs</a><a href="#s13">12. /sys và sysfs</a><a href="#s14">13. /dev và device node</a><a href="#s15">14. ls, stat, file: ba góc nhìn</a><a href="#s16">15. Permission denied và quyền thư mục cha</a><a href="#s17">16. File ẩn và dấu chấm</a><a href="#s18">17. Lab tổng hợp</a><a href="#s19">18. Những lỗi production tương tự</a><a href="#s20">19. Kiểm tra kiến thức tương tác</a><a href="#s21">20. Câu hỏi nâng cao và giải thích</a><a href="#s22">21. Từ userspace tới phần cứng</a><a href="#s23">22. Checklist debug theo tư duy senior</a><a href="#s24">23. Tổng kết và bài tiếp theo</a></nav><main><section id="s1"><h2>1. Vì sao Linux cần cây thư mục?</h2>Linux tổ chức các tài nguyên trong một cây tên thống nhất bắt đầu tại <code>/</code>. Ổ SSD, thẻ SD, giao diện kernel và thiết bị đều có thể xuất hiện dưới dạng đường dẫn. Nhưng cùng là đường dẫn không có nghĩa cùng cơ chế lưu trữ. <p>Ví dụ: <code>/home</code> thường là dữ liệu bền vững; <code>/proc/uptime</code> được kernel cung cấp; <code>/dev/ttyS0</code> có thể là cổng UART.</p><pre><code>/
+├── etc/       Cấu hình
+├── usr/       Chương trình
+├── var/       Log và dữ liệu thay đổi
+├── home/      Dữ liệu người dùng
+├── run/       Trạng thái runtime
+├── tmp/       File tạm
+├── dev/       Device nodes
+├── proc/      Thông tin kernel/process
+└── sys/       Thuộc tính thiết bị</code></pre><p><strong>Phản biện:</strong> Root directory <code>/</code> khác với home của root user <code>/root</code>.</p></section><section id="s2"><h2>2. Filesystem, partition và mount</h2>Filesystem quản lý tên, metadata, nội dung và các thao tác với file. ext4, XFS, Btrfs là filesystem lưu trữ; tmpfs, procfs, sysfs có cơ chế khác. <pre><code>/dev/mmcblk0  (block device)
+└── /dev/mmcblk0p2 (partition)
+    └── ext4 (filesystem)
+        └── / (mount point)</code></pre><p>Đường dẫn không cho biết chắc dữ liệu nằm ở thiết bị nào. <code>findmnt -T path</code> tìm filesystem chứa đường dẫn; <code>mountpoint path</code> kiểm tra path có là mount point hay không.</p><pre><code>findmnt -T /home
+findmnt -T /proc/uptime
+findmnt -T /dev/null</code></pre></section><section id="s3"><h2>3. Mount che dữ liệu cũ</h2>Mount filesystem mới lên thư mục có dữ liệu sẽ che dữ liệu cũ trong cây nhìn thấy, không tự xóa nó. Ví dụ trước mount <code>/mnt/demo/original.txt</code>, sau mount chỉ nhìn thấy nội dung của filesystem mới. <p><strong>Tình huống production:</strong> service ghi dữ liệu vào <code>/mnt/storage</code> trước khi ổ đĩa được mount; sau khi mount dữ liệu cũ bị che. Đừng chỉ kiểm tra directory tồn tại, hãy xác nhận mount đúng.</p><div class="widget"><strong>Thử tương tác: mount / unmount</strong><button onclick="toggleMount()" id="mountBtn">Mount</button><pre id="mountView">/mnt/demo/
+└── original.txt</pre><p id="mountExplain">Chưa mount: thấy dữ liệu của thư mục bên dưới.</p></div></section><section id="s4"><h2>4. Ý nghĩa các thư mục hệ thống</h2><table><tr><th>Thư mục</th><th>Vai trò</th></tr><tr><td>/etc</td><td>Cấu hình máy, ví dụ /etc/hostname</td></tr><tr><td>/usr</td><td>Chương trình, thư viện và dữ liệu hệ thống</td></tr><tr><td>/var</td><td>Log, cache, spool, dữ liệu biến đổi</td></tr><tr><td>/run</td><td>Runtime state, thường không bền qua reboot</td></tr><tr><td>/tmp</td><td>File tạm, chính sách dọn tùy hệ thống</td></tr><tr><td>/home, /root</td><td>Home của người dùng và root</td></tr><tr><td>/boot</td><td>Thành phần khởi động, tùy distro/board</td></tr><tr><td>/opt, /srv, /media, /mnt</td><td>Ứng dụng bổ sung, dữ liệu dịch vụ và mount points</td></tr></table><pre><code>cat /etc/hostname
+cat /etc/os-release
+ls -ld /bin /sbin /lib
+readlink -f /bin
+mktemp</code></pre><p>Trên merged-usr, <code>/bin</code> có thể là symlink tới <code>/usr/bin</code>. Đây không phải dấu hiệu hệ thống hỏng.</p></section><section id="s5"><h2>5. Đường dẫn tuyệt đối, tương đối và working directory</h2>Đường dẫn tuyệt đối bắt đầu bằng <code>/</code>; đường dẫn tương đối được giải từ working directory. <code>.</code> là thư mục hiện tại, <code>..</code> là cha. <pre><code>pwd
+cd /home/user/linux-lab
+cd ..
+pwd
+cat data.txt</code></pre><p>Script gọi <code>cat config.txt</code> tìm file tương đối theo working directory của tiến trình, không mặc nhiên theo thư mục chứa script.</p><pre><code>script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)</code></pre><div class="widget"><strong>Điều hướng mô phỏng</strong><p id="cwdDisplay">/home/dev/project</p><button onclick="goParent()">cd ..</button><button onclick="goChild()">cd thư_mục_con</button><button onclick="goHome()">cd ~</button><button onclick="goRoot()">cd /</button></div></section><section id="s6"><h2>6. Inode, directory entry và dữ liệu</h2>Directory entry ánh xạ tên file tới inode. Inode chứa metadata như mode, UID, GID, kích thước, timestamp, link count và thông tin truy xuất dữ liệu. Tên file thường nằm trong directory entry chứ không nằm trong inode. <pre><code>Directory /home/dev
+  report.txt ──→ inode 1205 ──→ data blocks
+  backup.txt ──→ inode 1205 ──→ data blocks</code></pre><pre><code>mkdir -p ~/linux-lab/inode
+cd ~/linux-lab/inode
+echo "Hello Linux" > original.txt
+ls -li original.txt
+stat original.txt
+mv original.txt renamed.txt</code></pre><p>Rename trong cùng filesystem thường không cần copy dữ liệu. Di chuyển giữa filesystem thường phải copy rồi xóa nguồn.</p></section><section id="s7"><h2>7. Bảy loại file</h2><table><tr><th>Ký tự ls -l</th><th>Loại</th><th>Ví dụ</th></tr><tr><td>-</td><td>Regular file</td><td>report.txt, ELF, JPEG</td></tr><tr><td>d</td><td>Directory</td><td>/home</td></tr><tr><td>l</td><td>Symlink</td><td>current → releases/v3</td></tr><tr><td>c</td><td>Character device</td><td>/dev/null, /dev/ttyS0</td></tr><tr><td>b</td><td>Block device</td><td>/dev/mmcblk0</td></tr><tr><td>p</td><td>FIFO</td><td>Named pipe</td></tr><tr><td>s</td><td>Socket</td><td>/run/service.sock</td></tr></table><pre><code>ls -l /etc/passwd
+ls -ld /tmp
+ls -l /dev/null
+mkfifo ~/linux-lab/channel
+ss -xl</code></pre><p>FIFO trao đổi dữ liệu giữa tiến trình, không phải nơi lưu lâu dài. Socket pathname không chứa toàn bộ thông điệp. Character device không có nghĩa mỗi lần read chỉ một byte.</p></section><section id="s8"><h2>8. Hard link và symlink</h2>Hard link là một tên khác tham chiếu cùng inode. Symlink là đối tượng riêng lưu đường dẫn đích. <pre><code>original.txt ─┐
+              ├── inode 1205 ── data
+hardlink.txt ─┘
+
+symlink.txt ──(chuỗi "original.txt")──→ original.txt</code></pre><pre><code>echo Hello > original.txt
+ln original.txt hardlink.txt
+ln -s original.txt symlink.txt
+ls -li original.txt hardlink.txt
+rm original.txt
+cat hardlink.txt
+cat symlink.txt</code></pre><p>Hard link vẫn đọc được, symlink dangling. Hard link không thể đi qua filesystem khác; symlink có thể trỏ qua filesystem khác và trỏ đến đích chưa tồn tại.</p><div class="widget"><strong>Thử xóa file gốc</strong><button onclick="toggleDelete()" id="deleteBtn">Xóa original.txt</button><p id="linkView">original.txt: tồn tại · hardlink.txt: đọc được · symlink.txt: đọc được</p></div></section><section id="s9"><h2>9.1. Tại sao symlink bị hỏng khi đổi tên?</h2>Symlink lưu một chuỗi đường dẫn, không giữ inode của đích. Khi đổi tên <code>data/report.txt</code> thành <code>data/renamed.txt</code>, symlink vẫn lưu chuỗi cũ. VFS giải đường dẫn cũ và nhận ENOENT. <pre><code>project/
+├── data/
+│   └── report.txt
+└── report-link -> data/report.txt
+
+mv data/report.txt data/renamed.txt
+cat report-link
+# No such file or directory</code></pre><p>Linux không tự sửa vì đích có thể chưa tồn tại, có thể được mount sau, và một inode có thể có nhiều tên.</p><div class="widget"><strong>Mô phỏng rename và dangling symlink</strong><button id="renameBtn" onclick="toggleRename()">Đổi tên thành renamed.txt</button><pre id="renameTree">project/
+├── data/report.txt
+└── report-link → data/report.txt</pre><p id="renameStatus">cat report-link → sample</p></div><pre><code>ln -sfn data/renamed.txt report-link
+# GNU ln: dùng -T nếu cần tránh dereference directory đích
+ln -sfnT data/renamed.txt report-link</code></pre><p><strong>Phản biện:</strong> Dangling symlink không luôn là lỗi. Có thể cố ý trỏ đến đối tượng sẽ xuất hiện trong tương lai.</p></section><section id="s10"><h2>9.2. readlink, realpath và stat</h2><pre><code>readlink report-link
+readlink -f report-link
+readlink -e report-link
+realpath report-link
+stat report-link
+stat -L report-link</code></pre><table><tr><th>Lệnh</th><th>Ý nghĩa</th></tr><tr><td>readlink link</td><td>Chuỗi đích lưu trực tiếp trong symlink</td></tr><tr><td>readlink -f</td><td>Canonicalize, cho phép một số thành phần chưa tồn tại</td></tr><tr><td>readlink -e</td><td>Yêu cầu mọi thành phần tồn tại</td></tr><tr><td>stat</td><td>Metadata của symlink</td></tr><tr><td>stat -L</td><td>Metadata của đối tượng đích</td></tr></table><p>Symlink tương đối được giải từ thư mục chứa symlink, không từ working directory của người gọi.</p></section><section id="s11"><h2>10. Logical path và physical path</h2><pre><code>mkdir -p /tmp/real-project
+ln -s /tmp/real-project /tmp/my-project
+cd /tmp/my-project
+pwd -L
+pwd -P</code></pre><p>Logical path có thể là <code>/tmp/my-project</code>, physical path là <code>/tmp/real-project</code>. <code>pwd -L</code> hiển thị đường dẫn logic hợp lệ; <code>pwd -P</code> giải symlink.</p><pre><code>/opt/app/
+├── releases/
+│   ├── v1/
+│   ├── v2/
+│   └── v3/
+└── current -> releases/v3</code></pre><p>Đổi symlink triển khai không tự chuyển file descriptor đã mở hay tiến trình đang chạy sang binary mới.</p></section><section id="s12"><h2>11. /proc và procfs</h2><code>/proc</code> là pseudo-filesystem cung cấp thông tin kernel và tiến trình. <code>/proc/uptime</code> không phải log ghi liên tục trên SSD. <pre><code>cat /proc/uptime
+cat /proc/cpuinfo
+cat /proc/meminfo
+cat /proc/mounts
+cat /proc/self/status
+ls /proc/1
+ls -l /proc/self</code></pre><pre><code>cat /proc/uptime
+    ↓ open(), read()
+Linux VFS
+    ↓
+procfs callbacks
+    ↓
+Kernel tạo nội dung
+    ↓
+copy dữ liệu về userspace</code></pre><p><code>/proc/self</code> là magic link phụ thuộc tiến trình truy cập. Một số mục trong <code>/proc/sys</code> cho phép điều chỉnh kernel; không ghi tùy tiện.</p></section><section id="s13"><h2>12. /sys và sysfs</h2>Sysfs biểu diễn thiết bị, bus, driver và thuộc tính kernel. <pre><code>ls /sys/class/net
+cat /sys/class/net/lo/mtu
+cat /sys/class/net/lo/operstate
+cat /sys/class/hwmon/hwmon0/temp1_input</code></pre><p>Ví dụ hwmon trả về <code>42500</code> có thể biểu diễn 42,5°C theo đơn vị milli-degree Celsius của thuộc tính đó. Cần kiểm tra tài liệu ABI. Sysfs phù hợp với thuộc tính và cấu hình, không nhất thiết phù hợp luồng dữ liệu tốc độ cao.</p><p><strong>Cảnh báo:</strong> ghi vào sysfs có thể thay đổi trạng thái thiết bị hoặc phần cứng.</p></section><section id="s14"><h2>13. /dev và device node</h2>Device node là đối tượng đặc biệt để userspace truy cập thiết bị qua kernel. Nó không phải chính driver. <pre><code>Application C/C++
+    ↓ open/read/write
+/dev/ttyS0
+    ↓
+VFS / TTY subsystem
+    ↓
+UART driver
+    ↓
+UART controller → TX/RX pins</code></pre><pre><code>ls -l /dev/null
+# crw-rw-rw- ... 1, 3 ... /dev/null
+ls -l /dev/ttyS0
+head -c 16 /dev/zero | od -An -tx1
+head -c 16 /dev/urandom | od -An -tx1</code></pre><p><code>c</code> là character device, <code>b</code> là block device. Major/minor xác định đăng ký thiết bị và instance theo quy ước kernel/driver. UART read có thể block tùy termios, flags và driver.</p></section><section id="s15"><h2>14. ls, stat, file: ba góc nhìn</h2><pre><code>ls -l report.txt
+stat report.txt
+file report.txt
+cp /bin/ls mystery.txt
+file mystery.txt</code></pre><p><code>ls -l</code> xem loại/quyền/owner/size; <code>stat</code> xem metadata inode; <code>file</code> nhận diện nội dung dựa trên dấu hiệu, không chỉ đuôi. File tên <code>.txt</code> vẫn có thể là ELF binary.</p></section><section id="s16"><h2>15. Permission denied và quyền thư mục cha</h2>File <code>-rw-r--r--</code> vẫn có thể không đọc được nếu thư mục cha <code>drwx------</code> chặn người dùng. Để giải đường dẫn, tiến trình cần quyền traverse/search <code>x</code> trên các directory thành phần. <pre><code>namei -l /home/dev/private/report.txt</code></pre><p>Ví dụ đời sống: có chìa khóa căn phòng nhưng không được phép đi qua hành lang. ACL, LSM (SELinux/AppArmor), mount options cũng có thể tác động.</p></section><section id="s17"><h2>16. File ẩn và dấu chấm</h2>File bắt đầu bằng dấu chấm như <code>.bashrc</code>, <code>.gitignore</code>, <code>.config</code> được ẩn theo quy ước hiển thị. <pre><code>ls
+ls -a</code></pre><p>Dấu chấm không mã hóa file và không tự thay đổi permission. Đây không phải cơ chế bảo mật.</p></section><section id="s18"><h2>17. Lab tổng hợp</h2><p>Thực hiện trong thư mục riêng, không cần quyền root.</p><pre><code>mkdir -p "$HOME/linux-lab/paths/data"
+cd "$HOME/linux-lab/paths"
+printf 'sample
+' > data/report.txt
+ln -s data/report.txt report-link
+ls -l
+stat data/report.txt
+file data/report.txt
+readlink report-link
+findmnt -T data/report.txt
+mv data/report.txt data/renamed.txt
+cat report-link
+ln -sfn data/renamed.txt report-link
+cat report-link
+ln data/renamed.txt hardlink.txt
+ls -li data/renamed.txt hardlink.txt
+rm data/renamed.txt
+cat hardlink.txt
+cat report-link
+stat -c '%F %n' hardlink.txt
+stat -c '%F %n' report-link
+cat /proc/uptime
+cat /proc/meminfo
+ls /sys/class/net
+ls -l /dev/null</code></pre><p><strong>Giải thích:</strong> lần đầu <code>cat report-link</code> sau rename thất bại; sau sửa symlink đọc được; sau khi xóa tên file đích, hard link vẫn đọc được nhưng symlink lại dangling.</p><pre><code># Dọn dẹp chỉ khi chắc chắn thư mục không chứa dữ liệu cần giữ:
+rm -rf -- "$HOME/linux-lab/paths"</code></pre></section><section id="s19"><h2>18. Những lỗi production tương tự</h2><h3>18.1. Xóa log nhưng SSD không giảm dung lượng</h3><p>Tiến trình còn giữ file descriptor tới inode đã unlink.</p><pre><code>sudo lsof +L1
+df -h</code></pre><h3>18.2. df -h còn dung lượng nhưng tạo file thất bại</h3><p>Có thể hết inode, quota hoặc metadata.</p><pre><code>df -i</code></pre><h3>18.3. Docker bind mount che file image</h3><p>Mount lên <code>/app/config</code> có thể che file cấu hình có sẵn trong image.</p><h3>18.4. Release qua symlink</h3><pre><code>/opt/app/current -> releases/v3</code></pre><p>Thay symlink có thể dùng rename atomic trong cùng filesystem, nhưng cần restart/rollout đúng cách.</p><h3>18.5. Embedded Linux rootfs read-only</h3><pre><code>/usr   read-only
+/etc   cấu hình theo thiết kế
+/var   writable/runtime
+/data  persistent partition</code></pre><p>Tách code và dữ liệu giúp giảm ghi flash, cải thiện recovery và hỗ trợ rollback.</p></section><section id="s20"><h2>19. Kiểm tra kiến thức tương tác</h2><div id="quiz" class="widget"></div></section><section id="s21"><h2>20. Câu hỏi nâng cao và giải thích</h2><h3>Tại sao rm không xóa dữ liệu ngay?</h3><p>Vì unlink bỏ một tên; inode có thể còn hard link hoặc open file descriptor.</p><h3>Vì sao symlink có thể trỏ sang filesystem khác?</h3><p>Vì nó lưu đường dẫn, không ràng buộc cùng inode/filesystem.</p><h3>Vì sao /proc và /sys không chiếm SSD như log?</h3><p>Vì kernel cung cấp nội dung qua pseudo-filesystem, dù vẫn tiêu tốn tài nguyên RAM/CPU khi xử lý.</p><h3>Vì sao cùng chuỗi path có thể chỉ đối tượng khác?</h3><p>Do mount namespace, mount points, symlink và thay đổi directory entries.</p><h3>Vì sao read() có hành vi khác nhau?</h3><p>VFS thống nhất giao diện, nhưng regular file, UART, FIFO và procfs có các file operations và ngữ nghĩa I/O khác nhau.</p></section><section id="s22"><h2>21. Từ userspace tới phần cứng</h2><pre><code>Application
+open(), read(), write(), stat()
+            ↓
+          Linux VFS
+            ↓
+    ┌───────┼────────┐
+    ↓       ↓        ↓
+ext4/XFS   procfs    sysfs/device interface
+    ↓       ↓        ↓
+SSD/eMMC  Kernel     Driver → Hardware</code></pre><p>Đây là sơ đồ khái niệm, không phải một đường call stack duy nhất. File object, dentry, inode và mount là các khái niệm quan trọng trong VFS.</p></section><section id="s23"><h2>22. Checklist debug theo tư duy senior</h2><pre><code>pwd
+pwd -P
+ls -ld path
+stat path
+ls -li path
+file path
+readlink path
+realpath path
+findmnt -T path
+mountpoint path
+namei -l path
+df -h path
+df -i path
+lsof path</code></pre><p>Trên hệ Embedded Linux tối giản, một số công cụ có thể chưa được cài.</p></section><section id="s24"><h2>23. Tổng kết và bài tiếp theo</h2><pre><code>Linux Filesystem Namespace
+├── Pathname Resolution
+│   ├── Absolute / Relative
+│   ├── . / ..
+│   └── Symlink
+├── VFS
+│   ├── Dentry
+│   ├── Inode
+│   ├── File object
+│   └── Mount
+├── Filesystems
+│   ├── ext4 / XFS / Btrfs
+│   ├── tmpfs
+│   ├── procfs
+│   └── sysfs
+├── File types
+│   ├── Regular / Directory / Symlink
+│   ├── FIFO / Socket
+│   └── Character / Block
+└── System calls
+    ├── open / read / write
+    ├── stat / rename
+    └── link / unlink</code></pre><p><strong>5 tầng kiến thức:</strong> namespace, mount, VFS, inode/directory entry và file type/I/O semantics. Tiếp theo là file descriptor, stdin/stdout/stderr, pipe và redirect ở Bài 08.</p><p><strong>Bài tập tư duy:</strong> Vì sao cùng <code>read()</code> có thể lấy byte từ SSD, UART hoặc <code>/proc/uptime</code> nhưng blocking, seek và tác động lên phần cứng khác nhau?</p><p><strong>Đọc thêm:</strong> <code>man 7 hier</code>, <code>man 7 inode</code>, <code>man 7 symlink</code>, <code>man findmnt</code>, <code>man 7 path_resolution</code>.</p></section></main></div><footer>Linux — Bài 07 · Tài liệu học và thực hành</footer><script>let mounted=false,deleted=false,renamed=false,cwd=3;const dirs=['/','/home','/home/dev','/home/dev/project','/home/dev/project/src'];function toggleMount(){mounted=!mounted;document.getElementById('mountBtn').textContent=mounted?'Unmount':'Mount';document.getElementById('mountView').textContent=mounted?'/mnt/demo/\n├── photo.jpg\n└── video.mp4':'/mnt/demo/\n└── original.txt';document.getElementById('mountExplain').textContent=mounted?'Đã mount: original.txt bị che, không bị xóa.':'Chưa mount: thấy dữ liệu của thư mục bên dưới.'}function updateCwd(){document.getElementById('cwdDisplay').textContent=dirs[cwd]}function goParent(){cwd=Math.max(0,cwd-1);updateCwd()}function goChild(){cwd=Math.min(dirs.length-1,cwd+1);updateCwd()}function goHome(){cwd=2;updateCwd()}function goRoot(){cwd=0;updateCwd()}function toggleDelete(){deleted=!deleted;document.getElementById('deleteBtn').textContent=deleted?'Khôi phục original.txt':'Xóa original.txt';document.getElementById('linkView').textContent=deleted?'original.txt: đã xóa · hardlink.txt: đọc được · symlink.txt: dangling':'original.txt: tồn tại · hardlink.txt: đọc được · symlink.txt: đọc được'}function toggleRename(){renamed=!renamed;document.getElementById('renameBtn').textContent=renamed?'Khôi phục report.txt':'Đổi tên thành renamed.txt';document.getElementById('renameTree').textContent=renamed?'project/\n├── data/renamed.txt\n└── report-link → data/report.txt':'project/\n├── data/report.txt\n└── report-link → data/report.txt';document.getElementById('renameStatus').textContent=renamed?'cat report-link → No such file or directory':'cat report-link → sample'}const qs=[['Symlink tương đối được giải từ đâu?',['Working directory người gọi','Thư mục chứa symlink','Root directory'],1,'Symlink tương đối được giải từ thư mục chứa chính nó.'],['Xóa một tên hard link thì dữ liệu thế nào?',['Luôn mất ngay','Vẫn có thể đọc qua tên hard link khác','Tự chuyển thành symlink'],1,'Nhiều hard link cùng tham chiếu một inode.'],['/proc/uptime có phải log lưu trên SSD?',['Có','Không'],1,'Dữ liệu được kernel cung cấp qua procfs.'],['Vì sao file có quyền đọc vẫn Permission denied?',['Thiếu quyền traverse thư mục cha','File quá nhỏ','Không có đuôi'],0,'Giải đường dẫn cần quyền search trên thư mục thành phần.'],['Đổi .bin thành .txt có chuyển đổi nội dung?',['Có','Không'],1,'Đuôi chỉ là quy ước tên.']];const answers={};function renderQuiz(){const e=document.getElementById('quiz');e.innerHTML='<p class="progress">Đã trả lời '+Object.keys(answers).length+'/'+qs.length+'</p>'+qs.map((q,i)=>'<div><h3>'+(i+1)+'. '+q[0]+'</h3>'+q[1].map((opt,j)=>'<label><input type="radio" name="q'+i+'" '+(answers[i]===j?'checked':'')+' onchange="answer('+i+','+j+')"> '+opt+'</label>').join('')+(answers[i]!==undefined?'<p class="'+(answers[i]===q[2]?'good':'bad')+'">'+(answers[i]===q[2]?'✓ Chính xác. ':'✗ Chưa chính xác. ')+q[3]+'</p>':'')+'</div>').join('')+(Object.keys(answers).length===qs.length?'<h3>Điểm: '+qs.filter((q,i)=>answers[i]===q[2]).length+'/5</h3><button onclick="resetQuiz()">Làm lại</button>':'')}function answer(i,j){answers[i]=j;renderQuiz()}function resetQuiz(){Object.keys(answers).forEach(k=>delete answers[k]);renderQuiz()}renderQuiz();</script><script src="assets/lesson-theme.js" defer></script></body></html>

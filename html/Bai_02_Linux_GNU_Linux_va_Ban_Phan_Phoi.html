@@ -1,0 +1,255 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Bài 02 — Linux, GNU/Linux và bản phân phối</title><style>
+:root{--bg:#f5f7fb;--paper:#fff;--text:#1d2939;--muted:#526278;--border:#dfe5ee;--accent:#176ca7;--soft:#eaf4fc;--code:#111b2b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.layout{display:grid;grid-template-columns:275px minmax(0,950px);justify-content:center;gap:24px;padding:24px}.sidebar{position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;align-self:start;background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:18px}.sidebar strong{display:block;margin-bottom:12px}.sidebar a{display:block;text-decoration:none;color:var(--muted);padding:7px 8px;font-size:13px;border-radius:7px;line-height:1.4}.sidebar a:hover{background:var(--soft);color:var(--accent)}main{min-width:0;background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:34px 48px;box-shadow:0 6px 25px #14253c08}.hero{padding:34px;border-radius:14px;background:linear-gradient(135deg,#103f66,#126b8b);color:white;margin-bottom:35px}.hero h1{color:white;margin:8px 0 14px;font-size:clamp(27px,4vw,44px);line-height:1.17}.hero p{color:#e4f4fc;font-size:17px}.eyebrow{font-size:12px;letter-spacing:.12em;font-weight:700}.hero-meta{font-size:12px;color:#d4e9f8;margin-top:18px}h2{font-size:27px;margin:52px 0 20px;padding-bottom:10px;border-bottom:2px solid var(--border);color:#104e7a;line-height:1.35}h3{font-size:21px;margin:34px 0 14px;line-height:1.4}h4{margin:8px 0}p{margin:12px 0 18px}li{margin:7px 0}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef2f7;padding:2px 5px;border-radius:4px;font-size:.9em}.codebox{margin:19px 0;border-radius:11px;overflow:hidden;background:var(--code);color:#d9e7f8;border:1px solid #2a3c52}.codehead{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#23344b;font-size:12px;color:#b9c9d9}.copy{border:1px solid #69829a;background:transparent;color:white;padding:5px 10px;border-radius:6px;cursor:pointer}.copy:hover{background:#405670}pre{margin:0;padding:18px;overflow-x:auto;line-height:1.65}pre code{background:transparent;color:inherit;padding:0;font-size:13px}.tablewrap{overflow-x:auto;margin:20px 0}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:12px 14px;border:1px solid var(--border);text-align:left;vertical-align:top}th{background:#eaf3fa;color:#164b71}tr:nth-child(even){background:#fafcff}.diagram,.architecture{border:1px solid var(--border);background:#f9fbfe;padding:20px;border-radius:14px;margin:23px 0;text-align:center}.diagram-title{font-weight:700;margin-bottom:16px;color:#195780}.node{background:#fff;border:1px solid #b8d5e9;border-radius:9px;padding:13px 12px;margin:auto;max-width:580px;box-shadow:0 2px 7px #1235}.node small{color:var(--muted)}.arrow{font-size:23px;color:var(--accent);line-height:1.7}.arch-label{font-weight:750;color:#164e77;margin:12px 0}.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.arch-grid>div{border:1px solid #d4e4f0;background:white;padding:13px 6px;border-radius:8px;font-size:13px}.arch-boundary{background:#d9edf9;border:1px dashed #4384ad;padding:13px;border-radius:8px;font-weight:700;color:#195780;margin:14px 0}.arch-hardware{background:#dfe6ed;border-radius:8px;padding:15px;font-size:13px;font-weight:700}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}.compare>div{background:#f4f8fc;border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}.mini{background:white;border:1px solid #dce6f0;padding:8px;margin:7px auto;border-radius:7px;max-width:170px}.bigmini{background:#e3f2fa;border:1px solid #a4cee6;padding:30px 10px;margin:12px auto;border-radius:9px;line-height:2}.distro{display:flex;gap:16px;align-items:center;border-bottom:1px solid var(--border);padding:14px 0}.distro-icon{background:var(--accent);color:white;display:grid;place-items:center;width:62px;height:62px;flex:none;border-radius:14px;font-size:28px;font-weight:800}.distro p{margin:2px 0;color:var(--muted)}details.question{background:#f0f7fc;border:1px solid #c8e0ef;border-radius:9px;padding:13px 16px;margin:15px 0}details summary{cursor:pointer;font-weight:650}details p{margin-bottom:3px}.quiz{border:1px solid #b6d9ed;border-radius:14px;padding:20px;margin:20px 0;background:#f5fbff}.quiz-progress{color:var(--muted);font-size:13px}.quiz label{display:block;background:white;border:1px solid var(--border);padding:12px;margin:9px 0;border-radius:8px;cursor:pointer}.quiz label:hover{border-color:var(--accent)}.quiz-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.quiz button,.toolbar button{border:1px solid #b4cbdc;border-radius:8px;padding:9px 12px;background:white;color:#145580;cursor:pointer}.quiz button:hover,.toolbar button:hover{background:#e6f4fb}#quizFeedback{margin-top:10px}.takeaway{border-left:4px solid var(--accent);background:#edf7fc;padding:20px;margin:25px 0;border-radius:0 10px 10px 0}.toolbar{position:fixed;bottom:16px;right:16px;display:flex;gap:7px;background:#ffffffee;border:1px solid var(--border);border-radius:12px;padding:8px;box-shadow:0 5px 25px #1123;z-index:5}.progress{position:fixed;top:0;left:0;height:4px;background:#208ac4;width:0;z-index:10;transition:width .12s}footer{font-size:13px;color:var(--muted);padding:28px 0;text-align:center}@media(max-width:1000px){.layout{display:block;padding:8px}.sidebar{position:static;max-height:200px;margin-bottom:12px}main{padding:20px}.arch-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){main{padding:14px}.hero{padding:20px}.compare{grid-template-columns:1fr}.toolbar{bottom:6px;right:6px}.arch-grid{grid-template-columns:repeat(2,1fr)}h2{font-size:23px}}@media print{body{background:white}.layout{display:block;padding:0}.sidebar,.toolbar,.progress,.copy{display:none!important}main{border:0;box-shadow:none;padding:0}.hero{print-color-adjust:exact}.codebox{break-inside:avoid}.diagram,.architecture,table{break-inside:avoid}details.question>p{display:block!important}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="02"><div class="progress" id="readingProgress"></div><div class="layout"><nav class="sidebar"><strong>📚 MỤC LỤC BÀI HỌC</strong><div id="toc"></div></nav><main><header class="hero"><div class="eyebrow">BÀI 02 · LINUX FOUNDATION · SENIOR ENGINEER EDITION</div><h1>Linux, GNU/Linux và bản phân phối</h1><p>Giải thích chuyên sâu từ kernel, user space, GNU, distro, package, repository, version và backport đến container và Embedded Linux.</p><div class="hero-meta">33 mục học · Code có thể sao chép · Sơ đồ · Câu hỏi phản biện · Lab tương tác · Hoạt động ngoại tuyến</div></header>
+<p>Bài học này bắt đầu từ một câu hỏi nền tảng: <strong>Tại sao hai thiết bị đều chạy Linux, nhưng chương trình chạy tốt trên thiết bị này lại không chạy được trên thiết bị kia?</strong></p>
+<ul><li>Ubuntu chạy được <code>apt install nginx</code>, nhưng một thiết bị nhúng báo <code>apt: not found</code>.</li><li>Một máy dùng <code>systemctl restart nginx</code>, máy khác không có <code>systemctl</code>.</li><li>Binary x86 không chạy trực tiếp trên board ARM.</li><li>Hai máy báo cùng kernel version nhưng driver có thể khác.</li></ul>
+<p>Muốn hiểu các hiện tượng này, ta phải xem Linux là một hệ thống gồm nhiều lớp có trách nhiệm khác nhau, không phải một khối phần mềm duy nhất.</p>
+<h2 id="s4">Phần I — Linux thực sự là gì?</h2>
+<h3 id="s5">1. Khi nói “Tôi đang sử dụng Linux”, thực chất đang sử dụng cái gì?</h3>
+<p>Máy tính có CPU thực thi chỉ thị, RAM lưu dữ liệu đang sử dụng, ổ đĩa lưu file, card mạng truyền dữ liệu và các thiết bị nhập/xuất. Xét chương trình C đơn giản:</p>
+<div class="codebox"><div class="codehead"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    printf(&quot;Hello Linux\n&quot;);
+    return 0;
+}</code></pre></div>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>gcc main.c -o main
+./main</code></pre></div>
+<div class="codebox"><div class="codehead"><span>output</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Hello Linux</code></pre></div>
+<details class="question"><summary>❓ CPU có biết printf() là gì không?</summary><p>Không. CPU thực thi chỉ thị máy; printf() là giao diện do thư viện C cung cấp.</p></details>
+<details class="question"><summary>❓ printf() có trực tiếp điều khiển màn hình không?</summary><p>Thông thường không. Với stdout nối tới terminal, thư viện C xử lý định dạng và buffering, có thể gọi write(); kernel xử lý thao tác ghi, còn terminal emulator hiển thị dữ liệu.</p></details>
+<div class="diagram"><div class="diagram-title">Luồng printf() tới terminal</div><div class="node">Ứng dụng C<br><code>printf("Hello Linux\n")</code></div><div class="arrow">↓</div><div class="node">Thư viện C (glibc / musl)<br><small>Định dạng và buffering</small></div><div class="arrow">↓</div><div class="node">System call, ví dụ <code>write()</code></div><div class="arrow">↓</div><div class="node">Linux Kernel<br><small>Kiểm tra file descriptor, thực hiện ghi</small></div><div class="arrow">↓</div><div class="node">Pseudo-terminal / terminal emulator<br><small>Hiển thị văn bản</small></div></div>
+<p><strong>Lưu ý:</strong> printf() có thể buffer dữ liệu trước khi gọi write(). Nếu stdout được redirect sang file hoặc pipe thì đích ghi sẽ khác terminal.</p>
+<h3 id="s14">1.1. Application — Ứng dụng</h3>
+<p>Ứng dụng là chương trình thực hiện công việc cụ thể: nginx phục vụ web, cat đọc file, ls liệt kê thư mục, Python chạy chương trình, hoặc phần mềm điều khiển motor.</p>
+<h3 id="s16">1.2. Library — Thư viện</h3>
+<p>Thư viện là mã có thể dùng lại. Ví dụ printf() thuộc thư viện C; glibc và musl là hai implementation. Không phải hàm thư viện nào cũng gọi kernel: strlen() có thể chạy hoàn toàn trong user space.</p>
+<h3 id="s18">1.3. Kernel — Nhân hệ điều hành</h3>
+<p>Kernel quản lý process/thread, virtual memory, scheduler, filesystem, device drivers, network stack và phân quyền. Kernel không làm thay mọi việc của ứng dụng; nó cung cấp cơ chế để ứng dụng sử dụng tài nguyên an toàn, có kiểm soát.</p>
+<h3 id="s20">2. Ví dụ đời sống: Kernel như bộ phận điều hành nhà máy</h3>
+<div class="tablewrap"><table><tr><th>Máy tính</th><th>Nhà máy</th></tr><tr><td>CPU</td><td>Máy móc sản xuất</td></tr><tr><td>RAM</td><td>Không gian làm việc</td></tr><tr><td>Process</td><td>Nhóm công nhân</td></tr><tr><td>Kernel</td><td>Bộ phận điều phối và kiểm soát</td></tr><tr><td>System call</td><td>Phiếu yêu cầu tài nguyên</td></tr><tr><td>Application</td><td>Quy trình sản xuất cụ thể</td></tr></table></div>
+<p>Nếu ứng dụng A xử lý cảm biến, B ghi ổ đĩa, C gửi Ethernet, scheduler phân phối CPU; cơ chế phân quyền kiểm soát file; network stack và driver xử lý mạng.</p>
+<details class="question"><summary>❓ Tại sao không viết toàn bộ ứng dụng vào kernel?</summary><p>Mã kernel có đặc quyền cao; lỗi truy cập bộ nhớ có thể làm sập toàn hệ thống. User space được cách ly bởi virtual memory và các cơ chế bảo vệ khác.</p></details>
+<h2 id="s24">Phần II — Kernel Space và User Space</h2>
+<h3 id="s25">3. Tại sao phải phân chia hai không gian?</h3>
+<p><strong>Kernel space</strong> là môi trường thực thi có đặc quyền cao của kernel và module. <strong>User space</strong> là môi trường của ứng dụng, shell, thư viện và nhiều dịch vụ.</p>
+<div class="architecture"><div class="arch-label">USER SPACE</div><div class="arch-grid"><div>Ứng dụng</div><div>Shell</div><div>Library</div><div>Web server</div><div>Init</div><div>Công cụ CLI</div></div><div class="arch-boundary">SYSTEM CALL INTERFACE</div><div class="arch-label">KERNEL SPACE</div><div class="arch-grid"><div>Scheduler</div><div>Memory Management</div><div>VFS / Filesystem</div><div>Network Stack</div><div>Device Drivers</div><div>IPC</div></div><div class="arch-hardware">HARDWARE · CPU · RAM · STORAGE · NETWORK · PERIPHERALS</div></div>
+<h3 id="s28">4. Tại sao chương trình không trực tiếp điều khiển phần cứng?</h3>
+<p>Nếu hai chương trình tùy ý ghi lên ổ đĩa, dữ liệu có thể bị phá hỏng. Kernel cung cấp giao diện có kiểm soát và trừu tượng hóa phần cứng.</p>
+<div class="codebox"><div class="codehead"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>#include &lt;fcntl.h&gt;
+#include &lt;unistd.h&gt;
+
+int main(void)
+{
+    int fd = open(&quot;data.txt&quot;, O_WRONLY | O_CREAT, 0644);
+    if (fd &lt; 0) return 1;
+    write(fd, &quot;Hello\n&quot;, 6);
+    close(fd);
+    return 0;
+}</code></pre></div>
+<p>open() yêu cầu mở file, write() ghi, close() giải phóng descriptor. Kernel kiểm tra quyền, filesystem và các tầng I/O. Ứng dụng không cần biết ổ đĩa là SATA, NVMe hay flash.</p>
+<details class="question"><summary>❓ write() trả về thành công nghĩa là dữ liệu đã chắc chắn xuống thiết bị lưu trữ?</summary><p>Không. Dữ liệu có thể còn trong page cache. Khi cần yêu cầu đồng bộ xuống thiết bị lưu trữ, có thể dùng fsync() hoặc cơ chế phù hợp.</p></details>
+<h2 id="s33">Phần III — GNU/Linux: Vì sao Linux kernel chưa đủ?</h2>
+<h3 id="s34">5. Biên dịch kernel xong đã có hệ điều hành hoàn chỉnh chưa?</h3>
+<p>Sau khi build kernel image, chẳng hạn Image trên ARM64, kernel có thể khởi tạo CPU, memory management, scheduler và driver. Nhưng để thành hệ thống hữu ích, thường cần init, thư viện, công cụ, shell (nếu cần), dịch vụ và ứng dụng. Hệ tối giản không bắt buộc có Bash.</p>
+<h3 id="s36">6. GNU là gì?</h3>
+<p>GNU là dự án phần mềm tự do cung cấp nhiều công cụ Unix-like. GNU/Linux nhấn mạnh sự kết hợp Linux kernel với các thành phần GNU; không phải mọi hệ Linux đều dùng GNU.</p>
+<div class="tablewrap"><table><tr><th>Thành phần GNU</th><th>Chức năng</th></tr><tr><td>Bash</td><td>Shell</td></tr><tr><td>Coreutils</td><td>ls, cp, mv, cat…</td></tr><tr><td>glibc</td><td>Thư viện C</td></tr><tr><td>GCC</td><td>Bộ biên dịch</td></tr><tr><td>Make</td><td>Công cụ build</td></tr></table></div>
+<p>Alpine và nhiều hệ Embedded Linux thường dùng BusyBox và musl thay cho một số thành phần GNU.</p>
+<h3 id="s40">7. Lệnh ls thuộc Linux hay GNU?</h3>
+<p>ls không nằm trong kernel. Trên Debian/Ubuntu thường thuộc GNU Coreutils; trên hệ nhúng có thể là applet BusyBox.</p>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ls</code></pre></div>
+<div class="diagram"><div class="diagram-title">Từ lệnh ls đến filesystem</div><div class="node">Bạn gõ <code>ls</code></div><div class="arrow">↓</div><div class="node">Shell phân tích và tìm chương trình qua PATH</div><div class="arrow">↓</div><div class="node">Chương trình ls chạy trong user space</div><div class="arrow">↓</div><div class="node">ls gọi thư viện / system call để đọc thư mục</div><div class="arrow">↓</div><div class="node">Kernel kiểm tra quyền và truy xuất filesystem</div><div class="arrow">↓</div><div class="node">ls định dạng kết quả và ghi ra stdout</div></div>
+<p>Shell hiểu và khởi chạy lệnh; ls quyết định cách trình bày; kernel cung cấp quyền truy cập thư mục.</p>
+<h2 id="s45">Phần IV — BusyBox và GNU Coreutils</h2>
+<h3 id="s46">8. Tại sao Embedded Linux thường sử dụng BusyBox?</h3>
+<p>Thiết bị IoT có RAM và root filesystem hạn chế cần những lệnh như ls, cp, mv, cat, mkdir, rm, sh. GNU Coreutils cung cấp các chương trình riêng; BusyBox gom nhiều applet vào một executable.</p>
+<div class="compare"><div><h4>GNU Coreutils</h4><div class="mini">ls</div><div class="mini">cp</div><div class="mini">mv</div><div class="mini">cat</div><small>Nhiều executable</small></div><div><h4>BusyBox</h4><div class="bigmini">busybox<br><small>ls · cp · mv · cat · sh · …</small></div><small>Nhiều applet trong một executable</small></div></div>
+<div class="codebox"><div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>/bin/busybox
+/bin/ls -&gt; busybox
+/bin/cp -&gt; busybox
+/bin/mv -&gt; busybox
+/bin/sh -&gt; busybox</code></pre></div>
+<p>BusyBox thường giảm dung lượng nhưng không đảm bảo hỗ trợ mọi tùy chọn của GNU. Script chạy trên Ubuntu có thể lỗi <code>ls: unrecognized option</code> trên Buildroot.</p>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ls --help
+busybox --list
+readlink -f &quot;$(command -v ls)&quot;</code></pre></div>
+<p>busybox có thể chưa được cài, và hệ thống có thể dùng cơ chế khác ngoài symlink. Khi lệnh khác hành vi, kiểm tra implementation trước khi nghi kernel.</p>
+<h2 id="s53">Phần V — Linux Distribution (Distro)</h2>
+<h3 id="s54">9. Vì sao tồn tại Ubuntu, Debian, Fedora, Arch Linux?</h3>
+<p>Ai chọn kernel, thư viện, shell, init, repository, cấu hình và chính sách cập nhật? Distro là sản phẩm tích hợp và bảo trì các thành phần ấy. Hai xe dùng cùng động cơ vẫn khác hộp số, hệ thống điện và bảo trì; hai distro dùng Linux kernel vẫn có thể rất khác nhau.</p>
+<h3 id="s56">9.1. Định nghĩa Distribution</h3>
+<p>Linux distribution là hệ thống tích hợp từ kernel, user space, package manager, cấu hình, kho phần mềm và chính sách hỗ trợ do tổ chức/nhóm phát hành duy trì.</p>
+<h3 id="s58">10. So sánh các distro phổ biến</h3>
+<div class="distro"><span class="distro-icon" style="--accent:#e95420">U</span><div><strong>Ubuntu</strong><p>Dựa trên Debian; phổ biến trên desktop/server; thường dùng APT, .deb và systemd.</p></div></div>
+<div class="distro"><span class="distro-icon" style="--accent:#d70a53">D</span><div><strong>Debian</strong><p>Chú trọng nền tảng ổn định; dùng APT và dpkg.</p></div></div>
+<div class="distro"><span class="distro-icon" style="--accent:#3c6eb4">F</span><div><strong>Fedora</strong><p>Đưa công nghệ mới vào tương đối sớm; DNF và RPM.</p></div></div>
+<div class="distro"><span class="distro-icon" style="--accent:#1793d1">A</span><div><strong>Arch Linux</strong><p>Rolling release; dùng Pacman; đề cao khả năng tự cấu hình.</p></div></div>
+<div class="distro"><span class="distro-icon" style="--accent:#0d597f">A</span><div><strong>Alpine Linux</strong><p>Gọn nhẹ; thường dùng musl, BusyBox và APK.</p></div></div>
+<details class="question"><summary>❓ Ubuntu dựa trên Debian, vậy mọi tutorial Debian dùng được trên Ubuntu?</summary><p>Không. Ubuntu có thể chọn phiên bản package, repository, cấu hình và lịch cập nhật khác Debian.</p></details>
+<h2 id="s65">Phần VI — Kernel Version và Distribution Version</h2>
+<h3 id="s66">11. Tại sao một hệ Linux có nhiều phiên bản?</h3>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>cat /etc/os-release
+uname -r
+uname -m</code></pre></div>
+<div class="codebox"><div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>NAME=&quot;Debian GNU/Linux&quot;
+ID=debian
+VERSION_ID=&quot;13&quot;
+
+# uname -r: 6.x.y-amd64 (minh họa)</code></pre></div>
+<div class="tablewrap"><table><tr><th>Thành phần</th><th>Cách kiểm tra</th><th>Ý nghĩa</th></tr><tr><td>Distro version</td><td>/etc/os-release</td><td>Phiên bản bản phân phối user space</td></tr><tr><td>Kernel version</td><td>uname -r</td><td>Kernel đang chạy</td></tr><tr><td>Architecture</td><td>uname -m</td><td>Kiến trúc môi trường</td></tr><tr><td>Package version</td><td>Package manager</td><td>Package đã cài</td></tr><tr><td>Running process</td><td>Công cụ process / API</td><td>Mã thực sự đang chạy</td></tr></table></div>
+<h3 id="s70">12. Vì sao cài kernel mới vẫn thấy kernel cũ?</h3>
+<p>Kernel K2 có thể đã được cài lên đĩa, trong khi RAM vẫn đang thực thi K1. Chỉ khi reboot và bootloader thực sự chọn K2 thì uname -r mới báo kernel mới.</p>
+<div class="diagram"><div class="diagram-title">Cài package ≠ thay kernel đang chạy</div><div class="node">Trên ổ đĩa: K1 + K2 (vừa cài)</div><div class="arrow">↓</div><div class="node">Trước reboot: RAM đang chạy K1</div><div class="arrow">↓</div><div class="node">Reboot, bootloader chọn kernel</div><div class="arrow">↓</div><div class="node">Sau reboot: có thể chạy K2 → kiểm tra <code>uname -r</code></div></div>
+<p>Khi cập nhật để sửa driver Ethernet mà lỗi vẫn tồn tại, hãy kiểm tra kernel image, Device Tree, modules và boot configuration, không chỉ package manager.</p>
+<h2 id="s74">Phần VII — Backport</h2>
+<h3 id="s75">13. Vì sao kernel cũ chưa chắc thiếu bản vá?</h3>
+<p><strong>Backport</strong> là đưa một bản sửa từ nhánh mới về nhánh cũ đang được hỗ trợ, điều chỉnh để phù hợp với code/API của nhánh cũ.</p>
+<div class="diagram"><div class="diagram-title">Minh họa backport bản sửa</div><svg viewBox="0 0 600 190" role="img" aria-label="Bản sửa từ nhánh upstream mới được backport xuống nhánh stable"><text x="15" y="30" fill="currentColor">Upstream mới</text><path d="M30 55 H565" stroke="#3b9bd6" stroke-width="5"/><circle cx="470" cy="55" r="10" fill="#3b9bd6"/><text x="475" y="40" fill="currentColor">Fix</text><text x="15" y="138" fill="currentColor">Nhánh stable</text><path d="M30 160 H565" stroke="#16a57a" stroke-width="5"/><circle cx="470" cy="160" r="10" fill="#16a57a"/><path d="M470 68 V145" stroke="#f5b45c" stroke-width="4" stroke-dasharray="8 6"/><path d="M460 135 L470 150 L480 135" fill="none" stroke="#f5b45c" stroke-width="4"/><text x="340" y="112" fill="currentColor">Backport fix ↓</text></svg></div>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>apt changelog &lt;ten-package&gt;</code></pre></div>
+<p>Cần đối chiếu changelog, advisory và trạng thái package của distro, không chỉ so số upstream version hoặc suy đoán tình trạng CVE.</p>
+<h2 id="s80">Phần VIII — Package, Repository và Dependency</h2>
+<h3 id="s81">14. Tại sao cài một ứng dụng kéo theo nhiều package?</h3>
+<p>Dependency là thành phần một package cần để hoạt động hoặc cài đúng cách. Như hệ camera cần camera, nguồn, dây và thiết bị lưu trữ, ứng dụng có thể cần thư viện mã hóa, nén và runtime.</p>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo apt install nginx</code></pre></div>
+<h3 id="s84">15. Package là gì?</h3>
+<p>Package là đơn vị phần mềm đóng gói có tên, version, kiến trúc, metadata dependency, file phần mềm và có thể có script cài đặt.</p>
+<div class="codebox"><div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>nginx
+libssl...
+libc...</code></pre></div>
+<p>Các tên chỉ minh họa thành phần, không phải danh sách dependency cố định của mọi Nginx.</p>
+<h3 id="s88">16. Repository là gì?</h3>
+<p>Repository là nguồn package và metadata để package manager tìm, xác minh, tải và cài. Hình dung repository là kho hàng, package là sản phẩm, package manager là bộ phận mua hàng, dependency là danh sách linh kiện.</p>
+<h3 id="s90">16.1. APT hoạt động như thế nào?</h3>
+<div class="diagram"><div class="diagram-title">Quy trình cài phần mềm</div><div class="node">Yêu cầu: apt install nginx</div><div class="arrow">↓</div><div class="node">Đọc metadata repository</div><div class="arrow">↓</div><div class="node">Dependency resolver chọn bộ phiên bản</div><div class="arrow">↓</div><div class="node">Download & verification</div><div class="arrow">↓</div><div class="node">dpkg cài và ghi nhận package</div><div class="arrow">↓</div><div class="node">Kiểm tra trạng thái ứng dụng / dịch vụ</div></div>
+<p>Package cài thành công không đồng nghĩa dịch vụ chạy đúng: nginx có thể lỗi vì cổng 80 đang được dùng.</p>
+<h3 id="s93">17. Vì sao không nên trộn repository?</h3>
+<p>Release hiện tại có thể dùng libX v1 trong khi repository khác cung cấp app B cần libX v2. Resolver có thể báo xung đột hoặc cài bộ thư viện làm phần mềm cũ không tương thích.</p>
+<div class="compare"><div><h4>Release hiện tại</h4><div class="bigmini">App A<br>↓<br>libX v1</div></div><div><h4>Release khác</h4><div class="bigmini">App B<br>↓<br>libX v2</div></div></div>
+<p><strong>ABI — Application Binary Interface</strong> bao gồm các quy ước tương thích ở mức binary, như gọi hàm và bố trí dữ liệu. Thay đổi ABI không tương thích có thể khiến chương trình cũ lỗi.</p>
+<details class="question"><summary>❓ Dependency resolver thành công có bảo đảm runtime an toàn?</summary><p>Không. Resolver chỉ giải các ràng buộc metadata; không đảm bảo mọi script, ứng dụng tùy biến và hành vi runtime tương thích. Cần kiểm thử và rollback.</p></details>
+<h2 id="s98">Phần IX — Fixed Release và Rolling Release</h2>
+<h3 id="s99">18. Vì sao distro cập nhật với tốc độ khác nhau?</h3>
+<p><strong>Fixed release</strong> (ví dụ Debian Stable) giữ nền tảng tương đối ổn định trong vòng đời release và có bước nâng cấp lớn riêng. <strong>Rolling release</strong> (ví dụ Arch Linux) cập nhật nhiều package liên tục hơn.</p>
+<div class="diagram"><div class="diagram-title">Mô hình phát hành (minh họa)</div><svg viewBox="0 0 620 230" role="img" aria-label="Fixed release có các bậc release A B C; rolling release cập nhật dần"><text x="15" y="28" fill="currentColor">Fixed release</text><path d="M30 100 H210 V78 H395 V55 H590" fill="none" stroke="#3b9bd6" stroke-width="5"/><text x="40" y="120" fill="currentColor">A</text><text x="220" y="98" fill="currentColor">B</text><text x="410" y="75" fill="currentColor">C</text><text x="15" y="160" fill="currentColor">Rolling release</text><path d="M30 213 C190 208 330 191 590 168" fill="none" stroke="#16a57a" stroke-width="5"/><circle cx="130" cy="208" r="6" fill="#16a57a"/><circle cx="250" cy="200" r="6" fill="#16a57a"/><circle cx="380" cy="187" r="6" fill="#16a57a"/><circle cx="510" cy="175" r="6" fill="#16a57a"/></svg><small>Sơ đồ không biểu diễn độ ổn định hoặc số lượng bản vá thực tế.</small></div>
+<p>Trong Embedded Linux, cần cân nhắc khả năng tái tạo firmware, BSP, driver, bảo trì bảo mật, kiểm thử, OTA, rollback và vòng đời sản phẩm.</p>
+<details class="question"><summary>❓ Rolling release luôn tốt hơn vì package mới hơn?</summary><p>Không. Package mới có tính năng và hỗ trợ phần cứng mới nhưng cũng có thể thay đổi không tương thích.</p></details>
+<h2 id="s104">Phần X — Lab: Nhận diện một hệ Linux</h2>
+<h3 id="s105">19. Vì sao phải nhận diện máy trước tutorial?</h3>
+<p>Lệnh apt install nginx không chạy trên mọi distro. Phải nhận diện user space, kernel, architecture, PID 1 và package manager trước khi áp dụng hướng dẫn.</p>
+<h3 id="s107">20. Các lệnh cần thực hiện</h3>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>cat /etc/os-release
+uname -r
+uname -m
+ps -p 1 -o pid,comm,args
+command -v apt
+command -v dnf
+command -v pacman
+command -v systemctl</code></pre></div>
+<h3 id="s109">20.1. cat /etc/os-release</h3>
+<p>Nhận diện distro/release user space, ví dụ ID=debian và VERSION_ID="13". Không chứng minh kernel được build bởi cùng distro.</p>
+<h3 id="s111">20.2. uname -r</h3>
+<p>Chuỗi release của kernel thực sự đang chạy, không phải phiên bản package kernel mới nhất trên đĩa.</p>
+<h3 id="s113">20.3. uname -m</h3>
+<p>Kiến trúc mà kernel báo cho môi trường chạy, ví dụ x86_64 hoặc aarch64.</p>
+<h3 id="s115">20.4. ps -p 1 -o pid,comm,args</h3>
+<p>Xem PID 1 trong môi trường quan sát. Trong container, PID 1 có thể là tiến trình đầu tiên của container, không phải init host.</p>
+<h3 id="s117">20.5. command -v</h3>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>command -v apt
+# Ví dụ: /usr/bin/apt</code></pre></div>
+<p>Chỉ xác định shell có tìm thấy lệnh trong PATH, không chứng minh repository chính thức hay cấu hình phù hợp.</p>
+<h3 id="s120">21. Lab tương tác: Tự đưa ra kết luận</h3>
+<div class="quiz" id="quiz"><div class="quiz-progress" id="quizProgress"></div><h3 id="quizTitle"></h3><div id="quizOptions"></div><div id="quizFeedback" aria-live="polite"></div><div class="quiz-actions"><button id="quizPrev" onclick="changeQuestion(-1)">← Câu trước</button><button id="quizNext" onclick="changeQuestion(1)">Câu tiếp →</button><button onclick="resetQuiz()">Làm lại</button></div></div>
+<h2 id="s122">Phần XI — Container: Kernel và User Space</h2>
+<h3 id="s123">22. Vì sao container Debian có thể chạy kernel Ubuntu?</h3>
+<p>Container A dùng Debian user space, B dùng Alpine user space, nhưng cả hai thường chia sẻ Linux kernel của host chạy Docker. /etc/os-release phản ánh user space; uname -r phản ánh kernel đang dùng.</p>
+<div class="architecture"><div class="arch-label">LINUX HOST — UBUNTU</div><div class="arch-grid"><div>Container A<br><small>Debian · APT · glibc</small></div><div>Container B<br><small>Alpine · APK · musl</small></div></div><div class="arch-boundary">CÙNG SỬ DỤNG LINUX KERNEL CỦA HOST</div><div class="arch-hardware">CPU · RAM · NETWORK · STORAGE</div></div>
+<h3 id="s126">22.1. Container khác VM thế nào?</h3>
+<div class="tablewrap"><table><tr><th>Tiêu chí</th><th>VM</th><th>Linux container</th></tr><tr><td>Kernel</td><td>Guest kernel riêng</td><td>Thường chia sẻ host kernel</td></tr><tr><td>User space</td><td>Riêng</td><td>Riêng</td></tr><tr><td>Cô lập</td><td>Virtualization</td><td>Namespaces, cgroups và cơ chế khác</td></tr><tr><td>Hệ điều hành</td><td>Có thể khác loại host</td><td>Phải tương thích kernel chia sẻ</td></tr></table></div>
+<p>Docker Desktop trên Windows/macOS thường dùng Linux VM bên dưới để chạy Linux containers.</p>
+<details class="question"><summary>❓ Container Debian có thể tự cài bất kỳ kernel module nào và nạp vào kernel không?</summary><p>Không. Module phải tương thích kernel host và chịu các giới hạn quyền, cấu hình và bảo vệ của host.</p></details>
+<h2 id="s130">Phần XII — Liên hệ Embedded Linux</h2>
+<h3 id="s131">23. Vì sao distro quan trọng với kỹ sư nhúng?</h3>
+<p>Board có thể dùng Debian rootfs, Buildroot tạo rootfs tối giản, hoặc Yocto Project build image cho sản phẩm. Buildroot và Yocto chủ yếu là hệ thống xây dựng embedded Linux, không đơn giản là distro desktop.</p>
+<h3 id="s133">24. Các thành phần Embedded Linux</h3>
+<div class="diagram"><div class="diagram-title">Các thành phần cần kiểm tra (không phải thứ tự boot tuyệt đối)</div><div class="node">Bootloader — U-Boot hoặc lựa chọn khác</div><div class="arrow">↓</div><div class="node">Linux Kernel — scheduler, memory, drivers</div><div class="arrow">↓</div><div class="node">Device Tree / Hardware Description — mô tả phần cứng khi áp dụng</div><div class="arrow">↓</div><div class="node">Root Filesystem — thư viện, BusyBox, init, cấu hình</div><div class="arrow">↓</div><div class="node">Application — logic sản phẩm</div></div>
+<p>Device Tree không phải tầng thực thi nằm giữa kernel và root filesystem; sơ đồ liệt kê thành phần cần quan tâm.</p>
+<h3 id="s136">25. Ví dụ board ARM: Binary không chạy</h3>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>gcc app.c -o app
+scp app user@board:/tmp/
+# Trên board:
+/tmp/app</code></pre></div>
+<div class="codebox"><div class="codehead"><span>output</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Exec format error</code></pre></div>
+<p>Một nguyên nhân là binary x86_64 được chạy trên ARM. Cần cross-compile với toolchain đúng kiến trúc, ABI và target root filesystem.</p>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>aarch64-linux-gnu-gcc app.c -o app
+file app
+readelf -h app
+readelf -l app
+uname -m</code></pre></div>
+<details class="question"><summary>❓ Hai board cùng ARM64 và cùng Linux kernel có chắc chạy chung một binary?</summary><p>Không. Có thể khác glibc/musl, dynamic loader, version thư viện hoặc runtime. Cần xét architecture + ABI/toolchain + root filesystem.</p></details>
+<h2 id="s142">Phần XIII — Case Study Senior Engineer</h2>
+<h3 id="s143">26. Chương trình chạy trên Ubuntu nhưng lỗi trên Embedded Linux</h3>
+<p>Đừng thay kernel hoặc build lại ngẫu nhiên. Phân tích theo từng lớp và xác nhận giả thuyết bằng bằng chứng.</p>
+<div class="diagram"><div class="diagram-title">Quy trình chẩn đoán</div><div class="node">1. Nhận diện target: distro, kernel, architecture</div><div class="arrow">↓</div><div class="node">2. Kiểm tra executable: file, readelf, interpreter</div><div class="arrow">↓</div><div class="node">3. Kiểm tra runtime: loader và thư viện</div><div class="arrow">↓</div><div class="node">4. Kiểm tra quyền, filesystem, mount options</div><div class="arrow">↓</div><div class="node">5. Quan sát lỗi: strace nếu có và được phép</div><div class="arrow">↓</div><div class="node">6. Thử thay đổi tối thiểu, xác nhận nguyên nhân</div></div>
+<div class="codebox"><div class="codehead"><span>output</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>No such file or directory</code></pre></div>
+<p>File ứng dụng có thể tồn tại mà lỗi vẫn xảy ra vì ELF interpreter được khai báo trong binary không có trên target. Dùng readelf -l để kiểm tra mục INTERP.</p>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ls -l ./app
+readelf -l ./app</code></pre></div>
+<h2 id="s149">Phần XIV — Các vấn đề tương tự</h2>
+<h3 id="s150">27. Linux kernel và Linux API/ABI</h3>
+<div class="codebox"><div class="codehead"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>printf()
+malloc()
+open()
+read()
+write()</code></pre></div>
+<p>printf() và malloc() là hàm thư viện, đôi khi dẫn đến system call. open(), read(), write() là giao diện thư viện thường dùng system call. Phân biệt điều này khi quan sát bằng strace.</p>
+<h3 id="s153">28. Kernel driver và User-space driver</h3>
+<p>Không phải toàn bộ logic điều khiển thiết bị nằm trong kernel. Ứng dụng có thể giao tiếp qua /dev, sysfs, socket, ioctl hoặc framework driver user space. Các thao tác đặc quyền vẫn do kernel kiểm soát.</p>
+<div class="codebox"><div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>/dev/...
+sysfs
+socket
+ioctl</code></pre></div>
+<h3 id="s156">29. Distro và BSP</h3>
+<p>BSP — Board Support Package — có thể gồm bootloader, kernel patches, Device Tree, drivers, build config và rootfs/recipe. Một board dùng Debian user space chưa chắc chạy kernel Debian tiêu chuẩn.</p>
+<h3 id="s158">30. Package Update và Firmware Update</h3>
+<p>Embedded Linux có thể cập nhật image hoặc A/B partition thay vì nâng cấp package riêng lẻ.</p>
+<div class="codebox"><div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Partition A: firmware hiện tại
+Partition B: firmware mới</code></pre></div>
+<p>Thiết bị ghi bản mới vào B rồi chuyển boot. Cơ chế rollback tùy thiết kế. Cần cân nhắc tính nhất quán, dung lượng, bảo mật, kiểm thử và khả năng phục hồi.</p>
+<details class="question"><summary>❓ Sản phẩm IoT hàng nghìn thiết bị nên update package hay image?</summary><p>Không có câu trả lời chung. Cần cân nhắc rollback, tính nhất quán, dung lượng, bảo mật và quy trình phát hành.</p></details>
+<h2 id="s163">Phần XV — Tổng kết mô hình tư duy</h2>
+<h3 id="s164">31. Năm lớp cần nhận diện trước khi debug Linux</h3>
+<div class="diagram"><div class="diagram-title">Mô hình năm lớp</div><div class="node">1. Hardware / Architecture — CPU nào? ARM64 hay x86_64?</div><div class="arrow">↓</div><div class="node">2. Kernel / BSP — kernel, drivers, build config?</div><div class="arrow">↓</div><div class="node">3. User Space / Runtime — glibc, musl, BusyBox, Bash?</div><div class="arrow">↓</div><div class="node">4. Distribution / Packages — distro nào, repository nào?</div><div class="arrow">↓</div><div class="node">5. Application / Process — phiên bản mã thực sự đang chạy?</div></div>
+<h3 id="s166">32. Câu hỏi tự kiểm tra</h3>
+<ul><li>Vì sao Linux kernel không phải toàn bộ hệ điều hành?</li><li>Vì sao ls không thuộc kernel?</li><li>Vì sao BusyBox phù hợp thiết bị nhúng?</li><li>Vì sao Ubuntu và Fedora có package manager khác nhau?</li><li>Vì sao uname -r không cho biết distro?</li><li>Vì sao cài kernel mới chưa chắc đang chạy kernel mới?</li><li>Vì sao version thấp chưa chắc thiếu bản vá?</li><li>Vì sao trộn repository có thể xung đột dependency và ABI?</li><li>Vì sao container Debian có thể dùng kernel Ubuntu host?</li><li>Vì sao binary Ubuntu x86_64 không chạy trực tiếp trên ARM64?</li><li>Vì sao executable tồn tại nhưng báo No such file or directory?</li><li>Vì sao Embedded Linux cần BSP, rootfs và toolchain?</li></ul>
+<h3 id="s168">33. Bài thực hành cuối</h3>
+<div class="codebox"><div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>echo &quot;=== DISTRO ===&quot;
+cat /etc/os-release
+
+echo &quot;=== KERNEL ===&quot;
+uname -r
+
+echo &quot;=== ARCHITECTURE ===&quot;
+uname -m
+
+echo &quot;=== INIT ===&quot;
+ps -p 1 -o pid,comm,args
+
+echo &quot;=== PACKAGE MANAGERS ===&quot;
+for cmd in apt dnf pacman apk; do
+    command -v &quot;$cmd&quot; || true
+done
+
+echo &quot;=== SHELL ===&quot;
+readlink -f /bin/sh
+
+echo &quot;=== LS IMPLEMENTATION ===&quot;
+command -v ls
+ls --version 2&gt;&amp;1 | head -n 3</code></pre></div>
+<p>Lưu ý: ls --version không được mọi implementation hỗ trợ; thông báo lỗi cũng là dữ liệu để phân tích.</p>
+<div class="tablewrap"><table><tr><th>Thành phần</th><th>Kết quả cần ghi</th></tr><tr><td>Distro</td><td>Tên và release</td></tr><tr><td>Kernel</td><td>uname -r</td></tr><tr><td>Architecture</td><td>x86_64, aarch64…</td></tr><tr><td>PID 1</td><td>Tên tiến trình</td></tr><tr><td>Package manager</td><td>Công cụ thực tế</td></tr><tr><td>Shell</td><td>Bash, dash, BusyBox ash…</td></tr><tr><td>ls</td><td>GNU Coreutils, BusyBox hoặc khác</td></tr></table></div>
+<div class="takeaway"><strong>Tư duy cốt lõi:</strong> Đừng hỏi chung chung “Máy này chạy Linux gì?”. Hãy tách thành kernel nào, user space nào, distro nào, package nào và process nào thực sự đang chạy. Đây là nền tảng cho system call, process, filesystem, kernel module, Device Tree, Docker, Buildroot và Yocto.</div><footer>Bài 02 · Linux, GNU/Linux và bản phân phối · Tài liệu HTML độc lập, hoạt động ngoại tuyến</footer></main></div><div class="toolbar"><button onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Đầu trang</button><button onclick="window.print()">⎙ In / PDF</button></div><script>
+function copyCode(button){let txt=button.closest('.codebox').querySelector('code').innerText;navigator.clipboard.writeText(txt).then(()=>{button.textContent='Đã sao chép';setTimeout(()=>button.textContent='Sao chép',1400)}).catch(()=>{let t=document.createElement('textarea');t.value=txt;document.body.append(t);t.select();document.execCommand('copy');t.remove();button.textContent='Đã sao chép'})}
+const quiz=[{q:'`/etc/os-release` báo Debian 13. Có thể kết luận kernel do Debian build?',o:['Có, chắc chắn','Không, chỉ nhận diện user space','Có, nếu máy có apt'],a:1,e:'Kernel có thể được build riêng hoặc chia sẻ từ host container.'},{q:'`uname -r` không đổi sau khi cài kernel mới. Điều gì có thể xảy ra?',o:['Kernel mới chưa được boot','Package manager chắc chắn lỗi','Kernel mới không tồn tại'],a:0,e:'Kernel trên đĩa và kernel đang chạy là hai trạng thái khác nhau.'},{q:'Có `systemctl` thì PID 1 chắc chắn là systemd?',o:['Có','Không','Chỉ cần kiểm tra uname'],a:1,e:'Có executable trong PATH không chứng minh systemd đang quản lý PID 1.'},{q:'Script chạy Ubuntu nhưng lỗi trên BusyBox: kiểm tra gì trước?',o:['Thay CPU','Tùy chọn lệnh và shell hỗ trợ','Biên dịch lại kernel'],a:1,e:'BusyBox applet có thể hỗ trợ tùy chọn khác GNU Coreutils.'}];let qi=0,answers={};function renderQuiz(){let x=quiz[qi];document.getElementById('quizProgress').textContent=`Câu hỏi ${qi+1}/${quiz.length}`;document.getElementById('quizTitle').textContent=x.q;document.getElementById('quizOptions').innerHTML=x.o.map((o,i)=>`<label><input type="radio" name="q" value="${i}" ${answers[qi]===i?'checked':''}> ${o}</label>`).join('');document.querySelectorAll('#quizOptions input').forEach(el=>el.onchange=()=>{answers[qi]=+el.value;renderQuiz()});document.getElementById('quizFeedback').innerHTML=answers[qi]===undefined?'':`<strong>${answers[qi]===x.a?'✓ Chính xác':'Chưa chính xác'}</strong><p>${x.e}</p>`;document.getElementById('quizPrev').disabled=qi===0;document.getElementById('quizNext').disabled=qi===quiz.length-1}function changeQuestion(d){qi=Math.max(0,Math.min(quiz.length-1,qi+d));renderQuiz()}function resetQuiz(){qi=0;answers={};renderQuiz()}renderQuiz();let hs=[...document.querySelectorAll('main h2, main h3')];document.getElementById('toc').innerHTML=hs.map(x=>`<a href="#${x.id}" style="${x.tagName==='H3'?'padding-left:18px;':''}">${x.textContent}</a>`).join('');function scrollUpdate(){let max=document.documentElement.scrollHeight-innerHeight;document.getElementById('readingProgress').style.width=(max>0?scrollY/max*100:0)+'%'}addEventListener('scroll',scrollUpdate,{passive:true});scrollUpdate();
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

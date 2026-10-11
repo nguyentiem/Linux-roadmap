@@ -1,0 +1,94 @@
+/* Shared reading layer for the offline Linux course. */
+body.lesson-page {
+  --course-ink: #183047;
+  --course-muted: #60758a;
+  --course-line: #dbe8eb;
+  --course-accent: #087f84;
+  background: #f5faf9 !important;
+  color: var(--course-ink) !important;
+}
+body.lesson-page.dark, body.lesson-page[data-theme="dark"] {
+  background: #f5faf9 !important;
+  color: var(--course-ink) !important;
+}
+body.lesson-page .sidebar, body.lesson-page .side, body.lesson-page .topbar {
+  background: #ffffff !important;
+  color: var(--course-ink) !important;
+  border-color: var(--course-line) !important;
+}
+body.lesson-page .content, body.lesson-page .main, body.lesson-page .wrap, body.lesson-page article {
+  color: var(--course-ink);
+}
+body.lesson-page .section, body.lesson-page article, body.lesson-page .card {
+  border-color: var(--course-line);
+  box-shadow: 0 8px 28px rgba(33, 80, 94, .06);
+}
+body.lesson-page .hero {
+  border-radius: 22px;
+  box-shadow: 0 20px 45px rgba(7, 87, 94, .13);
+}
+body.lesson-page a { text-underline-offset: 3px; }
+body.lesson-page a:focus-visible, body.lesson-page button:focus-visible {
+  outline: 3px solid #efad53;
+  outline-offset: 3px;
+}
+body.lesson-page .sidebar a, body.lesson-page .side a, body.lesson-page nav a {
+  transition: background-color .2s ease, color .2s ease, transform .2s ease;
+}
+body.lesson-page .sidebar a:hover, body.lesson-page .side a:hover, body.lesson-page nav a:hover {
+  transform: translateX(3px);
+}
+body.lesson-page .section, body.lesson-page .diagram, body.lesson-page .interactive,
+body.lesson-page .visual, body.lesson-page .card {
+  transition: box-shadow .25s ease, border-color .25s ease, transform .25s ease;
+}
+body.lesson-page .section:hover, body.lesson-page .interactive:hover, body.lesson-page .card:hover {
+  box-shadow: 0 12px 34px rgba(33, 80, 94, .10);
+}
+body.lesson-page .lesson-progress {
+  position: fixed; z-index: 1000; inset: 0 auto auto 0; height: 4px; width: 100%;
+  transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg,#0a9692,#70c9ad,#f2ba67);
+  pointer-events: none;
+}
+body.lesson-page .lesson-home {
+  position: fixed; z-index: 999; right: 18px; bottom: 18px; display: inline-flex;
+  align-items: center; gap: 8px; padding: 10px 15px; border: 1px solid #b5dcd7;
+  border-radius: 999px; background: #fff; color: #075c62 !important;
+  font: 700 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;
+  text-decoration: none; box-shadow: 0 8px 28px rgba(21,83,89,.16);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+body.lesson-page .lesson-home:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(21,83,89,.22); }
+body.lesson-page .lesson-navigation {
+  display: flex; align-items: stretch; justify-content: space-between; gap: 12px;
+  margin: 40px auto 24px; padding: 18px 0 0; max-width: 1100px;
+  border-top: 1px solid var(--course-line);
+  font: 700 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body.lesson-page .lesson-navigation a {
+  display: flex; align-items: center; justify-content: center; min-height: 48px;
+  padding: 10px 16px; border: 1px solid #b5dcd7; border-radius: 12px;
+  background: #fff; color: #075c62 !important; text-align: center; text-decoration: none;
+  box-shadow: 0 4px 16px rgba(21,83,89,.08);
+}
+body.lesson-page .lesson-navigation a:hover { background: #e8f7f4; }
+body.lesson-page .lesson-navigation-previous,
+body.lesson-page .lesson-navigation-next { flex: 1; }
+body.lesson-page .lesson-navigation-index { flex: 0 0 auto; }
+body.lesson-page .lesson-navigation-next { margin-left: auto; }
+body.lesson-page .lesson-appear { animation: lesson-enter .55s both; }
+@keyframes lesson-enter { from { opacity: .45; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 720px) {
+  body.lesson-page .lesson-home { right: 12px; bottom: 12px; padding: 9px 12px; }
+  body.lesson-page .lesson-navigation { flex-wrap: wrap; margin-bottom: 72px; }
+  body.lesson-page .lesson-navigation-previous,
+  body.lesson-page .lesson-navigation-next { flex: 1 1 100%; }
+  body.lesson-page .lesson-navigation-index { order: 3; flex: 1 1 100%; }
+  body.lesson-page .hero { border-radius: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lesson-page *, body.lesson-page *::before, body.lesson-page *::after {
+    scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important;
+  }
+}
+@media print { body.lesson-page .lesson-progress, body.lesson-page .lesson-home, body.lesson-page .lesson-navigation { display: none !important; } }

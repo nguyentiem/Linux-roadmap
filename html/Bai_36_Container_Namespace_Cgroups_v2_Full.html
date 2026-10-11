@@ -1,0 +1,706 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><title>Bài 36 — Container, Namespace và Cgroups v2 | Toàn bộ 46 mục</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0b1020;color:#e5eaf3;font:16px/1.75 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}a{color:#7cc7ff}header{background:linear-gradient(135deg,#172b50,#101b32 55%,#153b37);padding:75px max(25px,calc((100vw - 1060px)/2));border-bottom:1px solid #314159}header h1{font-size:clamp(32px,5vw,60px);line-height:1.13;max-width:950px;margin:15px 0}header p{max-width:780px;color:#b8cbe1}header .eyebrow{letter-spacing:.16em;color:#75d8c3;font-weight:700;font-size:12px}.layout{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1480px;margin:auto}aside{border-right:1px solid #26354c;height:calc(100vh - 0px);position:sticky;top:0;overflow:auto;padding:22px 12px;background:#101827}aside h3{font-size:12px;letter-spacing:.12em;color:#a6b9ce;margin:5px 12px 14px}aside a{display:block;color:#aebed0;text-decoration:none;padding:6px 9px;font-size:12px;line-height:1.45;border-radius:7px}aside a:hover{background:#23324a;color:white}aside .num{color:#7acbb5;margin-right:7px}main{min-width:0;padding:30px clamp(20px,4vw,66px) 90px}.chapter{max-width:970px;margin:0 auto;padding:42px 0 55px;border-bottom:1px solid #2a3850;scroll-margin-top:12px}.section-number{font-size:12px;letter-spacing:.14em;color:#6cdbbc;font-weight:700}.chapter h2{font-size:clamp(25px,3vw,35px);line-height:1.25;margin:9px 0 24px;color:#f6f9ff}.chapter p{margin:13px 0;color:#d7e0eb}.chapter strong{color:#fff}.chapter ul,.chapter ol{padding-left:26px}.chapter li{margin:6px 0}.chapter code:not(pre code){background:#233149;color:#8fddff;padding:2px 5px;border-radius:4px;font-size:.9em}pre{background:#070e1c;border:1px solid #30445c;border-radius:12px;overflow:auto;padding:20px;line-height:1.55;font-size:13px;color:#c8e3f5;position:relative;white-space:pre}pre code{font-family:Consolas,'Liberation Mono',monospace}pre .copy{position:absolute;right:10px;top:10px;border:1px solid #426078;background:#1c3448;color:white;border-radius:7px;padding:4px 9px;cursor:pointer}table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;margin:24px 0;font-size:14px}th,td{border:1px solid #33465e;padding:11px 13px;text-align:left;vertical-align:top}th{background:#1c3248;color:#d7efff}tr:nth-child(even){background:#121e30}blockquote{margin:20px 0;padding:9px 20px;border-left:4px solid #67d4b4;background:#12273a;border-radius:0 8px 8px 0}.viz{background:#111e30;border:1px solid #36516c;border-radius:16px;padding:20px;margin:28px 0}.viz h3{margin:0 0 12px;font-size:18px}.viz .desc{font-size:13px;color:#adc0d2}.diagram{width:100%;height:auto;max-height:370px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:16px}.control label{display:flex;justify-content:space-between;font-size:13px;color:#d7e8f3}.control input{width:100%;accent-color:#49c6a8}.meter{height:25px;border-radius:8px;overflow:hidden;background:#3c4757;display:flex;margin:15px 0}.meter span{display:grid;place-items:center;color:white;font-size:11px;white-space:nowrap}.btn{background:#235c83;color:white;border:1px solid #5599b4;padding:8px 13px;border-radius:8px;cursor:pointer}.btn:hover{background:#347ba4}.btn:disabled{opacity:.35}.terminal{background:#050b15;border:1px solid #304158;padding:15px;border-radius:10px;white-space:pre-wrap;font:13px/1.5 Consolas,monospace;min-height:125px}.checks label{display:block;padding:8px 0;border-bottom:1px solid #27364b}.checks input{accent-color:#38c69b;margin-right:10px}.qa{border:1px solid #344a63;padding:15px;border-radius:12px}.qa .answer{padding:12px;background:#1a3140;border-radius:8px;margin-top:12px}.progress{height:8px;background:#344154;border-radius:5px;overflow:hidden}.progress>div{height:100%;background:#34bf9c;width:0;transition:width .2s}.topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 auto 25px;max-width:970px}.muted{color:#a7bbd0}.svg-label{font:12px system-ui;fill:#d9e8fa}.svg-small{font:10px system-ui;fill:#bfd4e8}@media(max-width:850px){.layout{display:block}aside{height:auto;max-height:250px;position:relative;border-bottom:1px solid #33465e;border-right:0}main{padding:20px}.controls{grid-template-columns:1fr}header{padding:50px 25px}}@media print{body{background:white;color:#111}aside,.topbar,.btn{display:none!important}.layout{display:block}main{padding:0}.chapter{break-inside:avoid-page}.chapter p,.chapter h2,.chapter strong{color:#111}pre{color:#111;background:#f5f5f5;white-space:pre-wrap}.viz{background:#fff;color:#111}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="36"><header><div class="eyebrow">LINUX CHUYÊN SÂU · TÀI LIỆU OFFLINE · 46 MỤC</div><h1>Bài 36 — Container, Namespace và Cgroups v2</h1><p>Từ kiến thức nền tảng đến Kernel Internals, OCI Runtime, CPU/Memory/I/O controllers, PSI, OverlayFS, Security, Embedded Linux và Production Debugging. Tích hợp sơ đồ SVG, mô phỏng quota/weight, PID namespace, quiz và checklist tương tác. Toàn bộ CSS/JavaScript nằm trong tệp này.</p><p><strong>Lưu ý:</strong> Các lab có thao tác đặc quyền chỉ nên thực hiện trên VM thử nghiệm. Các ví dụ output và mô phỏng là minh họa, không phải kết quả đo từ máy của bạn.</p></header><div class="layout"><aside><h3>MỤC LỤC · 01–46</h3><a href="#s1"><span class="num">01</span> Đặt vấn đề: Vì sao Linux cần container?</a><a href="#s2"><span class="num">02</span> Container là tổ hợp cơ chế</a><a href="#s3"><span class="num">03</span> PID namespace: cùng process, PID khác nhau</a><a href="#s4"><span class="num">04</span> Mount namespace, rootfs và mount propagation</a><a href="#s5"><span class="num">05</span> Network namespace, veth và bridge</a><a href="#s6"><span class="num">06</span> UTS, IPC, User, Cgroup và Time namespaces</a><a href="#s7"><span class="num">07</span> Namespace chưa đủ: giới thiệu cgroups</a><a href="#s8"><span class="num">08</span> cpu.max: quota và period</a><a href="#s9"><span class="num">09</span> CPU throttling và multi-threaded workload</a><a href="#s10"><span class="num">10</span> cpu.weight: chia tương đối khi tranh chấp</a><a href="#s11"><span class="num">11</span> Memory controller: vì sao host còn RAM mà container OOM?</a><a href="#s12"><span class="num">12</span> memory.events và cách đọc OOM</a><a href="#s13"><span class="num">13</span> systemd và cgroup ownership</a><a href="#s14"><span class="num">14</span> Lab 1: CPU quota bằng transient service</a><a href="#s15"><span class="num">15</span> Lab 2: PID namespace không cần Docker</a><a href="#s16"><span class="num">16</span> Rootfs và OverlayFS</a><a href="#s17"><span class="num">17</span> Capabilities, seccomp và MAC</a><a href="#s18"><span class="num">18</span> Case study: MQTT chậm dù host CPU rảnh</a><a href="#s19"><span class="num">19</span> Các lỗi suy luận phổ biến</a><a href="#s20"><span class="num">20</span> Container và VM</a><a href="#s21"><span class="num">21</span> Container và systemd service</a><a href="#s22"><span class="num">22</span> Checklist thực hành</a><a href="#s23"><span class="num">23</span> Câu hỏi phản biện nâng cao</a><a href="#s24"><span class="num">24</span> Tổng kết phần nền tảng</a><a href="#s25"><span class="num">25</span> clone(), clone3(), unshare(), setns() và execve()</a><a href="#s26"><span class="num">26</span> task_struct, nsproxy, cred và css_set</a><a href="#s27"><span class="num">27</span> Docker → dockerd → containerd → shim → runc → kernel</a><a href="#s28"><span class="num">28</span> Cgroups v2 hierarchy, subtree_control và delegation</a><a href="#s29"><span class="num">29</span> CFS bandwidth, quota period và CPU PSI</a><a href="#s30"><span class="num">30</span> Memory accounting: anon, file, slab, reclaim, OOM</a><a href="#s31"><span class="num">31</span> cpuset, taskset, affinity và NUMA</a><a href="#s32"><span class="num">32</span> I/O controller: io.stat, io.max, io.weight</a><a href="#s33"><span class="num">33</span> PIDs controller và fork bomb</a><a href="#s34"><span class="num">34</span> PSI: Pressure Stall Information</a><a href="#s35"><span class="num">35</span> OverlayFS nâng cao: copy-up, metadata và page cache</a><a href="#s36"><span class="num">36</span> Networking nâng cao: DNAT, SNAT, conntrack</a><a href="#s37"><span class="num">37</span> Container security nâng cao và rootless</a><a href="#s38"><span class="num">38</span> PID 1, SIGTERM, zombie và graceful shutdown</a><a href="#s39"><span class="num">39</span> systemd slices, scopes, services và delegation</a><a href="#s40"><span class="num">40</span> Container trong Embedded Linux, ARM, Buildroot, Yocto</a><a href="#s41"><span class="num">41</span> Debugging production: quy trình từ process đến kernel</a><a href="#s42"><span class="num">42</span> Ba case studies production</a><a href="#s43"><span class="num">43</span> Lab mini-container bằng BusyBox, unshare và chroot</a><a href="#s44"><span class="num">44</span> Câu hỏi Senior và phản biện</a><a href="#s45"><span class="num">45</span> Bản đồ tư duy toàn bộ Bài 36</a><a href="#s46"><span class="num">46</span> Checklist năng lực và kết luận</a></aside><main><div class="topbar"><span class="muted">Bài 36 · Bản học chuyên sâu</span><button class="btn" onclick="window.print()">In / Lưu PDF</button></div><section id="s1" class="chapter"><div class="section-number">MỤC 01 / 46</div><h2>Đặt vấn đề: Vì sao Linux cần container?</h2><p>Một IoT Gateway chạy nhiều dịch vụ: CAN Reader, MQTT Client, SQLite, REST API và monitoring. Nếu MQTT Client bị memory leak, nó có thể chiếm hết RAM, gây reclaim, swap hoặc OOM; CAN Reader dù độc lập vẫn bị ảnh hưởng.</p>
+<p><strong>Câu hỏi phản biện:</strong> Tại sao process độc lập vẫn ảnh hưởng nhau? Bởi vì process có address space riêng nhưng chia sẻ CPU, RAM vật lý, kernel, I/O và những tài nguyên cấp hệ thống. <strong>Process isolation không đồng nghĩa resource isolation.</strong></p>
+<p>Một giải pháp là tách mỗi service thành VM, nhưng VM thường cần guest kernel, bộ nhớ, thiết bị ảo và chi phí quản lý. Container giải quyết bài toán bằng cách chia sẻ kernel nhưng tạo góc nhìn và giới hạn tài nguyên thích hợp.</p>
+<p><strong>Ví dụ đời sống:</strong> Tòa chung cư có nhiều căn hộ. Mỗi căn có không gian riêng nhưng vẫn dùng chung kết cấu, điện nước và hệ thống kỹ thuật. Namespace như ranh giới góc nhìn; cgroup như hạn mức sử dụng; security như quyền ra vào; rootfs như nội thất của căn hộ.</p>
+<div class="visual-anchor" data-visual="1"></div></section><section id="s2" class="chapter"><div class="section-number">MỤC 02 / 46</div><h2>Container là tổ hợp cơ chế</h2><p><strong>Container là môi trường thực thi các Linux process</strong> được cấu hình bằng namespace, cgroups, root filesystem và chính sách bảo mật. Kernel không có một syscall duy nhất tên <code>create_container()</code>.</p>
+<table>
+<thead>
+<tr>
+  <th>Câu hỏi</th>
+  <th>Cơ chế</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Process nhìn thấy gì?</td>
+  <td>PID, mount, network, UTS, IPC, user, cgroup, time namespaces</td>
+</tr>
+<tr>
+  <td>Process dùng được bao nhiêu tài nguyên?</td>
+  <td>Cgroups v2</td>
+</tr>
+<tr>
+  <td>Process được phép làm gì?</td>
+  <td>DAC, capabilities, seccomp, SELinux/AppArmor</td>
+</tr>
+<tr>
+  <td>Process nhìn thấy filesystem nào?</td>
+  <td>Rootfs, mounts, OverlayFS</td>
+</tr>
+</tbody>
+</table>
+<p>Container chia sẻ kernel host. Image Ubuntu trên host Debian không tạo ra Ubuntu kernel riêng. Root trong user namespace không mặc nhiên là root host; rootless vẫn cần đánh giá mount, device, network và kernel attack surface.</p>
+<div class="visual-anchor" data-visual="2"></div></section><section id="s3" class="chapter"><div class="section-number">MỤC 03 / 46</div><h2>PID namespace: cùng process, PID khác nhau</h2><p>PID namespace tạo góc nhìn PID riêng. Một process có thể là PID 1200 trên host nhưng là PID 1 bên trong namespace con.</p>
+<pre><code class="language-text">HOST:       1 systemd | 510 sshd | 1200 mqtt-service | 1500 can-reader
+CONTAINER:  1 mqtt-service | 2 mqtt-helper
+</code></pre>
+<p>Đó vẫn là cùng task, không phải bản sao process. Trên host có thể kiểm tra ánh xạ:</p>
+<pre><code class="language-bash">cat /proc/1200/status | grep NSpid
+# Ví dụ: NSpid: 1200 1
+</code></pre>
+<p>PID 1 đặc biệt về signal handling và child reaping. Nếu application trực tiếp làm PID 1, cần xử lý SIGTERM, zombie, graceful shutdown. Dockerfile dạng exec <code>CMD [&quot;python3&quot;, &quot;app.py&quot;]</code> thường tốt hơn shell form <code>CMD python3 app.py</code> về chuyển signal. Một init nhỏ như <code>tini</code> có thể hỗ trợ.</p>
+<p><strong>Phản biện:</strong> PID 1 container có kill được PID 1 host không? Không chỉ vì cùng số PID: đó là các task khác nhau và kernel kiểm tra namespace, credentials và quyền signal.</p>
+<div class="visual-anchor" data-visual="3"></div></section><section id="s4" class="chapter"><div class="section-number">MỤC 04 / 46</div><h2>Mount namespace, rootfs và mount propagation</h2><p>Mount namespace phân tách góc nhìn mount tree. Nó không tự tạo filesystem mới. Container runtime còn chuẩn bị rootfs và chuyển root directory bằng <code>pivot_root</code> hoặc cơ chế tương ứng.</p>
+<pre><code class="language-text">HOST:       /etc  /home  /var  /data
+CONTAINER:  /bin  /etc   /app  /tmp
+</code></pre>
+<p><code>chroot</code> chỉ đổi root directory khi phân giải đường dẫn, <strong>không</strong> tự tạo PID namespace, giới hạn RAM/CPU hoặc security boundary hoàn chỉnh.</p>
+<p>Mount propagation gồm <code>shared</code>, <code>slave</code>, <code>private</code>, <code>unbindable</code>. Nếu không kiểm soát propagation, thao tác mount có thể lan giữa các namespace theo quan hệ mount.</p>
+<pre><code class="language-bash">findmnt -o TARGET,PROPAGATION
+</code></pre>
+<p><strong>Câu hỏi:</strong> Có mount namespace rồi là không thể ảnh hưởng mount host? Không; phải xét mount propagation và đặc quyền.</p>
+</section><section id="s5" class="chapter"><div class="section-number">MỤC 05 / 46</div><h2>Network namespace, veth và bridge</h2><p>Network namespace tách interfaces, địa chỉ IP, routing table, socket binding và các trạng thái network theo namespace. Veth pair giống dây Ethernet ảo có hai đầu; một đầu trong container, một đầu host, có thể kết nối qua Linux bridge.</p>
+<pre><code class="language-bash">sudo ip netns add ns-a
+sudo ip netns add ns-b
+sudo ip link add veth-a type veth peer name veth-b
+sudo ip link set veth-a netns ns-a
+sudo ip link set veth-b netns ns-b
+sudo ip -n ns-a addr add 10.10.0.2/24 dev veth-a
+sudo ip -n ns-b addr add 10.10.0.3/24 dev veth-b
+sudo ip -n ns-a link set lo up
+sudo ip -n ns-b link set lo up
+sudo ip -n ns-a link set veth-a up
+sudo ip -n ns-b link set veth-b up
+sudo ip netns exec ns-a ping -c 3 10.10.0.3
+sudo ip netns del ns-a
+sudo ip netns del ns-b
+</code></pre>
+<p>Lab dùng veth trực tiếp, không cần bridge. Hai container có thể cùng bind <code>0.0.0.0:8080</code> trong network namespaces riêng; khi publish cùng IP:port trên host vẫn có thể xung đột.</p>
+<div class="visual-anchor" data-visual="5"></div></section><section id="s6" class="chapter"><div class="section-number">MỤC 06 / 46</div><h2>UTS, IPC, User, Cgroup và Time namespaces</h2><table>
+<thead>
+<tr>
+  <th>Namespace</th>
+  <th>Đối tượng được phân tách</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>PID</td>
+  <td>PID visibility và hierarchy</td>
+</tr>
+<tr>
+  <td>Mount</td>
+  <td>Mount tree</td>
+</tr>
+<tr>
+  <td>Network</td>
+  <td>Interfaces, routes, sockets</td>
+</tr>
+<tr>
+  <td>UTS</td>
+  <td>Hostname và domain name</td>
+</tr>
+<tr>
+  <td>IPC</td>
+  <td>Một số System V IPC, POSIX message queues</td>
+</tr>
+<tr>
+  <td>User</td>
+  <td>UID/GID mappings và phạm vi capability</td>
+</tr>
+<tr>
+  <td>Cgroup</td>
+  <td>Góc nhìn đường dẫn cgroup</td>
+</tr>
+<tr>
+  <td>Time</td>
+  <td>Một số đồng hồ monotonic/boottime</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">sudo unshare --uts sh
+hostname container-demo
+hostname
+exit
+cat /proc/self/uid_map
+cat /proc/self/gid_map
+</code></pre>
+<p>Ví dụ UID 0 trong container có thể được map sang UID 100000 trên host. User namespace không có nghĩa toàn bộ đặc quyền host được cấp cho container.</p>
+</section><section id="s7" class="chapter"><div class="section-number">MỤC 07 / 46</div><h2>Namespace chưa đủ: giới thiệu cgroups</h2><p>Namespace chỉ đổi góc nhìn; một process <code>while True: pass</code> vẫn có thể tiêu thụ CPU. Cgroups (control groups) tổ chức các task để accounting và điều khiển tài nguyên. Cgroups v2 có cây phân cấp thống nhất.</p>
+<pre><code class="language-text">/sys/fs/cgroup/
+├── system.slice/
+│   ├── ssh.service/
+│   └── mqtt.service/
+├── user.slice/
+└── machine.slice/
+</code></pre>
+<p><code>nice</code> thay đổi ưu tiên scheduling tương đối, không áp một quota CPU cứng. <code>cpu.max</code> giới hạn CPU bandwidth theo period.</p>
+</section><section id="s8" class="chapter"><div class="section-number">MỤC 08 / 46</div><h2>cpu.max: quota và period</h2><p><code>cpu.max</code> chứa hai giá trị: quota và period tính bằng microsecond.</p>
+<pre><code class="language-text">50000 100000
+</code></pre>
+<p>Nhóm có 50.000 µs CPU time trong period 100.000 µs: tương đương <strong>0,5 CPU</strong> trung bình. <code>CPUQuota=50%</code> không phải 50% của toàn bộ 8 CPU; <code>CPUQuota=400%</code> tương đương ngân sách 4 CPU, không cam kết luôn chạy trên bốn core.</p>
+<p>[\text{CPU capacity tương đương}=\frac{\text{quota}}{\text{period}}]</p>
+<p>Host có thể còn nhiều CPU rảnh nhưng container vẫn bị throttle nếu dùng hết quota. Quota là policy, không phải cơ chế chỉ hoạt động khi host bận.</p>
+<div class="visual-anchor" data-visual="8"></div></section><section id="s9" class="chapter"><div class="section-number">MỤC 09 / 46</div><h2>CPU throttling và multi-threaded workload</h2><p>Giả sử quota 20 ms CPU time trên period 100 ms, có 4 worker CPU-bound chạy đồng thời trên 4 core. Trong mô hình lý tưởng, ngân sách có thể hết sau khoảng <code>20/4 = 5 ms</code> wall-clock. Sau đó cgroup có thể bị throttle đến kỳ bổ sung ngân sách.</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/cpu.stat
+</code></pre>
+<p>Các counter: <code>usage_usec</code>, <code>user_usec</code>, <code>system_usec</code>, <code>nr_periods</code>, <code>nr_throttled</code>, <code>throttled_usec</code>, đôi khi <code>nr_bursts</code>, <code>burst_usec</code>.</p>
+<p>[\text{Throttle period ratio}=\frac{\Delta nr_throttled}{\Delta nr_periods}]</p>
+<p>Tỷ lệ period bị throttle không đồng nghĩa tỷ lệ hiệu năng mất đi. Phải kết hợp application latency, runnable tasks và CPU PSI.</p>
+<div class="visual-anchor" data-visual="9"></div></section><section id="s10" class="chapter"><div class="section-number">MỤC 10 / 46</div><h2>cpu.weight: chia tương đối khi tranh chấp</h2><p><code>cpu.weight</code> thường nằm trong khoảng 1–10000, mặc định 100. Hai nhóm có weight 100 và 300 có thể chia tài nguyên đang tranh chấp theo tỷ lệ gần 1:3 trong điều kiện phù hợp. Nếu nhóm A không cần CPU, B có thể tận dụng CPU còn rảnh, miễn không vướng giới hạn khác.</p>
+<table>
+<thead>
+<tr>
+  <th>Thuộc tính</th>
+  <th>cpu.max</th>
+  <th>cpu.weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Mục đích</td>
+  <td>Giới hạn bandwidth</td>
+  <td>Ưu tiên tương đối</td>
+</tr>
+<tr>
+  <td>Khi host rảnh</td>
+  <td>Vẫn có thể throttle</td>
+  <td>Có thể tận dụng CPU</td>
+</tr>
+<tr>
+  <td>Khi tranh chấp</td>
+  <td>Vẫn chịu quota</td>
+  <td>Phân phối theo weight</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Phản biện:</strong> weight 300 có bảo đảm 75% CPU mọi lúc? Không; còn phụ thuộc hierarchy, cpuset, workload và các giới hạn khác.</p>
+<div class="visual-anchor" data-visual="10"></div></section><section id="s11" class="chapter"><div class="section-number">MỤC 11 / 46</div><h2>Memory controller: vì sao host còn RAM mà container OOM?</h2><p><code>memory.max=536870912</code> giới hạn cgroup ở 512 MiB, bất kể host có thể còn 10 GiB RAM. Nếu reclaim không đủ, memcg OOM có thể xảy ra.</p>
+<ul>
+<li><code>memory.current</code>: mức memory được accounting, không đơn giản là tổng RSS.</li>
+<li><code>memory.high</code>: ngưỡng reclaim/throttling; vượt ngưỡng không trực tiếp kích hoạt OOM killer chỉ vì vượt high.</li>
+<li><code>memory.max</code>: giới hạn cứng của memory controller.</li>
+<li><code>memory.low</code>: bảo vệ reclaim theo best effort.</li>
+<li><code>memory.min</code>: bảo vệ mạnh hơn trong phạm vi hiệu lực.</li>
+</ul>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/memory.current
+cat /sys/fs/cgroup/&lt;path&gt;/memory.events
+cat /sys/fs/cgroup/&lt;path&gt;/memory.pressure
+</code></pre>
+<div class="visual-anchor" data-visual="11"></div></section><section id="s12" class="chapter"><div class="section-number">MỤC 12 / 46</div><h2>memory.events và cách đọc OOM</h2><pre><code class="language-text">low 0
+high 124
+max 10
+oom 2
+oom_kill 1
+oom_group_kill 0
+</code></pre>
+<p><code>high</code> đếm các sự kiện liên quan ngưỡng high; <code>max</code> phản ánh những lần usage chuẩn bị vượt max; <code>oom</code> là tình huống OOM được ghi nhận; <code>oom_kill</code> là số process bị kill được accounting. Các counter không đồng nghĩa nhau. <code>memory.events</code> có tính phân cấp; dùng <code>memory.events.local</code> nếu cần sự kiện riêng cgroup.</p>
+<p><strong>Câu hỏi:</strong> <code>max</code> tăng có nghĩa chắc chắn có process bị kill? Không; reclaim có thể giải quyết áp lực.</p>
+</section><section id="s13" class="chapter"><div class="section-number">MỤC 13 / 46</div><h2>systemd và cgroup ownership</h2><p>Systemd thường sở hữu và quản lý cgroup hierarchy trên Linux hiện đại. Không tùy tiện <code>mkdir</code> hoặc ghi trực tiếp trong subtree của systemd/runtime; dùng resource-control interface hoặc delegation thích hợp.</p>
+<pre><code class="language-bash">stat -fc %T /sys/fs/cgroup
+# cgroup2fs
+systemctl --version
+findmnt -t cgroup2
+cat /sys/fs/cgroup/cgroup.controllers
+</code></pre>
+<p><code>CPUQuota=50%</code> tương đương nửa thời gian một CPU, không phải một nửa toàn máy.</p>
+</section><section id="s14" class="chapter"><div class="section-number">MỤC 14 / 46</div><h2>Lab 1: CPU quota bằng transient service</h2><pre><code class="language-bash">sudo systemd-run --unit=linux-cpu-lab \
+  -p CPUQuota=50% -p RuntimeMaxSec=15s \
+  /usr/bin/python3 -c 'while True: pass'
+systemctl show linux-cpu-lab -p ControlGroup -p CPUQuotaPerSecUSec
+lab_cgroup=$(systemctl show linux-cpu-lab -p ControlGroup --value)
+if [[ -n &quot;$lab_cgroup&quot; &amp;&amp; -d &quot;/sys/fs/cgroup$lab_cgroup&quot; ]]; then
+  sudo cat &quot;/sys/fs/cgroup$lab_cgroup/cpu.max&quot;
+  sudo cat &quot;/sys/fs/cgroup$lab_cgroup/cpu.stat&quot;
+fi
+sudo systemctl stop linux-cpu-lab || true
+sudo systemctl reset-failed linux-cpu-lab || true
+</code></pre>
+<p>Service chạy ngắn nên phải kiểm tra path không rỗng và cgroup còn tồn tại. Không đọc nhầm root cgroup rồi kết luận đó là service. Nếu unit đã tồn tại, chọn tên mới.</p>
+<p><strong>Lab cải tiến có sampling:</strong></p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -euo pipefail
+unit=&quot;linux-cpu-lab-$$&quot;
+sudo systemd-run --unit=&quot;$unit&quot; -p CPUQuota=50% -p RuntimeMaxSec=20s \
+  /usr/bin/python3 -c 'while True: pass'
+sleep 1
+cg=$(systemctl show &quot;$unit&quot; -p ControlGroup --value)
+[[ -n &quot;$cg&quot; &amp;&amp; -d &quot;/sys/fs/cgroup$cg&quot; ]] || exit 1
+for i in {1..5}; do
+  [[ -f &quot;/sys/fs/cgroup$cg/cpu.stat&quot; ]] || break
+  echo &quot;Sample $i&quot;
+  cat &quot;/sys/fs/cgroup$cg/cpu.stat&quot;
+  sleep 2
+done
+sudo systemctl stop &quot;$unit&quot; || true
+sudo systemctl reset-failed &quot;$unit&quot; || true
+</code></pre>
+</section><section id="s15" class="chapter"><div class="section-number">MỤC 15 / 46</div><h2>Lab 2: PID namespace không cần Docker</h2><pre><code class="language-bash">sudo unshare --mount --pid --fork --mount-proc \
+  sh -c 'echo &quot;PID trong namespace: $$&quot;; ps -ef'
+</code></pre>
+<p><code>--pid</code> chuẩn bị PID namespace cho child, <code>--fork</code> tạo child, <code>--mount</code> tạo mount namespace, <code>--mount-proc</code> mount procfs phù hợp. Nếu <code>/proc</code> vẫn là procfs của namespace ngoài, <code>ps</code> có thể cho góc nhìn không nhất quán.</p>
+<pre><code class="language-bash">readlink /proc/self/ns/pid
+sudo unshare --pid --fork --mount --mount-proc \
+  sh -c 'readlink /proc/self/ns/pid; ps -ef'
+sudo lsns -t pid
+</code></pre>
+<p>Một số môi trường hạn chế <code>unshare</code>. Ghi lại giới hạn thay vì thay sysctl host một cách tùy tiện.</p>
+</section><section id="s16" class="chapter"><div class="section-number">MỤC 16 / 46</div><h2>Rootfs và OverlayFS</h2><p>OverlayFS kết hợp <code>lowerdir</code>, <code>upperdir</code>, <code>workdir</code> và merged view. Khi sửa file chỉ có ở lower, có thể xảy ra copy-up. Khi xóa một entry từ lower trong merged view, OverlayFS có thể tạo whiteout để che entry đó.</p>
+<pre><code class="language-text">LOWER: /etc/config=v1, /app/main
+UPPER: /etc/config=v2, /tmp/data
+MERGED: /etc/config=v2, /app/main, /tmp/data
+</code></pre>
+<p>Image layers không thay thế volume cho dữ liệu cần giữ. Xóa container có thể làm mất writable layer; volume cũng không tự động đồng nghĩa đã backup.</p>
+<pre><code class="language-bash">docker run -v app-data:/var/lib/app my-app
+</code></pre>
+<div class="visual-anchor" data-visual="16"></div></section><section id="s17" class="chapter"><div class="section-number">MỤC 17 / 46</div><h2>Capabilities, seccomp và MAC</h2><p>Namespace và cgroups không tạo security boundary đầy đủ. Cần đánh giá DAC, capabilities, seccomp, SELinux/AppArmor, thiết bị và mount exposure.</p>
+<pre><code class="language-bash">docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE my-app
+</code></pre>
+<p><code>CAP_SYS_ADMIN</code> đặc biệt rộng; <code>CAP_NET_ADMIN</code> liên quan quản trị network; <code>CAP_NET_RAW</code> liên quan raw socket. Seccomp lọc syscall nhưng không phải hệ thống phân quyền file. SELinux/AppArmor là Mandatory Access Control. Tránh <code>--privileged</code> nếu không thật cần và hạn chế Docker socket bind mount.</p>
+</section><section id="s18" class="chapter"><div class="section-number">MỤC 18 / 46</div><h2>Case study: MQTT chậm dù host CPU rảnh</h2><p>Host 8 CPU, 16 GiB RAM. MQTT cgroup có CPUQuota=50% và MemoryMax=512 MiB. Host chỉ 15% CPU nhưng MQTT latency cao. Không thể loại trừ CPU bottleneck.</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/cpu.max
+cat /sys/fs/cgroup/&lt;path&gt;/cpu.stat
+cat /sys/fs/cgroup/&lt;path&gt;/memory.events
+cat /sys/fs/cgroup/&lt;path&gt;/memory.pressure
+cat /sys/fs/cgroup/&lt;path&gt;/io.stat
+</code></pre>
+<p>Đo counter theo thời gian; kiểm tra cả cgroup cha. Một parent <code>CPUQuota=100%</code> có thể giới hạn cả subtree dù child có <code>CPUQuota=200%</code>.</p>
+</section><section id="s19" class="chapter"><div class="section-number">MỤC 19 / 46</div><h2>Các lỗi suy luận phổ biến</h2><table>
+<thead>
+<tr>
+  <th>Hiện tượng</th>
+  <th>Kết luận sai</th>
+  <th>Cần kiểm tra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Host CPU rảnh</td>
+  <td>Container không thiếu CPU</td>
+  <td>cpu.max, cpu.stat, cpuset, PSI</td>
+</tr>
+<tr>
+  <td>Host còn RAM</td>
+  <td>Container không OOM</td>
+  <td>memory.max, events, reclaim</td>
+</tr>
+<tr>
+  <td>Root trong container</td>
+  <td>Root host</td>
+  <td>userns, credentials, capabilities</td>
+</tr>
+<tr>
+  <td>Image Ubuntu</td>
+  <td>Kernel Ubuntu</td>
+  <td>uname -r, kernel host</td>
+</tr>
+<tr>
+  <td>PID 1 container</td>
+  <td>PID 1 host</td>
+  <td>PID namespace</td>
+</tr>
+<tr>
+  <td>Xóa file image</td>
+  <td>Lower đã mất</td>
+  <td>Overlay whiteout</td>
+</tr>
+<tr>
+  <td>cpu.weight cao</td>
+  <td>Luôn nhiều CPU</td>
+  <td>Contention và hierarchy</td>
+</tr>
+<tr>
+  <td>Namespace riêng</td>
+  <td>An toàn tuyệt đối</td>
+  <td>Kernel, mounts, devices, security</td>
+</tr>
+</tbody>
+</table>
+</section><section id="s20" class="chapter"><div class="section-number">MỤC 20 / 46</div><h2>Container và VM</h2><p>Container dùng chung host kernel; VM thông thường có guest kernel riêng dưới hypervisor. VM thường có chi phí tài nguyên và quản lý riêng nhưng có thể cung cấp isolation mạnh hơn trong nhiều threat model. Các giải pháp như Kata Containers kết hợp mô hình container với VM nhẹ.</p>
+<div class="visual-anchor" data-visual="20"></div></section><section id="s21" class="chapter"><div class="section-number">MỤC 21 / 46</div><h2>Container và systemd service</h2><p>Systemd service cũng có thể dùng cgroups và sandboxing mà không cần Docker:</p>
+<pre><code class="language-ini">[Service]
+ExecStart=/usr/bin/python3 /opt/app.py
+CPUQuota=50%
+MemoryMax=512M
+NoNewPrivileges=yes
+ProtectSystem=strict
+PrivateTmp=yes
+</code></pre>
+<p>Tuy nhiên một service có resource limits chưa tự động là container hoàn chỉnh.</p>
+</section><section id="s22" class="chapter"><div class="section-number">MỤC 22 / 46</div><h2>Checklist thực hành</h2><p>Thực hành trong VM systemd/cgroups v2: xác nhận <code>cgroup2fs</code>; tạo transient service CPUQuota=50%; đọc <code>cpu.max</code>; đo <code>cpu.stat</code> ít nhất hai lần; giải thích throttling; tạo PID namespace; so sánh PID trong và ngoài; kiểm tra procfs; giải thích memory.high/memory.max; dọn toàn bộ lab.</p>
+<div class="visual-anchor" data-visual="22"></div></section><section id="s23" class="chapter"><div class="section-number">MỤC 23 / 46</div><h2>Câu hỏi phản biện nâng cao</h2><ul>
+<li>Một process trong container có thể <code>mmap()</code> 2 GiB dù <code>memory.max=512MiB</code> không? Có thể, vì virtual mapping không nhất thiết cấp physical pages ngay; charge diễn ra theo page faults và loại mapping.</li>
+<li><code>CPUQuota=100%</code> trên host 16 core có thể chạy trên 16 core không? Nhiều thread có thể chạy đồng thời trong một phần period, nhưng tổng ngân sách tương đương một CPU.</li>
+<li>Image chứa kernel module có tự load được không? Không mặc nhiên; module tác động host kernel và cần quyền, compatibility, policy.</li>
+<li><code>cpu.stat</code> không có throttling có chứng minh không nghẽn CPU? Không; có thể do affinity, saturation, scheduling delay, cpuset hoặc host contention.</li>
+</ul>
+</section><section id="s24" class="chapter"><div class="section-number">MỤC 24 / 46</div><h2>Tổng kết phần nền tảng</h2><p><strong>Namespace kiểm soát góc nhìn. Cgroups kiểm soát tài nguyên. Security policy kiểm soát quyền. Rootfs cung cấp môi trường filesystem. Tất cả vẫn dựa trên host kernel.</strong></p>
+<p>Khi debug: kiểm tra namespace, cgroup, quyền, host resource pressure và vị trí lưu dữ liệu. Đừng coi container là một máy tính độc lập.</p>
+</section><section id="s25" class="chapter"><div class="section-number">MỤC 25 / 46</div><h2>clone(), clone3(), unshare(), setns() và execve()</h2><p>Kernel không có <code>create_docker_container()</code>. Runtime phối hợp <code>clone()</code>, <code>clone3()</code>, <code>unshare()</code>, <code>setns()</code>, mounts, <code>pivot_root()</code>, credentials, cgroup setup và <code>execve()</code>.</p>
+<table>
+<thead>
+<tr>
+  <th>Flag</th>
+  <th>Tác dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>CLONE_NEWPID</td>
+  <td>PID namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWNS</td>
+  <td>Mount namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWNET</td>
+  <td>Network namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWUTS</td>
+  <td>UTS namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWUSER</td>
+  <td>User namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWIPC</td>
+  <td>IPC namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWCGROUP</td>
+  <td>Cgroup namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_NEWTIME</td>
+  <td>Time namespace mới</td>
+</tr>
+<tr>
+  <td>CLONE_VM</td>
+  <td>Chia sẻ address space</td>
+</tr>
+<tr>
+  <td>CLONE_FILES</td>
+  <td>Chia sẻ file descriptor table</td>
+</tr>
+</tbody>
+</table>
+<p><code>clone3()</code> sử dụng cấu trúc tham số như sau (trích các trường tiêu biểu):</p>
+<pre><code class="language-c">struct clone_args {
+    __aligned_u64 flags;
+    __aligned_u64 pidfd;
+    __aligned_u64 child_tid;
+    __aligned_u64 parent_tid;
+    __aligned_u64 exit_signal;
+    __aligned_u64 stack;
+    __aligned_u64 stack_size;
+    __aligned_u64 tls;
+    __aligned_u64 set_tid;
+    __aligned_u64 set_tid_size;
+    __aligned_u64 cgroup;
+};
+</code></pre>
+<p><code>CLONE_INTO_CGROUP</code> có thể tạo child trực tiếp trong cgroup được chỉ định trên kernel hỗ trợ và khi đáp ứng điều kiện. Runtime phải đồng bộ parent/child để UID/GID mapping, cgroup, mounts, network và security được cấu hình trước khi application chạy. <code>unshare()</code> tách một số trạng thái; <code>setns()</code> tham gia namespace tồn tại. <code>CLONE_NEWPID</code> áp dụng cho các child tạo tiếp theo nên thường cần fork.</p>
+</section><section id="s26" class="chapter"><div class="section-number">MỤC 26 / 46</div><h2>task_struct, nsproxy, cred và css_set</h2><p>Kernel task có tham chiếu đến <code>mm_struct</code>, <code>files_struct</code>, <code>fs_struct</code>, <code>nsproxy</code>, <code>struct cred</code> và cgroup membership qua các cấu trúc liên quan như <code>css_set</code>.</p>
+<pre><code class="language-text">task_struct
+├── mm       → mm_struct
+├── files    → files_struct
+├── fs       → fs_struct
+├── nsproxy  → mount/UTS/IPC/PID-for-children/net/cgroup/time namespace refs
+├── cred     → struct cred (user namespace và credentials liên quan)
+└── cgroups  → css_set
+</code></pre>
+<p>Đây là sơ đồ khái niệm, không phải layout ABI cố định. User namespace liên quan chặt với credentials, không chỉ là một field đơn giản trong nsproxy.</p>
+<pre><code class="language-bash">ls -l /proc/self/ns/
+sudo ls -l /proc/&lt;PID&gt;/ns/
+sudo lsns
+sudo lsns -t pid
+sudo lsns -p &lt;PID&gt;
+</code></pre>
+<p>Hai task có cùng namespace inode của một loại thường tham chiếu cùng namespace đó tại thời điểm quan sát. Namespace có thể sống tiếp sau process ban đầu nếu còn tham chiếu qua process, file descriptor hoặc namespace bind mount.</p>
+</section><section id="s27" class="chapter"><div class="section-number">MỤC 27 / 46</div><h2>Docker → dockerd → containerd → shim → runc → kernel</h2><p>Kiến trúc phổ biến: Docker CLI giao tiếp Docker Engine (<code>dockerd</code>), engine phối hợp <code>containerd</code>, shim và OCI runtime như <code>runc</code>. Runtime tạo namespace, mounts, credentials, cgroups và chạy application. Đây không phải đường đi bắt buộc của mọi hệ thống.</p>
+<p>OCI (Open Container Initiative) định nghĩa Image Specification và Runtime Specification. Một OCI bundle thường có <code>rootfs</code> và <code>config.json</code>.</p>
+<pre><code class="language-json">{
+  &quot;ociVersion&quot;: &quot;1.1.0&quot;,
+  &quot;process&quot;: {
+    &quot;terminal&quot;: false,
+    &quot;args&quot;: [&quot;/bin/sh&quot;],
+    &quot;cwd&quot;: &quot;/&quot;,
+    &quot;user&quot;: {&quot;uid&quot;: 0, &quot;gid&quot;: 0}
+  },
+  &quot;root&quot;: {&quot;path&quot;: &quot;rootfs&quot;, &quot;readonly&quot;: false},
+  &quot;linux&quot;: {
+    &quot;namespaces&quot;: [
+      {&quot;type&quot;: &quot;pid&quot;}, {&quot;type&quot;: &quot;mount&quot;},
+      {&quot;type&quot;: &quot;network&quot;}, {&quot;type&quot;: &quot;uts&quot;}
+    ]
+  }
+}
+</code></pre>
+<p>Đây là fragment minh họa, không phải cấu hình runtime hoàn chỉnh. Shim giúp quản lý task, I/O, exit status và vòng đời tách khỏi daemon ở một mức độ nhất định. Nếu dockerd restart, container có chết không còn phụ thuộc runtime, shim và cấu hình.</p>
+<div class="visual-anchor" data-visual="27"></div></section><section id="s28" class="chapter"><div class="section-number">MỤC 28 / 46</div><h2>Cgroups v2 hierarchy, subtree_control và delegation</h2><p><code>cgroup.controllers</code> cho biết controller có thể bật cho children; <code>cgroup.subtree_control</code> cho biết controller nào đã bật cho children. <code>+cpu +memory +pids</code> là ví dụ thao tác bật controller khi được phép.</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/cgroup.controllers
+cat /sys/fs/cgroup/cgroup.subtree_control
+cat /sys/fs/cgroup/cgroup.type
+</code></pre>
+<p>Các cgroup con chịu giới hạn từ tổ tiên. <code>system.slice CPUQuota=200%</code> có thể giới hạn cả subtree dù <code>mqtt.service CPUQuota=400%</code>. Quy tắc <strong>no-internal-process</strong> áp dụng cho domain controllers trong những trường hợp tương ứng; root cgroup và threaded subtree có quy tắc riêng.</p>
+<p><code>cgroup.type</code> có thể có <code>domain</code>, <code>domain threaded</code>, <code>threaded</code>, <code>domain invalid</code>. Không phải controller nào cũng hỗ trợ threaded model. <code>Delegate=yes</code> trong systemd giao quyền quản lý một subtree theo phạm vi phù hợp, không trao toàn quyền ghi toàn bộ <code>/sys/fs/cgroup</code>.</p>
+<pre><code class="language-ini">[Service]
+Delegate=yes
+</code></pre>
+</section><section id="s29" class="chapter"><div class="section-number">MỤC 29 / 46</div><h2>CFS bandwidth, quota period và CPU PSI</h2><p><code>cpu.max=20000 100000</code> tương đương 20 ms CPU time mỗi 100 ms. Với 4 CPU-bound threads chạy đồng thời trên 4 core, ngân sách lý tưởng có thể hết sau khoảng 5 ms wall-clock. Đây là mô hình đơn giản; kernel accounting và runtime distribution thực tế phức tạp hơn.</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/cpu.stat
+cat /sys/fs/cgroup/&lt;path&gt;/cpu.pressure
+</code></pre>
+<p>Các chương trình JVM, Go, web server nhiều worker có thể tự lấy số CPU online để tạo worker vượt quá CPU quota. Giảm concurrency đôi khi cải thiện tail latency. Cần phân biệt quota throttling với CPU saturation và scheduler delay.</p>
+<div class="visual-anchor" data-visual="29"></div></section><section id="s30" class="chapter"><div class="section-number">MỤC 30 / 46</div><h2>Memory accounting: anon, file, slab, reclaim, OOM</h2><p>Tổng RSS có thể đếm trùng shared pages; <code>memory.current</code> dùng accounting theo cgroup, gồm anonymous memory, page cache và một số kernel memory. <code>memory.stat</code> có <code>anon</code>, <code>file</code>, <code>kernel</code>, <code>slab</code>, <code>sock</code>, <code>shmem</code>, <code>file_mapped</code>, <code>pgfault</code>, <code>pgmajfault</code>, <code>pgscan</code>, <code>pgsteal</code>. Không cộng các field này tùy tiện vì có các phân loại con chồng lấp.</p>
+<p>Clean file-backed pages thường reclaim dễ hơn; dirty pages có thể cần writeback; anonymous pages có thể cần swap hoặc cơ chế khác. Memory pressure kéo dài có thể tăng latency mà chưa OOM. <code>memory.oom.group</code> hỗ trợ xử lý workload như một nhóm theo quy tắc memcg OOM.</p>
+<p><strong>Lab trong VM:</strong></p>
+<pre><code class="language-bash">sudo systemd-run --unit=memory-lab \
+  -p MemoryMax=128M -p RuntimeMaxSec=30s \
+  /usr/bin/python3 -c '
+import time
+blocks=[]
+while True:
+    blocks.append(bytearray(8*1024*1024))
+    print(len(blocks)*8,&quot;MiB&quot;,flush=True)
+    time.sleep(0.2)
+'
+cg=$(systemctl show memory-lab -p ControlGroup --value)
+if [[ -n &quot;$cg&quot; &amp;&amp; -d &quot;/sys/fs/cgroup$cg&quot; ]]; then
+  cat &quot;/sys/fs/cgroup$cg/memory.current&quot;
+  cat &quot;/sys/fs/cgroup$cg/memory.events&quot;
+fi
+systemctl status memory-lab
+journalctl -u memory-lab -n 50
+sudo systemctl stop memory-lab || true
+sudo systemctl reset-failed memory-lab || true
+</code></pre>
+</section><section id="s31" class="chapter"><div class="section-number">MỤC 31 / 46</div><h2>cpuset, taskset, affinity và NUMA</h2><p><code>cpu.max</code> giới hạn CPU time; <code>cpu.weight</code> chia CPU khi tranh chấp; <code>cpuset.cpus</code> giới hạn CPU placement; <code>sched_setaffinity()</code> đặt affinity cho task.</p>
+<pre><code class="language-bash">taskset -c 2 ./mqtt_app
+taskset -pc &lt;PID&gt;
+cat /sys/fs/cgroup/&lt;path&gt;/cpuset.cpus
+cat /sys/fs/cgroup/&lt;path&gt;/cpuset.cpus.effective
+</code></pre>
+<p>NUMA (Non-Uniform Memory Access) nghĩa là latency truy cập memory phụ thuộc vị trí CPU và memory node. Pinning sai có thể làm hiệu năng tệ hơn nếu CPU được chọn gánh IRQ, thermal throttling hoặc các workload khác. Với embedded/real-time phải xem IRQ affinity, CPU frequency, PREEMPT_RT, cache locality và worst-case latency.</p>
+</section><section id="s32" class="chapter"><div class="section-number">MỤC 32 / 46</div><h2>I/O controller: io.stat, io.max, io.weight</h2><p>CPU và RAM bình thường nhưng SQLite vẫn có thể chậm do I/O throttling, fsync latency, writeback hoặc storage saturation.</p>
+<pre><code class="language-bash">lsblk -o NAME,MAJ:MIN,SIZE,TYPE,MOUNTPOINTS
+cat /sys/fs/cgroup/&lt;path&gt;/io.stat
+</code></pre>
+<p>Ví dụ <code>8:0 rbytes=10485760 wbytes=5242880 rios=120 wios=80</code> biểu diễn I/O accounting theo block device major:minor. <code>io.max</code> có thể giới hạn <code>rbps</code>, <code>wbps</code>, <code>riops</code>, <code>wiops</code> theo thiết bị, ví dụ <code>8:0 rbps=10485760 wbps=5242880</code>. <code>io.weight</code> là phân chia tương đối khi controller/scheduler hỗ trợ phù hợp.</p>
+<p>[\text{WriteRate}=\frac{\Delta wbytes}{\Delta t}]</p>
+<p>Throughput thấp không tự chứng minh throttling; cần kết hợp I/O PSI và thiết bị.</p>
+</section><section id="s33" class="chapter"><div class="section-number">MỤC 33 / 46</div><h2>PIDs controller và fork bomb</h2><p><code>pids.max</code> giới hạn số task (bao gồm threads theo kernel accounting), <code>pids.current</code> cho biết mức hiện tại, <code>pids.events</code> phản ánh những lần fork/clone bị từ chối do giới hạn.</p>
+<pre><code class="language-bash">sudo systemd-run --unit=pids-lab \
+  -p TasksMax=10 -p RuntimeMaxSec=20s \
+  /usr/bin/sleep 15
+systemctl show pids-lab -p TasksMax -p ControlGroup
+cg=$(systemctl show pids-lab -p ControlGroup --value)
+if [[ -n &quot;$cg&quot; &amp;&amp; -d &quot;/sys/fs/cgroup$cg&quot; ]]; then
+  cat &quot;/sys/fs/cgroup$cg/pids.max&quot;
+  cat &quot;/sys/fs/cgroup$cg/pids.current&quot;
+fi
+sudo systemctl stop pids-lab || true
+sudo systemctl reset-failed pids-lab || true
+</code></pre>
+<p>Không cần chạy fork bomb để học PIDs controller.</p>
+</section><section id="s34" class="chapter"><div class="section-number">MỤC 34 / 46</div><h2>PSI: Pressure Stall Information</h2><p>CPU usage đo thời gian CPU đã sử dụng; PSI giúp quan sát thời gian task bị stall vì áp lực CPU, memory, I/O.</p>
+<pre><code class="language-bash">cat /proc/pressure/cpu
+cat /proc/pressure/memory
+cat /proc/pressure/io
+cat /sys/fs/cgroup/&lt;path&gt;/cpu.pressure
+cat /sys/fs/cgroup/&lt;path&gt;/memory.pressure
+cat /sys/fs/cgroup/&lt;path&gt;/io.pressure
+</code></pre>
+<p>Ví dụ <code>some avg10=12.50 avg60=4.20 avg300=1.10 total=12345678</code>: <code>avg10/60/300</code> là pressure trung bình trên các cửa sổ tương ứng; <code>total</code> tính microsecond. <code>some</code> nghĩa là có ít nhất một task bị stall; <code>full</code> phản ánh tất cả non-idle tasks trong phạm vi phù hợp cùng stall. CPU full pressure cấp hệ thống có các đặc điểm riêng, không nên diễn giải như mọi metric thông thường.</p>
+<p><strong>Tư duy senior:</strong> PSI chỉ ra áp lực; <code>cpu.stat</code>, <code>memory.events</code>, <code>io.stat</code>, tracing và latency mới giúp xác định nguyên nhân.</p>
+<div class="visual-anchor" data-visual="34"></div></section><section id="s35" class="chapter"><div class="section-number">MỤC 35 / 46</div><h2>OverlayFS nâng cao: copy-up, metadata và page cache</h2><p>Copy-up có thể phát sinh chi phí khi sửa file lower. Metadata operations như <code>chmod</code>, <code>chown</code>, <code>rename</code>, <code>unlink</code> có thể tạo copy-up/whiteout. Workload nhiều file nhỏ hoặc database random writes/fsync cần đánh giá storage backend. Metacopy và các tùy chọn có thể làm hành vi khác nhau.</p>
+<p><strong>Lab (VM, filesystem hỗ trợ OverlayFS):</strong></p>
+<pre><code class="language-bash">mkdir -p ~/overlay-lab/{lower,upper,work,merged}
+echo 'version=1' &gt; ~/overlay-lab/lower/config.txt
+sudo mount -t overlay overlay \
+  -o lowerdir=&quot;$HOME/overlay-lab/lower&quot;,upperdir=&quot;$HOME/overlay-lab/upper&quot;,workdir=&quot;$HOME/overlay-lab/work&quot; \
+  &quot;$HOME/overlay-lab/merged&quot;
+cat ~/overlay-lab/merged/config.txt
+echo 'version=2' | sudo tee ~/overlay-lab/merged/config.txt
+cat ~/overlay-lab/lower/config.txt
+cat ~/overlay-lab/upper/config.txt
+cat ~/overlay-lab/merged/config.txt
+sudo umount ~/overlay-lab/merged
+rm -rf ~/overlay-lab
+</code></pre>
+<p>Kỳ vọng lower vẫn v1, upper và merged v2. Kiểm tra mount đã tháo trước khi cleanup; chú ý file do root tạo.</p>
+</section><section id="s36" class="chapter"><div class="section-number">MỤC 36 / 46</div><h2>Networking nâng cao: DNAT, SNAT, conntrack</h2><p>Với <code>docker run -p 8080:80 nginx</code>, một đường đi điển hình là client → host network stack → netfilter DNAT → bridge/veth → container eth0 → nginx. Một số cấu hình dùng userland proxy, rootless networking hoặc đường đi khác.</p>
+<ul>
+<li>Veth pair: hai đầu Ethernet ảo.</li>
+<li>Bridge: kết nối L2, học MAC.</li>
+<li>DNAT: thay đổi destination IP/port.</li>
+<li>SNAT/masquerade: thay đổi source khi đi ra mạng.</li>
+<li>Conntrack: theo dõi luồng; bảng đầy có thể làm kết nối mới lỗi/drop.</li>
+</ul>
+<pre><code class="language-bash">docker inspect &lt;container&gt; --format '{{.State.Pid}}'
+sudo nsenter -t &lt;PID&gt; -n ip addr
+sudo nsenter -t &lt;PID&gt; -n ip route
+sudo nsenter -t &lt;PID&gt; -n ss -lnt
+</code></pre>
+<p><code>nsenter -n</code> chỉ tham gia network namespace, không tự thay filesystem hoặc các namespace khác.</p>
+<div class="visual-anchor" data-visual="36"></div></section><section id="s37" class="chapter"><div class="section-number">MỤC 37 / 46</div><h2>Container security nâng cao và rootless</h2><p>Các lớp bảo vệ gồm namespaces, user namespace, DAC, capabilities, seccomp, LSM (SELinux/AppArmor), read-only rootfs, device policies, <code>NoNewPrivileges</code> và cấu hình runtime. Rootless giảm một số rủi ro quyền host nhưng không loại bỏ kernel vulnerabilities, bind mount exposure hoặc network attack surface.</p>
+<pre><code class="language-bash">docker run --device=/dev/ttyUSB0 my-serial-app
+</code></pre>
+<p>Ưu tiên cấp đúng device thay vì <code>--privileged</code>. Docker socket là interface nhạy cảm, bind vào container có thể mở rộng quyền điều khiển host đáng kể. Seccomp lọc syscall, không thay thế file permissions.</p>
+</section><section id="s38" class="chapter"><div class="section-number">MỤC 38 / 46</div><h2>PID 1, SIGTERM, zombie và graceful shutdown</h2><p><code>docker stop</code> thường gửi stop signal (mặc định SIGTERM) đến container init, chờ rồi có thể SIGKILL. PID 1 có ngữ nghĩa signal và reaping đặc biệt. Shell-form CMD có thể khiến signal không đến application đúng như mong muốn.</p>
+<pre><code class="language-python">import signal
+import time
+running = True
+
+def handle_sigterm(signum, frame):
+    global running
+    print('Received SIGTERM', flush=True)
+    running = False
+
+signal.signal(signal.SIGTERM, handle_sigterm)
+while running:
+    time.sleep(0.1)
+print('Cleanup resources')
+</code></pre>
+<p>Ứng dụng production cần đóng socket, flush, transaction cleanup, dừng worker, timeout. Init nhỏ hỗ trợ child reaping và signal forwarding:</p>
+<pre><code class="language-bash">docker run --init my-app
+</code></pre>
+<p><code>--init</code> không thay thế graceful shutdown đúng cách.</p>
+</section><section id="s39" class="chapter"><div class="section-number">MỤC 39 / 46</div><h2>systemd slices, scopes, services và delegation</h2><p>Service quản lý daemon; scope quản lý process được tạo bên ngoài systemd; slice tổ chức hierarchy áp resource policies.</p>
+<pre><code class="language-ini"># /etc/systemd/system/iot.slice
+[Unit]
+Description=IoT Services Slice
+[Slice]
+CPUQuota=200%
+MemoryMax=2G
+</code></pre>
+<pre><code class="language-bash">sudo systemctl daemon-reload
+sudo systemd-run --unit=iot-demo --slice=iot.slice \
+  -p CPUQuota=50% -p RuntimeMaxSec=20s \
+  /usr/bin/python3 -c 'while True: pass'
+systemctl show iot-demo -p Slice -p ControlGroup
+systemctl show iot.slice -p CPUQuotaPerSecUSec -p MemoryMax
+sudo systemctl stop iot-demo
+sudo systemctl reset-failed iot-demo
+sudo rm /etc/systemd/system/iot.slice
+sudo systemctl daemon-reload
+</code></pre>
+<p>Chỉ xóa slice configuration khi không còn workload cần nó; kiểm tra trạng thái active. Với container manager, <code>Delegate=yes</code> cần đi cùng mô hình ownership rõ ràng.</p>
+</section><section id="s40" class="chapter"><div class="section-number">MỤC 40 / 46</div><h2>Container trong Embedded Linux, ARM, Buildroot, Yocto</h2><p>Có nên dùng Docker trên mọi thiết bị? Không. Xét RAM, flash, CPU, kernel config, boot time, update strategy, security và real-time constraints. MCU FreeRTOS không phải Linux container host.</p>
+<p>Các kernel config thường liên quan: <code>CONFIG_NAMESPACES</code>, <code>CONFIG_PID_NS</code>, <code>CONFIG_NET_NS</code>, <code>CONFIG_USER_NS</code>, <code>CONFIG_CGROUPS</code>, <code>CONFIG_MEMCG</code>, <code>CONFIG_CFS_BANDWIDTH</code>, <code>CONFIG_OVERLAY_FS</code>, <code>CONFIG_SECCOMP</code>, <code>CONFIG_SECCOMP_FILTER</code>; không phải tất cả đều bắt buộc cho mọi runtime.</p>
+<pre><code class="language-bash">zcat /proc/config.gz | grep CONFIG_CGROUPS
+</code></pre>
+<p><code>/dev/ttyUSB0</code>, <code>/dev/spidev0.0</code>, <code>/dev/i2c-1</code> là device nodes thường gặp. <strong>SocketCAN <code>can0</code> là network interface, không phải <code>/dev/can0</code></strong>. Có thể dùng host network hoặc bố trí interface vào network namespace phù hợp.</p>
+<pre><code class="language-bash">docker run --device=/dev/ttyUSB0 my-serial-app
+docker run --network host my-can-app
+</code></pre>
+<p>Real-time phụ thuộc host kernel, PREEMPT_RT, IRQ, CPU isolation, memory locking, scheduler, cgroups và worst-case latency. Quota chặt có thể không phù hợp workload CAN/BLDC deadline-sensitive.</p>
+</section><section id="s41" class="chapter"><div class="section-number">MỤC 41 / 46</div><h2>Debugging production: quy trình từ process đến kernel</h2><p><strong>Bước 1:</strong> Tìm PID và cgroup:</p>
+<pre><code class="language-bash">systemctl show &lt;unit&gt; -p ControlGroup
+cat /proc/&lt;PID&gt;/cgroup
+ls -l /proc/&lt;PID&gt;/ns/
+</code></pre>
+<p><strong>Bước 2:</strong> CPU quota, throttling, pressure:</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/cpu.max
+cat /sys/fs/cgroup/&lt;path&gt;/cpu.stat
+cat /sys/fs/cgroup/&lt;path&gt;/cpu.pressure
+</code></pre>
+<p><strong>Bước 3:</strong> RAM:</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/memory.current
+cat /sys/fs/cgroup/&lt;path&gt;/memory.max
+cat /sys/fs/cgroup/&lt;path&gt;/memory.events
+cat /sys/fs/cgroup/&lt;path&gt;/memory.stat
+cat /sys/fs/cgroup/&lt;path&gt;/memory.pressure
+</code></pre>
+<p><strong>Bước 4:</strong> I/O và PIDs:</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/&lt;path&gt;/io.stat
+cat /sys/fs/cgroup/&lt;path&gt;/io.pressure
+cat /sys/fs/cgroup/&lt;path&gt;/pids.current
+cat /sys/fs/cgroup/&lt;path&gt;/pids.max
+cat /sys/fs/cgroup/&lt;path&gt;/pids.events
+</code></pre>
+<p><strong>Bước 5:</strong> tracing/profiling khi cần:</p>
+<pre><code class="language-bash">sudo strace -p &lt;PID&gt; -tt -T
+sudo perf top -p &lt;PID&gt;
+</code></pre>
+<p>Có thể dùng bpftrace cho kernel events. Tracing có overhead và cần quyền, nên cân nhắc production impact. Đo counter theo cùng khoảng thời gian và kiểm tra giới hạn cgroup cha.</p>
+</section><section id="s42" class="chapter"><div class="section-number">MỤC 42 / 46</div><h2>Ba case studies production</h2><p><strong>Case 1 — Host CPU 20%, container latency 500 ms, CPUQuota=50%.</strong> Đọc <code>cpu.max</code>, <code>cpu.stat</code>, <code>cpu.pressure</code>, kiểm tra quota cha, concurrency và worker pool. Tăng quota chỉ sau khi xác minh giả thuyết.</p>
+<p><strong>Case 2 — Host còn 8 GiB RAM, container memory.max=512 MiB và OOM.</strong> Đọc <code>memory.events</code>, <code>memory.stat</code>, phân biệt heap growth, page cache, shmem, slab và spike; xác định process bị kill.</p>
+<p><strong>Case 3 — Database chậm, CPU PSI và memory PSI thấp nhưng I/O PSI cao.</strong> Đọc <code>io.stat</code>, <code>io.pressure</code>, thiết bị với <code>iostat -xz 1</code> (nếu có). Xét disk saturation, throttling, fsync, writeback, OverlayFS và backend storage.</p>
+</section><section id="s43" class="chapter"><div class="section-number">MỤC 43 / 46</div><h2>Lab mini-container bằng BusyBox, unshare và chroot</h2><p><strong>Chỉ chạy trong VM thử nghiệm. Đây không phải security boundary production hoặc OCI runtime hoàn chỉnh.</strong></p>
+<pre><code class="language-bash">sudo apt-get install busybox-static
+mkdir -p ~/mini-rootfs/{bin,proc,dev,tmp}
+cp /bin/busybox ~/mini-rootfs/bin/
+file ~/mini-rootfs/bin/busybox
+ln -s busybox ~/mini-rootfs/bin/sh
+ln -s busybox ~/mini-rootfs/bin/ps
+ln -s busybox ~/mini-rootfs/bin/hostname
+sudo unshare --mount --uts --ipc --pid --fork sh
+</code></pre>
+<p>Trong namespace shell (thay <code>/home/user</code> bằng đường dẫn thực):</p>
+<pre><code class="language-bash">mount --make-rprivate /
+mount -t proc proc /home/user/mini-rootfs/proc
+chroot /home/user/mini-rootfs /bin/sh
+ps
+hostname
+echo $$
+exit
+umount /home/user/mini-rootfs/proc
+exit
+</code></pre>
+<p>Kiểm tra mount đã được dọn trước khi xóa rootfs. Lab thiếu network isolation đầy đủ, cgroup limits, user mappings, capability reduction, seccomp, LSM, device management, OCI lifecycle, robust signal handling và image management.</p>
+</section><section id="s44" class="chapter"><div class="section-number">MỤC 44 / 46</div><h2>Câu hỏi Senior và phản biện</h2><ol>
+<li>Vì sao namespace không giới hạn CPU? Vì namespace tách góc nhìn, CPU controller mới áp bandwidth.</li>
+<li>Vì sao child quota 400% chỉ chạy 100%? Có thể do quota cha, một runnable thread, affinity hoặc bottleneck khác.</li>
+<li>Vì sao RSS khác memory.current? Shared pages có thể đếm trùng trong RSS; memcg accounting theo quy tắc charge.</li>
+<li>Vì sao Ubuntu image chạy Debian kernel? Userland image không thay kernel host.</li>
+<li>Vì sao cpu.weight không bảo đảm 75%? Nó là tỷ lệ khi tranh chấp, phụ thuộc hierarchy và workload.</li>
+<li>Vì sao memory.high tăng latency không OOM? Reclaim/throttling có thể xảy ra trước max.</li>
+<li>Vì sao PID 1 cần cẩn thận? Signal semantics và child reaping.</li>
+<li>Rootless có an toàn tuyệt đối? Không, vẫn có kernel và cấu hình attack surface.</li>
+<li>OverlayFS overhead ở đâu? Copy-up, metadata, whiteout, storage backend.</li>
+<li>Khi chậm nên xem CPU usage hay PSI? Kết hợp cả hai với latency, counter và tracing.</li>
+</ol>
+<div class="visual-anchor" data-visual="44"></div></section><section id="s45" class="chapter"><div class="section-number">MỤC 45 / 46</div><h2>Bản đồ tư duy toàn bộ Bài 36</h2><ul>
+<li><strong>Namespaces:</strong> PID, mount, network, UTS, IPC, user, cgroup, time.</li>
+<li><strong>Cgroups v2:</strong> CPU, memory, I/O, PIDs, cpuset, hierarchy, delegation, PSI.</li>
+<li><strong>Security:</strong> DAC, capabilities, seccomp, LSM, rootless, device policies.</li>
+<li><strong>Storage:</strong> rootfs, image layers, OverlayFS, volumes, backup.</li>
+<li><strong>Runtime:</strong> Docker CLI, dockerd, containerd, shim, runc, OCI.</li>
+<li><strong>Observability:</strong> <code>/proc</code>, <code>/sys/fs/cgroup</code>, <code>systemctl</code>, <code>lsns</code>, <code>strace</code>, <code>perf</code>, bpftrace.</li>
+</ul>
+<p>Mọi lớp đều chạy trên <strong>shared Linux host kernel</strong>.</p>
+<div class="visual-anchor" data-visual="45"></div></section><section id="s46" class="chapter"><div class="section-number">MỤC 46 / 46</div><h2>Checklist năng lực và kết luận</h2><p>Sau bài học, bạn cần có thể: giải thích container internals; phân biệt <code>clone</code>, <code>clone3</code>, <code>unshare</code>, <code>setns</code>; đọc <code>task_struct</code>/<code>nsproxy</code> ở mức khái niệm; hiểu OCI/runtime; phân tích cgroup hierarchy; phân biệt quota/weight/affinity/cpuset; debug throttling, memcg OOM, PSI, I/O, PIDs; hiểu OverlayFS, bridge/NAT/conntrack; đánh giá rootless, seccomp, LSM; xử lý PID 1 và graceful shutdown; thiết kế container cho Embedded Linux; tự làm mini-container trong VM.</p>
+<p><strong>Ba cấp độ:</strong> Người dùng biết Docker; Linux Engineer hiểu namespace/cgroups/security và debug; Senior/Kernel-oriented Engineer hiểu syscall, accounting, hierarchy và chứng minh bottleneck bằng measurements.</p>
+<p><strong>Kết luận:</strong> Container vẫn là Linux tasks trên host kernel, đặt trong namespace, cgroup, rootfs và security context cụ thể. Khi có sự cố, truy nguyên từng lớp thay vì chỉ nhìn CPU/RAM dashboard.</p>
+<p><strong>Đọc thêm:</strong> <a href="https://docs.kernel.org/admin-guide/cgroup-v2.html">Cgroups v2</a>, <a href="https://man7.org/linux/man-pages/man7/namespaces.7.html">Namespaces</a>, <a href="https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html">Systemd Resource Control</a>, <a href="https://docs.kernel.org/filesystems/overlayfs.html">OverlayFS</a>.</p>
+</section><footer class="chapter"><h2>Hoàn thành Bài 36</h2><p>Tài liệu được đóng gói offline. Mọi sơ đồ là SVG inline, mọi mô phỏng chạy bằng JavaScript nội bộ; không cần kết nối Internet.</p><p><a href="#s1">↑ Quay về đầu bài</a></p></footer></main></div><script>
+function svgWrap(title,body,desc=''){return `<div class="viz"><h3>${title}</h3><svg class="diagram" viewBox="0 0 700 290" role="img" aria-label="${title}" xmlns="http://www.w3.org/2000/svg">${body}</svg>${desc?`<p class="desc">${desc}</p>`:''}</div>`}
+function rect(x,y,w,h,label,color='#244c6b',sub=''){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${color}" stroke="#6c96b6"/><text x="${x+w/2}" y="${y+h/2-(sub?5:0)}" text-anchor="middle" class="svg-label" font-weight="bold">${label}</text>${sub?`<text x="${x+w/2}" y="${y+h/2+14}" text-anchor="middle" class="svg-small">${sub}</text>`:''}`}
+function line(x1,y1,x2,y2){return `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#80b7cc" stroke-width="2" fill="none"/>`}
+const visuals={
+1:()=>svgWrap('Sơ đồ: Các service chia sẻ Linux host',rect(25,25,195,65,'CAN Reader','#244a6a')+rect(252,25,195,65,'MQTT Client','#244a6a')+rect(479,25,195,65,'REST API','#244a6a')+line(122,90,122,125)+line(350,90,350,125)+line(576,90,576,125)+rect(25,125,650,65,'Shared Linux Environment','#5b4930','Processes · Filesystem · Network · Resources')+line(350,190,350,215)+rect(25,215,650,65,'Linux Kernel','#21584b','Scheduler · Memory · VFS · Network')),
+2:()=>svgWrap('Sơ đồ: Các lớp hình thành container',rect(245,10,210,50,'Container','#245c91')+line(350,60,350,90)+rect(15,90,210,68,'Namespaces','#294e78','Góc nhìn riêng')+rect(245,90,210,68,'Cgroups v2','#245e50','Giới hạn tài nguyên')+rect(475,90,210,68,'Security','#685231','Quyền truy cập')+line(350,158,350,188)+rect(105,188,490,42,'RootFS + OverlayFS','#594779')+line(350,230,350,248)+rect(105,248,490,37,'Shared Host Kernel','#315c52')),
+3:()=>`<div class="viz"><h3>Mô phỏng PID namespace</h3><button class="btn" onclick="setPidView('host')">Nhìn từ host</button> <button class="btn" onclick="setPidView('container')">Nhìn từ container</button><div id="pidTerminal" class="terminal"></div><p class="desc">Cùng task có thể có PID 1200 ở host và PID 1 trong namespace con.</p></div>`,
+5:()=>svgWrap('Sơ đồ: Container networking qua veth và bridge',rect(20,20,280,100,'Container A','#244a6a','eth0 · 10.10.0.2')+rect(400,20,280,100,'Container B','#24594b','eth0 · 10.10.0.3')+line(160,120,160,170)+line(540,120,540,170)+line(160,170,540,170)+line(350,170,350,205)+rect(160,205,380,60,'Linux Bridge','#685231','br0 · host kernel'),'Lab veth trực tiếp không cần bridge; sơ đồ thể hiện cấu hình bridge phổ biến.'),
+8:()=>`<div class="viz"><h3>Mô phỏng CPUQuota và worker</h3><div class="controls"><div class="control"><label>CPUQuota <b id="quotaLabel">50%</b></label><input type="range" id="quotaSlider" min="10" max="200" step="10" value="50" oninput="updateQuota()"></div><div class="control"><label>Số worker CPU-bound <b id="workersLabel">1</b></label><input type="range" id="workersSlider" min="1" max="4" step="1" value="1" oninput="updateQuota()"></div></div><div class="meter"><span id="quotaRun" style="background:#159b79"></span><span id="quotaThrot" style="background:#c47b45"></span></div><p id="quotaText" class="desc"></p></div>`,
+9:()=>svgWrap('Timeline: Quota cạn sớm khi nhiều worker',rect(15,28,670,35,'Period 100 ms','#243c57')+rect(15,90,168,54,'Running ~5 ms','#176e58')+rect(183,90,502,54,'Throttled đến kỳ tiếp theo','#975c34')+rect(15,183,670,57,'4 threads × 5 ms wall-clock ≈ 20 ms CPU time','#263e63'),'Mô hình lý tưởng với 4 worker đồng thời, đủ CPU, quota 20 ms/period 100 ms.'),
+10:()=>`<div class="viz"><h3>Phân chia CPU theo weight (mô phỏng)</h3><div class="controls"><div class="control"><label>Group A <b id="waL">100</b></label><input id="wa" type="range" min="100" max="1000" step="100" value="100" oninput="updateWeight()"></div><div class="control"><label>Group B <b id="wbL">300</b></label><input id="wb" type="range" min="100" max="1000" step="100" value="300" oninput="updateWeight()"></div></div><div class="meter"><span id="waBar" style="background:#2674c5"></span><span id="wbBar" style="background:#159b79"></span></div><p class="desc">Tỷ lệ lý tưởng khi hai nhóm cùng tranh chấp CPU; không phải cam kết trong mọi trường hợp.</p></div>`,
+11:()=>svgWrap('Memory pressure: high và max',rect(15,70,350,75,'Dưới memory.high','#176e58')+rect(365,70,200,75,'Reclaim / throttle','#a67a32')+rect(565,70,120,75,'max pressure','#a14b4b')+`<path d="M365 50V165 M565 50V165" stroke="#d8e3f1" stroke-dasharray="5 5"/><text x="365" y="35" text-anchor="middle" class="svg-label">memory.high</text><text x="565" y="35" text-anchor="middle" class="svg-label">memory.max</text>`,'Sơ đồ khái niệm, không phải tỷ lệ hay ngưỡng mặc định.'),
+16:()=>svgWrap('OverlayFS: lower + upper = merged',rect(20,20,300,90,'Lower layer','#264f7d','/etc/config v1 · /app/main')+rect(380,20,300,90,'Upper layer','#266651','/etc/config v2 · /tmp/data')+line(170,110,170,160)+line(530,110,530,160)+line(170,160,530,160)+line(350,160,350,195)+rect(110,195,480,75,'Merged view','#554879','config v2 · main · data')),
+20:()=>svgWrap('Container so với Virtual Machine',rect(20,20,305,55,'App A / App B + RootFS','#27557a')+rect(20,90,305,65,'Shared Host Kernel','#276554')+rect(20,170,305,65,'Hardware','#34445a')+rect(375,20,305,55,'Guest App A / App B','#5a487b')+rect(375,90,305,65,'Guest Kernel(s)','#5a487b')+rect(375,170,305,65,'Hypervisor / Hardware','#5a523b'),'Container chia sẻ kernel; VM thường có guest kernel riêng.'),
+22:()=>`<div class="viz"><h3>Checklist lab có thể đánh dấu</h3><div class="progress"><div id="checkProgress"></div></div><p class="desc" id="checkCount">0/10 hoàn thành</p><div class="checks" id="checks"></div><button class="btn" onclick="copyChecklist()">Sao chép checklist</button></div>`,
+27:()=>svgWrap('Docker CLI → Engine → containerd → shim → runc → kernel',...(()=>{let labels=['Docker CLI','dockerd','containerd','containerd-shim','runc','Linux Kernel'];return [labels.map((x,i)=>rect(15+i*115,100,105,70,x,i===5?'#256450':'#294e78')).join('')+labels.slice(0,-1).map((_,i)=>line(120+i*115,135,130+i*115,135)).join('')]})(),'Kiến trúc thường gặp, không phải mọi runtime đều giống nhau.'),
+29:()=>`<div class="viz"><h3>Mô phỏng thời điểm cạn quota trong period 100 ms</h3><div class="controls"><div class="control"><label>Thread đồng thời <b id="threadL">4</b></label><input id="threadSlider" type="range" min="1" max="8" value="4" oninput="updatePeriod()"></div><div class="control"><label>Quota CPU time <b id="qmsL">20 ms</b></label><input id="qmsSlider" type="range" min="10" max="100" step="10" value="20" oninput="updatePeriod()"></div></div><div class="meter"><span id="periodRun" style="background:#159b79"></span><span id="periodThrottle" style="background:#b87543"></span></div><p id="periodText" class="desc"></p></div>`,
+34:()=>`<div class="viz"><h3>Usage và pressure — dữ liệu minh họa</h3><p class="desc">Cả hai workload có CPU usage 80%, nhưng CPU PSI some khác nhau.</p><div style="display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center"><b>CPU usage A/B</b><div class="meter"><span style="background:#2977bb;width:80%">80%</span></div><b>PSI A</b><div class="meter"><span style="background:#159b79;width:3%"></span><span style="padding-left:8px">3%</span></div><b>PSI B</b><div class="meter"><span style="background:#b87543;width:35%">35%</span></div></div></div>`,
+36:()=>svgWrap('Packet path: Host:8080 → Container:80',...(()=>{let labs=['Client','Host stack','DNAT','Bridge/veth','Container eth0','Nginx'];return [labs.map((x,i)=>rect(15+i*115,100,105,70,x,i===2?'#7a5937':i===5?'#266451':'#294e78')).join('')+labs.slice(0,-1).map((_,i)=>line(120+i*115,135,130+i*115,135)).join('')]})(),'Đường đi phổ biến với bridge + netfilter DNAT; runtime có thể dùng cơ chế khác.'),
+44:()=>`<div class="viz"><h3>Trắc nghiệm Senior — bấm để xem giải thích</h3><p id="quizNum" class="desc"></p><div class="qa"><strong id="quizQuestion"></strong><div id="quizAnswer" class="answer" hidden></div></div><p><button class="btn" onclick="toggleAnswer()">Hiện / Ẩn đáp án</button> <button class="btn" onclick="moveQuiz(-1)">← Trước</button> <button class="btn" onclick="moveQuiz(1)">Tiếp →</button></p></div>`,
+45:()=>svgWrap('Bản đồ tư duy: 6 trụ cột container',rect(240,10,220,48,'Linux Container','#236a92')+line(350,58,350,92)+rect(10,92,210,55,'Namespaces','#295878')+rect(245,92,210,55,'Cgroups v2','#23644f')+rect(480,92,210,55,'Security','#6a4d39')+rect(10,163,210,55,'RootFS / Overlay','#59477a')+rect(245,163,210,55,'Runtime / OCI','#59477a')+rect(480,163,210,55,'Observability','#59477a')+line(350,218,350,242)+rect(150,242,400,43,'Shared Host Kernel','#276451'))
+};
+const pidHost='$ ps -eo pid,comm\n    1 systemd\n  510 sshd\n 1200 mqtt-service\n 1201 mqtt-helper\n 1500 can-reader';
+const pidContainer='$ ps -eo pid,comm\n    1 mqtt-service\n    2 mqtt-helper';
+function setPidView(which){document.getElementById('pidTerminal').textContent=which==='host'?pidHost:pidContainer}
+function updateQuota(){let q=+document.getElementById('quotaSlider').value,w=+document.getElementById('workersSlider').value;document.getElementById('quotaLabel').textContent=q+'%';document.getElementById('workersLabel').textContent=w;let run=Math.min(100,q/(w*100)*100);let r=document.getElementById('quotaRun'),t=document.getElementById('quotaThrot');r.style.width=run+'%';r.textContent=run>20?'Budget':' ';t.style.width=(100-run)+'%';t.textContent=run<80?'Throttle':' ';document.getElementById('quotaText').textContent=`Demand ${w*100}% của một CPU; quota ${q}%. ${q<w*100?'Có thể bị throttle khi hết ngân sách.':'Ngân sách đủ theo giả định.'}`}
+function updateWeight(){let a=+document.getElementById('wa').value,b=+document.getElementById('wb').value;document.getElementById('waL').textContent=a;document.getElementById('wbL').textContent=b;let p=100*a/(a+b);let x=document.getElementById('waBar'),y=document.getElementById('wbBar');x.style.width=p+'%';y.style.width=(100-p)+'%';x.textContent=Math.round(p)+'%';y.textContent=Math.round(100-p)+'%'}
+function updatePeriod(){let n=+document.getElementById('threadSlider').value,q=+document.getElementById('qmsSlider').value,e=Math.min(100,q/n);document.getElementById('threadL').textContent=n;document.getElementById('qmsL').textContent=q+' ms';document.getElementById('periodRun').style.width=e+'%';document.getElementById('periodRun').textContent=e>18?'Running':'';document.getElementById('periodThrottle').style.width=(100-e)+'%';document.getElementById('periodThrottle').textContent=e<80?'Throttled':'';document.getElementById('periodText').textContent=`Quota hết sau khoảng ${e.toFixed(1)} ms wall-clock trong mô hình lý tưởng.`}
+const checkItems=['Xác nhận cgroup2fs','Tạo transient service CPUQuota=50%','Đọc cpu.max','Quan sát cpu.stat hai lần','Giải thích nr_throttled','Tạo PID namespace','So sánh PID host/container','Kiểm tra procfs phù hợp','Giải thích memory.high và memory.max','Dọn transient unit và namespace'];
+function updateChecks(){let checked=[...document.querySelectorAll('#checks input')].filter(x=>x.checked).length;document.getElementById('checkProgress').style.width=(checked*10)+'%';document.getElementById('checkCount').textContent=checked+'/10 hoàn thành'}
+function copyChecklist(){let s=[...document.querySelectorAll('#checks input')].map((x,i)=>(x.checked?'[x] ':'[ ] ')+checkItems[i]).join('\n');navigator.clipboard?.writeText(s).then(()=>alert('Đã sao chép checklist')).catch(()=>prompt('Sao chép checklist:',s))}
+const quiz=[['Vì sao namespace không giới hạn CPU?','Namespace tách góc nhìn, CPU controller mới áp bandwidth.'],['Vì sao child quota 400% chỉ dùng được 100%?','Có thể do quota cha, chỉ một runnable thread, affinity hoặc bottleneck khác.'],['Vì sao RSS khác memory.current?','Shared pages có thể đếm trùng trong RSS; memcg accounting theo quy tắc charge.'],['Vì sao Ubuntu image chạy Debian kernel?','Userland image không thay kernel host.'],['Vì sao cpu.weight không bảo đảm 75%?','Nó là tỷ lệ khi tranh chấp, phụ thuộc hierarchy và workload.'],['Vì sao memory.high tăng latency mà không OOM?','Reclaim và throttling có thể xảy ra trước max.'],['Vì sao PID 1 cần cẩn thận?','Signal semantics và child reaping.'],['Rootless có an toàn tuyệt đối?','Không; vẫn có kernel và cấu hình attack surface.'],['OverlayFS overhead ở đâu?','Copy-up, metadata, whiteout và storage backend.'],['Nên xem CPU usage hay PSI?','Kết hợp cả hai với latency, counter và tracing.']];
+let qi=0;function renderQuiz(){document.getElementById('quizNum').textContent=(qi+1)+' / '+quiz.length;document.getElementById('quizQuestion').textContent=quiz[qi][0];document.getElementById('quizAnswer').textContent=quiz[qi][1];document.getElementById('quizAnswer').hidden=true}function moveQuiz(d){qi=Math.max(0,Math.min(quiz.length-1,qi+d));renderQuiz()}function toggleAnswer(){let e=document.getElementById('quizAnswer');e.hidden=!e.hidden}
+function initialize(){document.querySelectorAll('.visual-anchor').forEach(el=>{let n=+el.dataset.visual;if(visuals[n])el.innerHTML=visuals[n]()});setPidView('host');updateQuota();updateWeight();updatePeriod();document.getElementById('checks').innerHTML=checkItems.map((x,i)=>`<label><input type="checkbox" onchange="updateChecks()">${x}</label>`).join('');updateChecks();renderQuiz();document.querySelectorAll('pre').forEach(pre=>{let b=document.createElement('button');b.className='copy';b.textContent='Copy';b.onclick=()=>{navigator.clipboard?.writeText(pre.querySelector('code').textContent).then(()=>{b.textContent='Đã copy';setTimeout(()=>b.textContent='Copy',1500)}).catch(()=>{});};pre.appendChild(b)});}
+document.addEventListener('DOMContentLoaded',initialize);
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

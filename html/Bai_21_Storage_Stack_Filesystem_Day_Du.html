@@ -1,0 +1,502 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Bài 21 — Storage Stack và Filesystem trong Linux</title><style>
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#182436;background:#f5f7fb;scroll-behavior:smooth}*{box-sizing:border-box}body{margin:0}.layout{max-width:1120px;margin:auto;display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px;padding:30px 22px}.sidebar{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;background:white;border:1px solid #e2e8f0;border-radius:15px;padding:20px}.sidebar strong{font-size:14px}.sidebar a{display:block;text-decoration:none;color:#475569;font-size:12px;line-height:1.45;padding:7px 0}.sidebar a:hover{color:#2563eb}.content{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:clamp(22px,5vw,58px);min-width:0;box-shadow:0 10px 35px #0f172a0a}h1{font-size:clamp(28px,3.5vw,43px);line-height:1.18;letter-spacing:-.04em;margin:0 0 12px;color:#10233e}h2{font-size:clamp(22px,2.5vw,29px);margin:52px 0 19px;padding-top:12px;border-top:1px solid #e8edf4;letter-spacing:-.025em;color:#12345a}h3{font-size:19px;margin:30px 0 12px;color:#1d466b}p,li{line-height:1.8;font-size:15.5px}p{margin:13px 0}ul{padding-left:25px}li{margin:6px 0}strong{font-weight:700}.subtitle{color:#64748b;font-size:13px;font-weight:600;margin-bottom:30px}code{font-family:"Cascadia Code",Consolas,"Liberation Mono",monospace;font-size:.92em;background:#eef2f7;padding:2px 5px;border-radius:4px}.code{position:relative;margin:18px 0;border-radius:12px;overflow:hidden;background:#0e1a2b;border:1px solid #263951}.code pre{margin:0;padding:24px 18px;overflow:auto;line-height:1.6;color:#dceafe;font-size:13px;tab-size:4}.code code{background:none;color:inherit;padding:0;font-size:inherit}.copy{position:absolute;right:9px;top:9px;font-size:11px;background:#24364c;color:white;border:1px solid #475569;border-radius:6px;padding:5px 9px;cursor:pointer}.table-wrap{overflow:auto;margin:20px 0;border-radius:12px;border:1px solid #e2e8f0}table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;background:#eaf1fa;color:#173c60}td,th{padding:13px 14px;border-bottom:1px solid #e2e8f0;vertical-align:top}tr:last-child td{border-bottom:0}.visual{border:1px solid #dbe5ef;border-radius:14px;padding:22px;margin:24px 0;background:linear-gradient(145deg,#fbfdff,#f5f9ff)}.visual h3{margin-top:0}.visual svg{display:block;width:100%;max-width:470px;margin:auto;overflow:visible}.visual svg text{fill:#182436;font-family:inherit;font-size:13px}.visual svg .node{fill:#64748b18;stroke:#94a3b8;transition:fill .2s,stroke .2s}.visual svg .node.active{fill:#2563eb35;stroke:#2563eb;stroke-width:2}.note{font-size:12px;color:#64748b;line-height:1.6}.call{padding:17px 20px;background:#eff6ff;border-left:4px solid #2563eb;border-radius:8px;margin:20px 0;line-height:1.7}.diagram{background:#f1f5f9;padding:15px;border-radius:10px;overflow:auto}.partition{display:flex;gap:3px;min-height:75px}.partition div{border-radius:6px;text-align:center;color:white;display:flex;align-items:center;justify-content:center;flex-direction:column;font-weight:700;font-size:13px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:15px}.twocol>div{min-width:0}.twocol pre{font-size:12px;line-height:1.5;overflow:auto;background:#edf3fa;border-radius:8px;padding:14px}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}button{cursor:pointer;font-family:inherit}.buttons button{border:1px solid #2563eb;background:#2563eb;color:white;border-radius:8px;padding:9px 15px;font-weight:600}.buttons button.secondary,.buttons button.namebtn:not(.active){background:white;color:#2563eb}.buttons button:disabled{opacity:.4;cursor:not-allowed}input[type=range]{width:100%;accent-color:#2563eb}.meter{height:12px;border-radius:99px;background:#dbe5ef;overflow:hidden;margin:8px 0 17px}.meter>div{height:100%;width:0;background:#0d9488;transition:width .2s}.meterlabel{display:flex;justify-content:space-between;gap:12px;font-size:13px}.quiz-q{padding:16px 0;border-bottom:1px solid #dbe5ef}.quiz-q>p{font-weight:700}.quiz-q label{display:block;padding:9px;border-radius:7px;font-size:14px;cursor:pointer}.quiz-q label:hover{background:#eaf1fa}.feedback{background:#eaf1fa;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;line-height:1.6}.topbar{background:#102a48;color:white;padding:15px 24px;display:flex;justify-content:space-between;gap:12px;align-items:center}.topbar button{background:#fff;color:#12345a;border:0;border-radius:8px;padding:9px 12px}.topbar span{font-size:13px;font-weight:700}footer{text-align:center;color:#64748b;padding:30px;font-size:12px}@media(max-width:850px){.layout{display:block;padding:12px}.sidebar{position:relative;top:0;max-height:170px;margin-bottom:12px}.content{padding:22px}.twocol{grid-template-columns:1fr}}@media print{.topbar,.sidebar,.copy,.buttons{display:none!important}.layout{display:block;padding:0}.content{border:0;box-shadow:none;padding:0}.code{break-inside:avoid}h2,h3{break-after:avoid}.visual{break-inside:avoid}body{background:white}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="21"><header class="topbar"><span>LINUX CHUYÊN SÂU · BÀI 21</span><button onclick="window.print()">In / Lưu PDF</button></header><div class="layout"><nav class="sidebar"><strong>MỤC LỤC BÀI HỌC</strong><a href="#section-0">1. Đặt vấn đề: Một file thực sự nằm ở đâu?</a><a href="#section-1">2. Phân biệt Disk, Partition và Filesystem</a><a href="#section-2">3. VFS — Vì sao Linux có thể dùng nhiều filesystem?</a><a href="#section-3">4. Inode, Directory và Dentry — Linux quản lý tên file như thế nào?</a><a href="#section-4">5. Hard Link và Symbolic Link</a><a href="#section-5">6. Mount — Vì sao Linux không dùng C:, D: như Windows?</a><a href="#section-6">7. Journaling và tính bền vững dữ liệu</a><a href="#section-7">8. ext4, XFS và Btrfs — chọn filesystem nào?</a><a href="#section-8">9. Lab thực hành — tạo ext4 trên file image</a><a href="#section-9">10. df và du — tại sao số liệu khác nhau?</a><a href="#section-10">11. Hết inode dù vẫn còn dung lượng</a><a href="#section-11">12. fsck — kiểm tra và sửa filesystem</a><a href="#section-12">13. Phân tích hệ thống Linux thật</a><a href="#section-13">14. Các tình huống thực tế mà Senior Linux Engineer phải xử lý</a><a href="#section-14">15. Câu hỏi kiểm tra tư duy</a><a href="#section-15">16. Tổng kết — tư duy cần mang sang Bài 22</a></nav><main class="content"><h1>Bài 21 — Storage Stack và Filesystem trong Linux</h1>
+<p class="subtitle">Linux chuyên sâu · Góc nhìn Senior Embedded Linux / System Engineer</p>
+<p>Trong bài này, chúng ta sẽ không chỉ học cách sử dụng <code>mount</code>, <code>mkfs.ext4</code>, <code>lsblk</code> hay <code>df</code>. Mục tiêu quan trọng hơn là <strong>hiểu Linux thực sự làm gì khi một chương trình mở, đọc, ghi và lưu một file xuống thiết bị vật lý</strong>.</p>
+<p>Tôi sẽ đi từ những kiến thức đã học ở các bài trước, xây dựng mô hình tư duy, giải thích từng tầng, phân tích tình huống lỗi thực tế và cuối cùng thực hành trên một ổ đĩa ảo an toàn.</p>
+<h2 id="section-0">1. Đặt vấn đề: Một file thực sự nằm ở đâu?</h2>
+<p>Giả sử bạn đang lập trình một thiết bị nhúng sử dụng Linux, chẳng hạn ODROID XU4.</p>
+<p>Bạn viết chương trình C:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">#include &lt;fcntl.h&gt;
+#include &lt;unistd.h&gt;
+
+int main(void)
+{
+    int fd = open(&quot;/home/odroid/data.txt&quot;,
+                  O_WRONLY | O_CREAT | O_TRUNC,
+                  0644);
+
+    if (fd &lt; 0)
+        return 1;
+
+    write(fd, &quot;Hello Linux\n&quot;, 12);
+    close(fd);
+
+    return 0;
+}</code></pre></div>
+<p>Nhìn từ góc độ lập trình viên, công việc rất đơn giản:</p>
+<ul><li>Mở file.</li><li>Ghi dữ liệu.</li><li>Đóng file.</li></ul>
+<p>Nhưng hãy thử đặt ra những câu hỏi sau.</p>
+<ul><li>Linux biết <code>/home/odroid/data.txt</code> nằm ở đâu bằng cách nào?</li><li>File này nằm trên SD card, eMMC, SSD hay RAM?</li><li>Khi gọi <code>write()</code>, dữ liệu đã thực sự được ghi xuống bộ nhớ vật lý chưa?</li><li>Nếu mất điện ngay sau <code>write()</code>, dữ liệu có còn không?</li><li>Hai file khác tên có thể sử dụng cùng một vùng dữ liệu không?</li><li>Tại sao một ổ đĩa vẫn còn dung lượng nhưng không tạo được file mới?</li></ul>
+<p>Để trả lời, cần hiểu <strong>storage stack</strong>.</p>
+<h3>1.1. Storage stack là gì?</h3>
+<p>Storage stack là tập hợp các tầng phần mềm và phần cứng phối hợp để biến thao tác với file thành thao tác lưu trữ dữ liệu.</p>
+<p>Hãy tưởng tượng một công ty vận chuyển. Bạn gửi một bưu kiện đến địa chỉ: <strong>Hà Nội → Thanh Xuân → Tòa nhà A → Phòng 301</strong>. Bạn chỉ cần biết địa chỉ người nhận, không cần biết hàng hóa đi qua kho nào, xe tải nào hoặc được sắp xếp trên pallet nào.</p>
+<p>Linux cũng vậy. Chương trình chỉ cần biết <code>/home/odroid/data.txt</code>. Nhưng hệ điều hành phải xác định filesystem, metadata, vị trí dữ liệu và thiết bị lưu trữ tương ứng.</p>
+<div class="visual"><h3>Mô hình tổng quan Storage Stack</h3><svg viewBox="0 0 340 460" role="img" aria-label="Sơ đồ sáu tầng storage stack" class="stack-svg"><g id="stackboxes"></g></svg><p class="note">Filesystem và các tầng ánh xạ block có thể kết hợp theo nhiều cách. LVM, mã hóa và RAID không bắt buộc, và không nhất thiết xuất hiện theo đúng một thứ tự cố định.</p></div>
+<p>Một điểm quan trọng: <strong>storage stack không phải chỉ có một con đường cố định</strong>.</p>
+<p>Ví dụ, một máy đơn giản có thể dùng: <code>ext4 → partition → MMC driver → SD card</code>. Một server có thể dùng: <code>ext4 → LVM → dm-crypt → RAID → NVMe</code>. Còn một hệ thống khác có thể dùng filesystem trực tiếp trên thiết bị block mà không cần partition.</p>
+<h2 id="section-1">2. Phân biệt Disk, Partition và Filesystem</h2>
+<p>Đây là ba khái niệm rất hay bị nhầm lẫn.</p>
+<h3>2.1. Disk là gì?</h3>
+<p>Disk là thiết bị hoặc đơn vị lưu trữ mà Linux có thể truy cập, ví dụ:</p>
+<ul><li>HDD</li><li>SSD</li><li>eMMC</li><li>SD card</li><li>NVMe SSD</li><li>Thiết bị block ảo</li></ul>
+<p>Trên Linux, bạn có thể gặp:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/dev/sda
+/dev/nvme0n1
+/dev/mmcblk0
+/dev/loop0</code></pre></div>
+<p>Đây là tên thiết bị block được kernel cung cấp qua cơ chế device node. Đừng nhầm rằng <code>/dev/sda</code> là một file bình thường chứa toàn bộ dữ liệu của ổ đĩa. Nó là một <strong>block device node</strong> — điểm giao tiếp để phần mềm truy cập thiết bị thông qua kernel.</p>
+<h3>2.2. Partition là gì?</h3>
+<p>Giả sử bạn mua một chiếc SSD dung lượng 1 TB. Bạn muốn dành:</p>
+<ul><li>200 GB cho hệ điều hành.</li><li>500 GB cho dữ liệu.</li><li>Phần còn lại cho các mục đích khác.</li></ul>
+<p>Partition chính là cách chia không gian địa chỉ lưu trữ của thiết bị thành các vùng.</p>
+<div class="visual"><h3>Ví dụ bố trí một ổ đĩa 1 TB</h3><div class="partition"><div style="flex:2;background:#2563eb">200 GB<br>OS</div><div style="flex:5;background:#0d9488">500 GB<br>Data</div><div style="flex:3;background:#b45309">300 GB<br>Khác</div></div><p class="note">Sơ đồ minh họa dung lượng theo đơn vị thập phân, không tính chi tiết overhead.</p></div>
+<p>Các partition có thể xuất hiện dưới dạng:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/dev/sda1
+/dev/sda2
+/dev/sda3</code></pre></div>
+<p>Hoặc trên SD card:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/dev/mmcblk0
+├── /dev/mmcblk0p1
+└── /dev/mmcblk0p2</code></pre></div>
+<h3>2.3. GPT và MBR là gì?</h3>
+<p>Câu hỏi: Làm sao hệ điều hành biết partition bắt đầu và kết thúc ở vị trí nào? Cần có một cấu trúc mô tả partition. Hai kiểu thường gặp là MBR và GPT.</p>
+<div class="table-wrap"><table><tr>th>Đặc điểm</th>th>MBR</th>th>GPT</th></tr><tr>td>Tên đầy đủ</td>td>Master Boot Record</td>td>GUID Partition Table</td></tr><tr>td>Số partition chính</td>td>Tối đa 4 primary</td>td>Thường 128 entry mặc định</td></tr><tr>td>Ổ lớn hơn 2 TiB với sector 512 byte</td>td>Bị giới hạn</td>td>Hỗ trợ</td></tr><tr>td>Metadata dự phòng</td>td>Hạn chế</td>td>Có bảng GPT dự phòng</td></tr><tr>td>Kiểm tra integrity metadata</td>td>Không có CRC theo chuẩn MBR</td>td>Có CRC</td></tr></table></div>
+<p><strong>Điểm cần nhớ:</strong> GPT và MBR mô tả cách chia partition, không quản lý file bên trong partition.</p>
+<h3>2.4. Filesystem là gì?</h3>
+<p>Bây giờ giả sử bạn đã có partition <code>/dev/sda2</code> dung lượng 500 GB. Bạn muốn lưu:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">documents/
+photos/
+source/
+notes.txt</code></pre></div>
+<p>Ai sẽ quản lý tên file, thư mục, quyền truy cập, metadata và vị trí dữ liệu? Đó là nhiệm vụ của filesystem.</p>
+<p>Filesystem là cấu trúc dữ liệu và bộ quy tắc dùng để tổ chức, định danh, truy xuất và quản lý dữ liệu trong một vùng lưu trữ.</p>
+<div class="table-wrap"><table><tr>th>Filesystem</th>th>Đặc điểm</th></tr><tr>td>ext4</td>td>Phổ biến trên Linux, journaling</td></tr><tr>td>XFS</td>td>Mạnh về khả năng mở rộng và workload lớn</td></tr><tr>td>Btrfs</td>td>Copy-on-write, checksum, snapshot</td></tr><tr>td>FAT32</td>td>Tương thích rộng, nhiều giới hạn</td></tr><tr>td>exFAT</td>td>Phổ biến với thiết bị lưu trữ di động</td></tr><tr>td>SquashFS</td>td>Nén, read-only, thường dùng trong embedded</td></tr><tr>td>tmpfs</td>td>Filesystem dựa trên bộ nhớ, có thể dùng swap</td></tr></table></div>
+<h3>Câu hỏi phản biện</h3>
+<p><strong>Nếu không có partition thì có tạo filesystem được không?</strong> Có. Ví dụ, với một block device dành riêng cho thử nghiệm, về nguyên tắc có thể tạo ext4 trực tiếp trên toàn bộ thiết bị.</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash"># Ví dụ minh họa — KHÔNG chạy trên ổ đang chứa dữ liệu
+sudo mkfs.ext4 /dev/DEVICE</code></pre></div>
+<p>Filesystem không bắt buộc phải nằm trong partition. Ngược lại, một partition cũng không bắt buộc phải chứa filesystem: nó có thể là swap, LVM physical volume, vùng dữ liệu raw hoặc một thành phần khác.</p>
+<aside class="call"><strong>Disk ≠ Partition ≠ Filesystem.</strong></aside>
+<h2 id="section-2">3. VFS — Vì sao Linux có thể dùng nhiều filesystem?</h2>
+<p>Đây là phần kết nối trực tiếp với kiến thức về system call ở Bài 16. Giả sử chương trình C gọi:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">open(&quot;/mnt/usb/report.txt&quot;, O_RDONLY);</code></pre></div>
+<p>Filesystem trên USB là exFAT. Sau đó chương trình mở:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">open(&quot;/home/user/report.txt&quot;, O_RDONLY);</code></pre></div>
+<p>Filesystem của hệ thống là ext4. Tại sao cùng một hàm <code>open()</code> có thể làm việc với hai loại filesystem khác nhau? Nếu không có tầng trừu tượng, ứng dụng có thể phải viết code riêng cho ext4, XFS, exFAT và các filesystem khác.</p>
+<p>Linux giải quyết bằng <strong>Virtual Filesystem Switch (VFS)</strong>.</p>
+<h3>3.1. VFS là gì?</h3>
+<p>VFS là lớp trừu tượng trong kernel cung cấp giao diện chung cho nhiều filesystem. Ứng dụng không cần biết cấu trúc on-disk của ext4 hoặc XFS.</p>
+<p>Nó sử dụng những API quen thuộc:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">open()
+read()
+write()
+close()
+stat()
+mkdir()
+unlink()</code></pre></div>
+<p>Kernel thông qua VFS và filesystem implementation để thực hiện thao tác thích hợp.</p>
+<div class="visual"><svg viewBox="0 0 340 225" role="img" aria-label="Ứng dụng gọi VFS, VFS điều phối ext4 XFS exFAT"><rect x="80" y="8" width="180" height="38" rx="7" fill="#2563eb" fill-opacity=".2" stroke="#2563eb"/><text x="170" y="32" text-anchor="middle">Ứng dụng C / Python</text><path d="M170 46 V68" stroke="currentColor"/><rect x="65" y="68" width="210" height="43" rx="7" fill="#0891b2" fill-opacity=".2" stroke="#0891b2"/><text x="170" y="94" text-anchor="middle" font-weight="bold">VFS</text><path d="M170 111 V130 H62 V150 M170 130 V150 M170 130 H278 V150" stroke="currentColor" fill="none"/><rect x="8" y="150" width="108" height="43" rx="7" fill="#0d9488" fill-opacity=".2" stroke="#0d9488"/><rect x="116" y="150" width="108" height="43" rx="7" fill="#0d9488" fill-opacity=".2" stroke="#0d9488"/><rect x="224" y="150" width="108" height="43" rx="7" fill="#0d9488" fill-opacity=".2" stroke="#0d9488"/><text x="62" y="177" text-anchor="middle">ext4</text><text x="170" y="177" text-anchor="middle">XFS</text><text x="278" y="177" text-anchor="middle">exFAT</text><text x="170" y="216" text-anchor="middle" font-size="11">Cùng API — nhiều cách tổ chức dữ liệu</text></svg></div>
+<h3>3.2. Liên hệ với kiến thức lập trình hướng đối tượng</h3>
+<p>Nếu bạn đã biết interface trong C++ hoặc abstract class, VFS sẽ rất dễ hiểu. Hãy tưởng tượng một interface:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">struct filesystem_ops {
+    int (*open)(void);
+    int (*read)(void);
+    int (*write)(void);
+};</code></pre></div>
+<p>Mỗi filesystem triển khai thao tác phù hợp với cấu trúc của nó. Đây chỉ là ví dụ khái niệm, không phải cấu trúc thật của Linux VFS. Trong kernel, các operation được phân chia qua nhiều cấu trúc như <code>file_operations</code>, <code>inode_operations</code>, <code>super_operations</code>.</p>
+<p>Tư duy quan trọng là: <strong>Ứng dụng làm việc với giao diện chung, còn filesystem triển khai chi tiết.</strong></p>
+<h3>3.3. VFS có phải filesystem không?</h3>
+<p>Không theo nghĩa một định dạng lưu trữ cụ thể. VFS không phải định dạng dữ liệu trên ổ đĩa như ext4. Nó là tầng trừu tượng quản lý các đối tượng filesystem và điều phối thao tác.</p>
+<h2 id="section-3">4. Inode, Directory và Dentry — Linux quản lý tên file như thế nào?</h2>
+<p>Đây là phần nền tảng nhất để hiểu filesystem. Giả sử có file:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/home/user/hello.txt</code></pre></div>
+<p>Bạn thường nghĩ: <code>hello.txt</code> chính là file. Nhưng trong nhiều filesystem kiểu Unix, cần tách hai khái niệm:</p>
+<ul><li>Tên file.</li><li>Đối tượng file được tham chiếu.</li></ul>
+<h3>4.1. Inode là gì?</h3>
+<p>Inode là cấu trúc chứa metadata của một đối tượng filesystem. Với filesystem như ext4, inode thường lưu:</p>
+<ul><li>Loại file.</li><li>Quyền truy cập.</li><li>UID, GID.</li><li>Kích thước.</li><li>Timestamp.</li><li>Số hard link.</li><li>Thông tin ánh xạ tới các block dữ liệu.</li></ul>
+<p><strong>Inode thông thường không lưu tên file.</strong> Tên được quản lý bởi directory entry.</p>
+<h3>4.2. Directory thực chất là gì?</h3>
+<p>Directory là một cấu trúc ánh xạ tên tới inode. Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">Directory: /home/user
+
+Tên             Inode
+-----------------------
+hello.txt        1001
+config.txt       1002
+image.png        1003</code></pre></div>
+<p>Hãy tưởng tượng directory giống danh bạ điện thoại. Tên người trong danh bạ tương ứng với tên file; số điện thoại tương ứng với số inode. Bạn có thể có nhiều tên cùng trỏ tới một inode. Đây chính là cơ sở của hard link.</p>
+<h3>4.3. Dentry là gì?</h3>
+<p>Dentry là đối tượng trong kernel hỗ trợ quản lý và tra cứu thành phần đường dẫn. Dentry cache (dcache) giúp Linux tránh phải đọc lại metadata directory từ thiết bị lưu trữ cho mọi lần tra cứu.</p>
+<p>Ví dụ khi truy cập:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/home/user/projects/main.c</code></pre></div>
+<p>Kernel phải xử lý các thành phần:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/
+home
+user
+projects
+main.c</code></pre></div>
+<p>VFS sử dụng thông tin mount, dentry, inode và các cơ chế path lookup để tìm đối tượng đích.</p>
+<div class="visual"><h3>Mô phỏng: Từ tên file tới inode</h3><div class="buttons"><button class="namebtn active" data-name="a.txt">a.txt</button><button class="namebtn" data-name="b.txt">b.txt</button><button class="namebtn" data-name="shortcut">shortcut</button></div><svg viewBox="0 0 330 180" role="img" aria-label="Hai hard link a.txt và b.txt trỏ cùng inode 1001; shortcut là symlink"><rect class="node node-a" x="5" y="12" width="110" height="42" rx="6"/><text x="60" y="38" text-anchor="middle">a.txt</text><rect class="node node-b" x="5" y="65" width="110" height="42" rx="6"/><text x="60" y="91" text-anchor="middle">b.txt</text><rect class="node node-shortcut" x="5" y="118" width="110" height="42" rx="6"/><text x="60" y="144" text-anchor="middle">shortcut</text><path d="M115 33 H152 V70 H207 M115 86 H207" fill="none" stroke="#0d9488" stroke-width="2"/><path d="M115 139 H150 V151 H207" fill="none" stroke="#b45309" stroke-width="2" stroke-dasharray="5 4"/><rect x="207" y="58" width="118" height="51" rx="8" fill="#0d9488" fill-opacity=".18" stroke="#0d9488"/><text x="266" y="78" text-anchor="middle" font-weight="bold">Inode 1001</text><text x="266" y="96" text-anchor="middle" font-size="11">Data: Hello</text><rect x="207" y="132" width="118" height="39" rx="7" fill="#b45309" fill-opacity=".18" stroke="#b45309"/><text x="266" y="155" text-anchor="middle" font-size="12">Inode symlink</text></svg><p id="inode-desc" class="note" aria-live="polite">a.txt là một directory entry tham chiếu inode 1001. a.txt và b.txt là hai hard link đến cùng một inode.</p></div>
+<h3>Câu hỏi tại sao</h3>
+<p><strong>Nếu inode đã biết nơi lưu dữ liệu, tại sao còn cần directory?</strong> Vì inode không tự cung cấp một hệ thống tên phân cấp để người dùng tìm file. Directory cung cấp tên và quan hệ thư mục. Inode cung cấp danh tính đối tượng và metadata. Sự tách biệt này cho phép hard link hoạt động.</p>
+<h2 id="section-4">5. Hard Link và Symbolic Link</h2>
+<p>Hai khái niệm này xuất hiện rất nhiều khi quản trị Linux.</p>
+<h3>5.1. Hard link</h3>
+<p>Tạo file:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">echo &quot;Hello Linux&quot; &gt; a.txt</code></pre></div>
+<p>Tạo hard link:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">ln a.txt b.txt</code></pre></div>
+<p>Kiểm tra:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">ls -li a.txt b.txt</code></pre></div>
+<p>Ví dụ kết quả:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">1001 -rw-r--r-- 2 user user 12 a.txt
+1001 -rw-r--r-- 2 user user 12 b.txt</code></pre></div>
+<p>Hãy chú ý hai điều:</p>
+<ul><li>Cả hai có inode number <code>1001</code>.</li><li>Link count bằng <code>2</code>.</li></ul>
+<p>Điều đó có nghĩa là hai tên đang tham chiếu tới cùng một inode trong cùng filesystem. Nếu bạn sửa:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">echo &quot;Updated&quot; &gt; b.txt</code></pre></div>
+<p>Rồi đọc:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">cat a.txt</code></pre></div>
+<p>Kết quả:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">Updated</code></pre></div>
+<p>Vì thực chất cả hai tên đang tham chiếu cùng dữ liệu.</p>
+<h3>5.2. Nếu xóa a.txt thì sao?</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">rm a.txt
+cat b.txt</code></pre></div>
+<p><code>b.txt</code> vẫn tồn tại. Tại sao? Vì <code>rm</code> thông thường thực hiện unlink directory entry, không nhất thiết xóa dữ liệu ngay lập tức. Nếu inode vẫn còn hard link hoặc đang được các file descriptor tham chiếu, dữ liệu có thể tiếp tục tồn tại.</p>
+<h3>5.3. Symbolic link</h3>
+<p>Tạo:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">ln -s a.txt shortcut.txt</code></pre></div>
+<p>Symlink là một đối tượng filesystem riêng, lưu một đường dẫn tới đích. Nếu xóa <code>a.txt</code>, <code>shortcut.txt</code> có thể trở thành dangling symlink. Symlink có thể trỏ sang filesystem khác, thậm chí trỏ tới một đường dẫn chưa tồn tại.</p>
+<h3>5.4. So sánh</h3>
+<div class="table-wrap"><table><tr>th>Đặc điểm</th>th>Hard link</th>th>Symbolic link</th></tr><tr>td>Cùng inode với đích</td>td>Có</td>td>Không</td></tr><tr>td>Qua filesystem khác</td>td>Không</td>td>Có</td></tr><tr>td>Trỏ tới đường dẫn không tồn tại</td>td>Không khi tạo thông thường</td>td>Có</td></tr><tr>td>Đích bị xóa</td>td>Dữ liệu vẫn truy cập qua hard link</td>td>Link có thể bị hỏng</td></tr><tr>td>Link tới directory</td>td>Thông thường bị hạn chế</td>td>Có</td></tr></table></div>
+<p><strong>Lưu ý chuyên sâu:</strong> Inode number chỉ có ý nghĩa trong ngữ cảnh filesystem tương ứng. Hai filesystem khác nhau có thể có inode cùng số nhưng không phải cùng đối tượng.</p>
+<h2 id="section-5">6. Mount — Vì sao Linux không dùng C:, D: như Windows?</h2>
+<p>Đây là bước chuyển rất quan trọng. Bạn đã biết Linux có một cây thư mục bắt đầu tại <code>/</code>. Nhưng máy tính có thể có nhiều thiết bị lưu trữ. Vậy làm sao ghép chúng thành một hệ thống tên thống nhất? Câu trả lời là <strong>mount</strong>.</p>
+<h3>6.1. Mount là gì?</h3>
+<p>Mount là thao tác gắn một filesystem vào một vị trí trong cây thư mục. Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo mount /dev/sdb1 /mnt/data</code></pre></div>
+<p>Sau thao tác này, nội dung của filesystem trên <code>/dev/sdb1</code> xuất hiện dưới:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/mnt/data/</code></pre></div>
+<div class="visual"><h3>Trước và sau khi mount</h3><div class="twocol"><div><strong>Trước mount</strong><pre>/
+├── home/
+├── etc/
+└── mnt/
+    └── data/
+        └── old.txt</pre></div><div><strong>Sau mount</strong><pre>/
+├── home/
+├── etc/
+└── mnt/
+    └── data/
+        ├── a.txt
+        └── b.txt</pre></div></div><p class="note">Nếu mount phủ lên thư mục đã có dữ liệu, nội dung cũ bị che tạm thời chứ không bị xóa. Unmount sẽ làm nội dung cũ hiện lại.</p></div>
+<h3>6.2. Mount không phải copy</h3>
+<p>Đây là một nhầm lẫn phổ biến. Khi chạy:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">mount /dev/sdb1 /mnt/data</code></pre></div>
+<p>Linux không copy toàn bộ dữ liệu từ thiết bị vào <code>/mnt/data</code>. Nó cập nhật trạng thái mount trong namespace tương ứng để quá trình path lookup có thể đi vào filesystem đó. Dữ liệu vẫn được lưu trên thiết bị hoặc tầng backing của filesystem.</p>
+<h3>6.3. UUID là gì?</h3>
+<p>Tên thiết bị như:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">/dev/sda
+/dev/sdb</code></pre></div>
+<p>có thể thay đổi theo thứ tự phát hiện thiết bị. Nếu bạn thêm ổ mới, một thiết bị trước đó là <code>/dev/sdb</code> có thể trở thành <code>/dev/sdc</code>. Vì vậy, trong <code>/etc/fstab</code>, người ta thường dùng UUID.</p>
+<p>Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">UUID=1234-ABCD  /mnt/data  ext4  defaults  0  2</code></pre></div>
+<p>UUID là định danh được ghi trong metadata filesystem, thường ổn định khi thứ tự thiết bị thay đổi. Nhưng UUID không phải tuyệt đối duy nhất trong mọi hoàn cảnh. Clone nguyên filesystem có thể sao chép cả UUID, gây trùng.</p>
+<p>Kiểm tra:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">lsblk -f
+blkid
+findmnt</code></pre></div>
+<h3>6.4. Mount options</h3>
+<div class="table-wrap"><table><tr>th>Option</th>th>Ý nghĩa</th></tr><tr>td>ro</td>td>Mount read-only</td></tr><tr>td>rw</td>td>Cho phép ghi theo quyền và trạng thái filesystem</td></tr><tr>td>noexec</td>td>Hạn chế thực thi trực tiếp từ mount</td></tr><tr>td>nosuid</td>td>Không áp dụng hiệu ứng setuid/setgid khi thực thi</td></tr><tr>td>nodev</td>td>Không diễn giải device special file như thiết bị</td></tr><tr>td>noatime</td>td>Không cập nhật access time theo cách thông thường</td></tr></table></div>
+<p>Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo mount -o ro /dev/sdb1 /mnt/data</code></pre></div>
+<p>Tuy nhiên, mount options không thay thế toàn bộ cơ chế phân quyền, namespace, LSM hay chính sách bảo mật.</p>
+<h2 id="section-6">7. Journaling và tính bền vững dữ liệu</h2>
+<p>Bây giờ quay lại chương trình C ở đầu bài. Bạn gọi:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">write(fd, &quot;Hello Linux\n&quot;, 12);</code></pre></div>
+<p>Câu hỏi: <strong>Khi <code>write()</code> trả về thành công, dữ liệu đã nằm an toàn trên SD card chưa?</strong> Không nhất thiết. Đây là kiến thức rất quan trọng trong Embedded Linux.</p>
+<h3>7.1. Page cache</h3>
+<p>Linux thường sử dụng page cache để tăng hiệu năng đọc và ghi file. Thay vì buộc mọi lần <code>write()</code> phải đợi thiết bị vật lý hoàn tất, kernel có thể cập nhật dữ liệu trong RAM rồi ghi xuống thiết bị sau.</p>
+<div class="visual"><h3>Đường đi ghi file — mô hình đơn giản</h3><svg viewBox="0 0 340 220" role="img" aria-label="write đến page cache RAM, filesystem block I/O rồi thiết bị"><g id="cacheboxes"></g></svg><p class="note">Minh họa buffered I/O thông thường. Direct I/O, DAX và một số cơ chế khác có đường đi khác.</p></div>
+<p>Nếu mất điện trước khi dữ liệu dirty được ghi xuống thiết bị, dữ liệu có thể mất.</p>
+<h3>7.2. fsync() dùng để làm gì?</h3>
+<p><code>fsync()</code> yêu cầu kernel đồng bộ dữ liệu và metadata cần thiết của file xuống tầng lưu trữ theo các bảo đảm của hệ thống. Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-c">#include &lt;fcntl.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int fd = open(&quot;data.txt&quot;,
+                  O_WRONLY | O_CREAT | O_TRUNC,
+                  0644);
+
+    if (fd &lt; 0) {
+        perror(&quot;open&quot;);
+        return 1;
+    }
+
+    const char data[] = &quot;Hello Linux\n&quot;;
+
+    if (write(fd, data, sizeof(data) - 1)
+        != sizeof(data) - 1) {
+        perror(&quot;write&quot;);
+        close(fd);
+        return 1;
+    }
+
+    if (fsync(fd) != 0) {
+        perror(&quot;fsync&quot;);
+        close(fd);
+        return 1;
+    }
+
+    if (close(fd) != 0) {
+        perror(&quot;close&quot;);
+        return 1;
+    }
+
+    return 0;
+}</code></pre></div>
+<p>Đây là ví dụ đơn giản; production code còn phải xử lý partial write và <code>EINTR</code>.</p>
+<p>Một điểm nâng cao: nếu bạn tạo file mới hoặc đổi tên file, việc đảm bảo directory entry bền vững có thể yêu cầu đồng bộ thư mục cha nữa. Ngoài ra, bảo đảm cuối cùng còn phụ thuộc vào việc thiết bị lưu trữ có thực hiện đúng flush/cache semantics hay không.</p>
+<h3>7.3. Journaling là gì?</h3>
+<p>Hãy tưởng tượng một ngân hàng có sổ ghi nhận thay đổi. Trước khi cập nhật các sổ sách chính, hệ thống ghi lại đủ thông tin để sau sự cố có thể đưa cấu trúc dữ liệu về trạng thái nhất quán.</p>
+<p>Filesystem journaling sử dụng ý tưởng tương tự, nhưng mức bảo đảm phụ thuộc filesystem và chế độ journaling. ext4 thường dùng journal để bảo vệ tính nhất quán metadata.</p>
+<h3>7.4. Journal có đảm bảo dữ liệu ứng dụng không bị mất?</h3>
+<p>Không. Cần phân biệt:</p>
+<ul><li><strong>Filesystem consistency:</strong> cấu trúc filesystem hợp lệ sau recovery.</li><li><strong>Application consistency:</strong> dữ liệu ứng dụng ở trạng thái logic hợp lệ.</li><li><strong>Durability:</strong> dữ liệu đã được xác nhận đồng bộ có tồn tại qua sự cố theo các bảo đảm được áp dụng hay không.</li></ul>
+<p>Ví dụ, một file JSON có thể chỉ được ghi một nửa khi mất điện. Filesystem vẫn có thể hoàn toàn hợp lệ, nhưng JSON không parse được.</p>
+<p>Do đó, ứng dụng quan trọng thường cần chiến lược như ghi file tạm, đồng bộ, rename nguyên tử trong cùng filesystem và đồng bộ thư mục phù hợp.</p>
+<h2 id="section-7">8. ext4, XFS và Btrfs — chọn filesystem nào?</h2>
+<p>Không tồn tại một filesystem tối ưu cho mọi workload.</p>
+<h3>ext4</h3>
+<p>Phù hợp cho nhiều hệ thống Linux thông dụng và thiết bị nhúng. Ưu điểm là độ phổ biến, hệ sinh thái công cụ trưởng thành và cách vận hành tương đối quen thuộc.</p>
+<h3>XFS</h3>
+<p>Được sử dụng nhiều trên hệ thống lưu trữ lớn và server. Có khả năng mở rộng tốt với nhiều workload, nhưng cần hiểu đặc tính công cụ repair và resize của nó. Ví dụ, XFS hỗ trợ tăng kích thước online, nhưng không hỗ trợ shrink filesystem theo cách thông thường.</p>
+<h3>Btrfs</h3>
+<p>Btrfs sử dụng Copy-on-Write (CoW) cho nhiều cấu trúc, hỗ trợ checksum, subvolume và snapshot. Snapshot rất hữu ích khi muốn tạo điểm khôi phục trạng thái. Nhưng snapshot không tự động là backup độc lập: nếu thiết bị vật lý hỏng, các snapshot trên cùng thiết bị cũng có thể mất.</p>
+<h3>Câu hỏi tình huống</h3>
+<p>Bạn đang thiết kế thiết bị IoT ghi log liên tục vào SD card. Có nên chỉ chọn Btrfs vì nó có checksum? Chưa chắc.</p>
+<p>Bạn cần xét thêm write amplification, workload ghi, độ bền thẻ, recovery, RAM, chi phí vận hành, cách update firmware và yêu cầu mất điện. Trong hệ thống nhúng, đôi khi giải pháp hợp lý hơn là root filesystem read-only, dữ liệu thay đổi đặt ở partition riêng, và log có giới hạn dung lượng.</p>
+<h2 id="section-8">9. Lab thực hành — tạo ext4 trên file image</h2>
+<p>Đây là phần quan trọng nhất để biến kiến thức thành kinh nghiệm thực tế. Mục tiêu là tạo một filesystem ext4 nằm bên trong một file bình thường, sử dụng loop device để Linux xem file đó như một block device. Chúng ta <strong>không format ổ đĩa hệ thống</strong>.</p>
+<h3>9.1. Loop device là gì?</h3>
+<p>Loop device cho phép dùng một file làm backing storage cho block device ảo. Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">ext4-test.img
+       ↓
+    /dev/loop0
+       ↓
+      ext4
+       ↓
+    /mnt/test</code></pre></div>
+<p>Cách này rất hữu ích khi:</p>
+<ul><li>Test filesystem.</li><li>Tạo disk image.</li><li>Kiểm thử quy trình mount.</li><li>Nghiên cứu ext4.</li><li>Chuẩn bị image cho hệ thống nhúng.</li></ul>
+<h3>9.2. Tạo file image</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">mkdir -p &quot;$HOME/linux-lab/storage&quot;
+cd &quot;$HOME/linux-lab/storage&quot;
+
+image_file=$(mktemp &quot;$PWD/ext4.XXXXXX.img&quot;)
+
+truncate -s 256M &quot;$image_file&quot;
+
+ls -lh &quot;$image_file&quot;
+du -h &quot;$image_file&quot;</code></pre></div>
+<p>Tại sao dùng <code>truncate</code>? Vì nó đặt logical size của file là 256 MiB, nhưng filesystem host có thể sử dụng sparse file nên chưa cần cấp phát đủ 256 MiB block vật lý ngay. Đây cũng là một lý do <code>ls -lh</code> và <code>du -h</code> có thể cho kết quả khác nhau.</p>
+<h3>9.3. Gắn file image vào loop device</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">lab_loop=$(sudo losetup --find --show &quot;$image_file&quot;)
+
+printf &#x27;Image=%s\nLoop=%s\n&#x27; \
+    &quot;$image_file&quot; &quot;$lab_loop&quot;</code></pre></div>
+<p>Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">Image=/home/user/linux-lab/storage/ext4.ABC123.img
+Loop=/dev/loop0</code></pre></div>
+<p>Kiểm tra:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo losetup &quot;$lab_loop&quot;</code></pre></div>
+<aside class="call"><strong>Bước an toàn bắt buộc:</strong> xác nhận backing file chính xác là file image vừa tạo, trước khi thực hiện <code>mkfs</code>. Không thay <code>$lab_loop</code> bằng một tên <code>/dev/sdX</code> hoặc <code>/dev/mmcblkX</code> đoán từ trí nhớ.</aside>
+<h3>9.4. Format ext4</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo mkfs.ext4 -F &quot;$lab_loop&quot;</code></pre></div>
+<p>Lệnh <code>mkfs.ext4</code> tạo các cấu trúc metadata cần thiết của ext4 trên block device. Nó có thể tạo:</p>
+<ul><li>Superblock.</li><li>Block group metadata.</li><li>Inode table.</li><li>Allocation bitmap.</li><li>Journal.</li><li>Các cấu trúc nội bộ khác.</li></ul>
+<p>Tùy phiên bản e2fsprogs và tùy chọn, bố trí cụ thể có thể khác.</p>
+<h3>9.5. Mount filesystem</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">lab_mount=$(mktemp -d /tmp/linux-fs.XXXXXX)
+
+sudo mount &quot;$lab_loop&quot; &quot;$lab_mount&quot;
+
+findmnt &quot;$lab_mount&quot;</code></pre></div>
+<p>Sau khi mount, Linux đã có thể truy cập ext4 thông qua đường dẫn <code>$lab_mount</code>.</p>
+<h3>9.6. Tạo file và hard link</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">printf &#x27;persistent data\n&#x27; |
+    sudo tee &quot;$lab_mount/a.txt&quot; &gt;/dev/null
+
+sudo ln &quot;$lab_mount/a.txt&quot; &quot;$lab_mount/b.txt&quot;
+
+ls -li &quot;$lab_mount/a.txt&quot; &quot;$lab_mount/b.txt&quot;</code></pre></div>
+<p>Ví dụ kết quả:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">12 -rw-r--r-- 2 root root 16 a.txt
+12 -rw-r--r-- 2 root root 16 b.txt</code></pre></div>
+<p>Số inode thực tế có thể khác. Điều cần quan sát là hai file có cùng inode number và link count bằng 2.</p>
+<h3>9.7. Kiểm tra dung lượng và inode</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">df -h &quot;$lab_mount&quot;
+df -i &quot;$lab_mount&quot;</code></pre></div>
+<p><code>df -h</code> hiển thị dung lượng filesystem. <code>df -i</code> hiển thị số lượng inode được sử dụng và còn khả dụng.</p>
+<h3>9.8. Unmount và detach</h3>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo umount &quot;$lab_mount&quot;
+
+sudo losetup -d &quot;$lab_loop&quot;
+
+rmdir &quot;$lab_mount&quot;</code></pre></div>
+<p>Unmount tách filesystem khỏi mount point. Detach giải phóng liên kết giữa loop device và backing file. Hai thao tác này không giống nhau. Nếu loop device vẫn còn được tham chiếu, việc detach có thể được trì hoãn cho tới khi tham chiếu cuối cùng được giải phóng.</p>
+<h3>9.9. Kiểm tra dữ liệu có thực sự tồn tại không</h3>
+<p>Để thực hành kỹ hơn, hãy attach image lần thứ hai:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">lab_loop=$(sudo losetup --find --show &quot;$image_file&quot;)
+
+lab_mount=$(mktemp -d /tmp/linux-fs.XXXXXX)
+
+sudo mount -o ro &quot;$lab_loop&quot; &quot;$lab_mount&quot;
+
+cat &quot;$lab_mount/a.txt&quot;
+
+ls -li &quot;$lab_mount/a.txt&quot; &quot;$lab_mount/b.txt&quot;</code></pre></div>
+<p>Kết quả mong đợi:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">persistent data</code></pre></div>
+<p>Sau đó dọn dẹp:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo umount &quot;$lab_mount&quot;
+sudo losetup -d &quot;$lab_loop&quot;
+rmdir &quot;$lab_mount&quot;</code></pre></div>
+<p>Khi không còn cần image:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">printf &#x27;Will remove: %s\n&#x27; &quot;$image_file&quot;</code></pre></div>
+<p>Kiểm tra đường dẫn và xác nhận image không còn được sử dụng, rồi mới chạy:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">rm -- &quot;$image_file&quot;</code></pre></div>
+<h2 id="section-9">10. df và du — tại sao số liệu khác nhau?</h2>
+<p>Đây là câu hỏi phỏng vấn Linux rất phổ biến.</p>
+<h3>10.1. df là gì?</h3>
+<p><code>df</code> đọc thông tin accounting của filesystem, thông qua các giao diện như <code>statfs()</code>. Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">df -h /</code></pre></div>
+<p>Nó cho biết filesystem còn bao nhiêu dung lượng theo accounting của filesystem.</p>
+<h3>10.2. du là gì?</h3>
+<p><code>du</code> duyệt cây file nhìn thấy từ một đường dẫn và cộng lượng block được tính cho các file. Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo du -sh /var/log</code></pre></div>
+<h3>10.3. Vì sao df báo đầy nhưng du không tìm thấy file lớn?</h3>
+<p>Một nguyên nhân thường gặp là file đã bị unlink nhưng process vẫn giữ file descriptor mở.</p>
+<ul><li>Process ghi log vào <code>server.log</code>.</li><li>File tăng lên 10 GB.</li><li>Admin xóa <code>server.log</code>.</li><li>Process vẫn giữ file descriptor.</li><li>Dung lượng chưa được giải phóng hoàn toàn.</li></ul>
+<p>Directory entry đã bị xóa nên <code>du</code> không còn nhìn thấy file theo đường dẫn cũ. Nhưng inode và dữ liệu vẫn có thể được giữ bởi open file description.</p>
+<p>Kiểm tra:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo lsof +L1</code></pre></div>
+<p>Lệnh này hữu ích để tìm các file đã bị unlink nhưng vẫn còn được mở. Cách xử lý cần phụ thuộc ứng dụng; không nên tùy tiện kill một dịch vụ production chỉ để giải phóng dung lượng.</p>
+<h2 id="section-10">11. Hết inode dù vẫn còn dung lượng</h2>
+<p>Giả sử filesystem còn 20 GB trống. Bạn chạy:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">touch newfile.txt</code></pre></div>
+<p>Nhưng nhận lỗi:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">No space left on device</code></pre></div>
+<p>Tại sao? Vì việc tạo file mới không chỉ cần data block, mà còn cần metadata và các tài nguyên liên quan. Với ext4, inode là một tài nguyên quan trọng.</p>
+<p>Nếu filesystem có quá nhiều file nhỏ, nó có thể hết inode trước khi hết dung lượng dữ liệu. Ví dụ một ứng dụng tạo hàng triệu file log nhỏ.</p>
+<p>Kiểm tra:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">df -h
+df -i</code></pre></div>
+<div class="visual"><h3>Mô phỏng: còn dung lượng nhưng hết inode</h3><p class="note">Giả sử filesystem có 1.000 inode khả dụng và mỗi file sử dụng khoảng 2 KiB dữ liệu.</p><input type="range" id="inode-range" min="0" max="1000" step="25" value="900" aria-label="Số file"/><p><strong id="inode-count">Số file: 900</strong> · <span id="inode-status">Còn inode</span></p><div class="meterlabel"><span>Dung lượng dữ liệu đã dùng</span><span id="data-count">1.80 / 100 MiB</span></div><div class="meter"><div id="data-bar"></div></div><div class="meterlabel"><span>Inode đã dùng</span><span id="inode-usage">900 / 1000</span></div><div class="meter"><div id="inode-bar"></div></div><p id="inode-explain" aria-live="polite">Còn 100 inode trong mô hình đơn giản này.</p><p class="note">Mô hình giáo dục, chưa tính metadata, journal và cách filesystem cấp phát inode thực tế.</p></div>
+<h3>Bài học kỹ thuật</h3>
+<p>Khi gặp lỗi <code>ENOSPC</code>, đừng chỉ kiểm tra số byte trống. Hãy kiểm tra cả inode, quota, giới hạn filesystem và những tài nguyên liên quan.</p>
+<h2 id="section-11">12. fsck — kiểm tra và sửa filesystem</h2>
+<p><code>fsck</code> là nhóm công cụ hỗ trợ kiểm tra filesystem. Với ext4, công cụ thực hiện thường là <code>e2fsck</code>. Ví dụ trên một image đã unmount:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo e2fsck -f &quot;$lab_loop&quot;</code></pre></div>
+<p>Nhưng chỉ thực hiện khi loop device còn attach và filesystem không được mount.</p>
+<aside class="call"><strong>Không chạy repair trên filesystem đang mount để đọc/ghi.</strong></aside>
+<p>Tại sao? Vì kernel có thể đang cập nhật metadata đồng thời với công cụ sửa chữa. Điều này có thể làm tình trạng hỏng dữ liệu trở nên nghiêm trọng hơn.</p>
+<p>Nếu filesystem chứa dữ liệu quan trọng, ưu tiên sao lưu hoặc tạo bản sao block-level phù hợp trước khi sửa. Ngoài ra, không phải filesystem nào cũng dùng cùng công cụ:</p>
+<ul><li>ext4: <code>e2fsck</code></li><li>XFS: <code>xfs_repair</code></li><li>Btrfs: các công cụ kiểm tra riêng, với mức độ an toàn và mục đích khác nhau</li></ul>
+<p>Không nên suy ra <code>fsck</code> có thể sửa mọi filesystem theo cùng cách.</p>
+<h2 id="section-12">13. Phân tích hệ thống Linux thật</h2>
+<p>Bây giờ hãy kết nối bài học với một hệ thống thực tế. Trên ODROID XU4, tùy thiết bị boot, hệ điều hành và cách cấu hình, root filesystem có thể nằm trên SD card hoặc eMMC.</p>
+<p>Chạy:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">lsblk -o NAME,SIZE,TYPE,FSTYPE,UUID,MOUNTPOINTS</code></pre></div>
+<p>Ví dụ minh họa:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">NAME         SIZE TYPE FSTYPE MOUNTPOINTS
+mmcblk0     29.7G disk
+├─mmcblk0p1  256M part vfat   /boot
+└─mmcblk0p2 29.4G part ext4   /</code></pre></div>
+<p>Ở đây:</p>
+<ul><li><code>mmcblk0</code> là thiết bị block.</li><li><code>mmcblk0p1</code> là partition thứ nhất.</li><li><code>mmcblk0p2</code> là partition thứ hai.</li><li><code>ext4</code> là filesystem.</li><li><code>/</code> là mount point của root filesystem.</li></ul>
+<p>Kiểm tra chính xác mount của <code>/</code>:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">findmnt -T /</code></pre></div>
+<p>Xem thông tin chi tiết:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">findmnt -T / -o TARGET,SOURCE,FSTYPE,OPTIONS</code></pre></div>
+<p>Nếu hệ thống dùng LVM, dm-crypt hoặc overlayfs, cần đọc thêm topology và mount information để xác định các tầng backing.</p>
+<aside class="call"><strong>Đừng suy ra root filesystem luôn nằm trên một partition vật lý chỉ từ tên <code>/</code>.</strong></aside>
+<h2 id="section-13">14. Các tình huống thực tế mà Senior Linux Engineer phải xử lý</h2>
+<h3>Tình huống A: Thiết bị nhúng mất điện khi đang ghi cấu hình</h3>
+<p>Triệu chứng: sau reboot, file cấu hình bị rỗng hoặc thiếu dữ liệu. Nguyên nhân có thể là chương trình ghi đè trực tiếp file rồi mất điện trước khi đồng bộ.</p>
+<p>Hướng thiết kế tốt hơn là ghi file tạm trong cùng filesystem, kiểm tra ghi đầy đủ, <code>fsync()</code> file, rename sang tên chính thức và đồng bộ thư mục khi cần durability.</p>
+<h3>Tình huống B: SD card nhanh hỏng</h3>
+<p>Ứng dụng liên tục ghi log và dữ liệu tạm. Cần phân tích lượng ghi, write amplification, chất lượng SD card và mô hình phân vùng.</p>
+<p>Các giải pháp có thể gồm giới hạn log, lưu dữ liệu tạm bằng tmpfs khi phù hợp, batching và giảm số lần ghi không cần thiết. Không có một mount option duy nhất giải quyết được mọi vấn đề tuổi thọ flash.</p>
+<h3>Tình huống C: umount báo device busy</h3>
+<p>Ví dụ:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">umount: /mnt/data: target is busy</code></pre></div>
+<p>Nguyên nhân có thể là một process đang mở file, có current working directory trong mount hoặc có mount con. Kiểm tra:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo fuser -vm /mnt/data</code></pre></div>
+<p>Hoặc:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">sudo lsof +D /mnt/data</code></pre></div>
+<p>Lưu ý <code>lsof +D</code> có thể tốn thời gian khi cây thư mục lớn. Nếu shell của bạn đang đứng trong <code>/mnt/data</code>, chỉ cần:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">cd /</code></pre></div>
+<p>Rồi thử unmount lại.</p>
+<h3>Tình huống D: Dữ liệu biến mất sau khi mount</h3>
+<p>Bạn có thư mục <code>/mnt/data</code> chứa một số file. Sau khi mount filesystem khác vào <code>/mnt/data</code>, các file cũ không còn hiển thị. Chúng chưa chắc bị xóa.</p>
+<p>Mount mới có thể đang che nội dung directory trước đó. Unmount đúng filesystem có thể làm các file cũ xuất hiện lại.</p>
+<h2 id="section-14">15. Câu hỏi kiểm tra tư duy</h2>
+<p>Thử trả lời trước khi mở đáp án.</p>
+<div class="visual" id="quiz"><h3>Quiz — Storage Stack <span id="quiz-progress" class="note">0/5 câu</span></h3><div id="quiz-questions"></div><div class="buttons"><button id="grade" disabled>Chấm điểm</button><button id="reset-quiz" class="secondary">Làm lại</button></div><h3 id="quiz-result" aria-live="polite"></h3></div>
+<h2 id="section-15">16. Tổng kết — tư duy cần mang sang Bài 22</h2>
+<p>Đến đây, bạn cần hình thành được mô hình sau:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-text">Ứng dụng
+   |
+   | open(), read(), write()
+   v
+VFS
+   |
+   | Path lookup, dentry, inode
+   v
+Filesystem (ext4, XFS, Btrfs...)
+   |
+   | Mapping logical data
+   v
+Block I/O stack
+   |
+   | Optional: LVM, encryption, RAID
+   v
+Device driver
+   |
+   v
+SD card / eMMC / SSD / HDD</code></pre></div>
+<p>Những nguyên tắc quan trọng nhất:</p>
+<ul><li><strong>Disk, partition và filesystem là ba khái niệm khác nhau.</strong> Một filesystem không nhất thiết cần partition.</li><li><strong>VFS là tầng trừu tượng.</strong> Nó cho phép ứng dụng dùng API chung trên nhiều filesystem.</li><li><strong>Tên file không phải inode.</strong> Directory quản lý tên; inode quản lý metadata và tham chiếu dữ liệu.</li><li><strong>Mount không phải copy dữ liệu.</strong> Nó tích hợp filesystem vào cây đường dẫn.</li><li><strong>Ghi thành công không đồng nghĩa bền vững khi mất điện.</strong> Cần hiểu page cache, writeback và <code>fsync()</code>.</li><li><strong>Journaling không thay thế transaction của ứng dụng hay backup.</strong></li><li><strong>Khi storage gặp lỗi, phải kiểm tra đúng tầng.</strong> Có thể là dung lượng, inode, mount, filesystem, block layer hoặc thiết bị.</li></ul>
+<h3>Dẫn sang Bài 22 — LVM, RAID và Backup</h3>
+<p>Một câu hỏi mới xuất hiện: Giả sử hệ thống của bạn có ba ổ SSD, mỗi ổ 500 GB. Bạn muốn ứng dụng nhìn thấy một vùng lưu trữ lớn, có khả năng mở rộng, và giảm rủi ro mất dữ liệu khi một ổ hỏng.</p>
+<p>Filesystem như ext4 tự giải quyết được toàn bộ yêu cầu đó không? Không. Chúng ta cần phân biệt thêm các nhiệm vụ:</p>
+<ul><li><strong>LVM:</strong> quản lý và ánh xạ các vùng lưu trữ logic linh hoạt.</li><li><strong>RAID:</strong> kết hợp thiết bị để phục vụ mục tiêu hiệu năng hoặc khả năng chịu lỗi, tùy cấp RAID.</li><li><strong>Backup:</strong> tạo bản sao có thể khôi phục khi dữ liệu bị xóa, hỏng, mã hóa hoặc thiết bị gặp sự cố.</li></ul>
+<p>Đó là lý do Bài 22 sẽ xây dựng tiếp trên storage stack vừa học, thay vì xem LVM, RAID và backup như ba công cụ hoàn toàn tách rời.</p>
+<p><strong>Bài tập cuối:</strong> Trên máy Linux hoặc ODROID XU4 của bạn, chạy ba lệnh sau và thử tự giải thích từng dòng kết quả:</p>
+<div class="code"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code class="language-bash">lsblk -f
+findmnt -T /
+df -hT /</code></pre></div>
+<p>Nếu bạn gửi kết quả, chúng ta có thể phân tích storage stack thực tế của thiết bị từ root filesystem xuống thiết bị vật lý, chỉ ra đâu là mount, filesystem, partition, driver và nơi có thể xuất hiện các tầng ánh xạ khác.</p></main></div><footer>HTML độc lập · Sơ đồ SVG nội tuyến · Tương tác JavaScript nội tuyến · Không phụ thuộc CDN</footer><script>
+function copyCode(btn){const txt=btn.parentElement.querySelector('code').innerText;navigator.clipboard.writeText(txt).then(()=>{btn.textContent='Đã sao chép';setTimeout(()=>btn.textContent='Sao chép',1500)}).catch(()=>{btn.textContent='Không thể sao chép'})}
+const NS='http://www.w3.org/2000/svg';function el(tag,attrs,text){const n=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs||{}))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n}
+function makeStack(id,items,step){let g=document.getElementById(id);items.forEach((it,i)=>{let y=8+i*step;g.appendChild(el('rect',{x:18,y,width:304,height:56,rx:9,fill:it[2],'fill-opacity':'.13',stroke:it[2]}));g.appendChild(el('text',{x:170,y:y+22,'text-anchor':'middle','font-size':15,'font-weight':'700'},it[0]));g.appendChild(el('text',{x:170,y:y+41,'text-anchor':'middle','font-size':11},it[1]));if(i<items.length-1)g.appendChild(el('path',{d:`M170 ${y+56} v12 m-4 -4 l4 4 4 -4`,stroke:'#475569','stroke-width':1.5,fill:'none',class:'arrow'}))})}
+makeStack('stackboxes',[['Ứng dụng','open() / read() / write()','#2563eb'],['VFS','Giao diện filesystem thống nhất','#0891b2'],['Filesystem','ext4 / XFS / Btrfs','#0d9488'],['Block layer','I/O request / scheduling','#7c3aed'],['Ánh xạ lưu trữ (tùy chọn)','LVM / dm-crypt / RAID','#b45309'],['Driver và thiết bị','MMC / NVMe / SATA / USB','#475569']],69);
+const cg=document.getElementById('cacheboxes');[['Application: write()','#2563eb'],['Page Cache (RAM)','#0891b2'],['Filesystem / Block I/O','#7c3aed'],['SD card / SSD / eMMC','#0d9488']].forEach((it,i)=>{const y=5+i*54;cg.appendChild(el('rect',{x:34,y,width:272,height:39,rx:8,fill:it[1],'fill-opacity':'.14',stroke:it[1]}));cg.appendChild(el('text',{x:170,y:y+24,'text-anchor':'middle','font-size':13,'font-weight':'600'},it[0]));if(i<3)cg.appendChild(el('path',{d:`M170 ${y+39} v14 m-4 -4 l4 4 4 -4`,stroke:'#475569',fill:'none','stroke-width':1.5}))});
+document.querySelectorAll('.namebtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.namebtn').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.node').forEach(x=>x.classList.remove('active'));const name=b.dataset.name;document.querySelector('.node-'+(name==='a.txt'?'a':name==='b.txt'?'b':'shortcut')).classList.add('active');document.getElementById('inode-desc').textContent=name==='shortcut'?'shortcut là symbolic link: có inode riêng, chứa đường dẫn đến đích. Khi được follow, đường dẫn đích sẽ được tra cứu tiếp.':name+' là một directory entry tham chiếu inode 1001. a.txt và b.txt là hai hard link đến cùng một inode.'}));document.querySelector('.node-a').classList.add('active');
+const range=document.getElementById('inode-range');function updateInode(){let n=+range.value;document.getElementById('inode-count').textContent='Số file: '+n.toLocaleString('vi-VN');document.getElementById('inode-status').textContent=n===1000?'Hết inode':'Còn inode';document.getElementById('data-count').textContent=(n*.002).toFixed(2)+' / 100 MiB';document.getElementById('data-bar').style.width=(n*.002)+'%';document.getElementById('inode-usage').textContent=n+' / 1000';document.getElementById('inode-bar').style.width=n/10+'%';document.getElementById('inode-bar').style.background=n===1000?'#dc2626':'#2563eb';document.getElementById('inode-explain').textContent=n===1000?'Không còn inode để tạo file mới, mặc dù phần lớn dung lượng dữ liệu vẫn trống.':'Còn '+(1000-n)+' inode trong mô hình đơn giản này.'}range.addEventListener('input',updateInode);updateInode();
+const questions=[
+{q:'Một partition có bắt buộc phải chứa filesystem không?',opts:['Có, mọi partition đều cần ext4 hoặc XFS','Không, partition có thể chứa swap, LVM hoặc dữ liệu raw','Có, nhưng chỉ với GPT'],a:1,why:'Partition chỉ mô tả một vùng lưu trữ. Nó không quy định vùng đó phải được tổ chức thành filesystem.'},
+{q:'Hai hard link có cùng điều gì?',opts:['Cùng tên file','Cùng inode trong cùng filesystem','Cùng đường dẫn tuyệt đối'],a:1,why:'Hard link là hai directory entry tham chiếu cùng inode. Tên của chúng có thể khác nhau.'},
+{q:'write() trả về thành công có đảm bảo dữ liệu đã an toàn khi mất điện không?',opts:['Luôn luôn có','Không nhất thiết','Chỉ cần close() là luôn đảm bảo'],a:1,why:'Buffered I/O có thể chỉ cập nhật page cache. Cần xét fsync, metadata và bảo đảm của thiết bị.'},
+{q:'Filesystem còn nhiều GB trống nhưng touch báo ENOSPC. Kiểm tra gì?',opts:['Chỉ kiểm tra RAM','Kiểm tra inode, quota và dung lượng filesystem','Chỉ restart máy'],a:1,why:'ENOSPC không nhất thiết chỉ là hết data block; inode hoặc các giới hạn khác cũng có thể là nguyên nhân.'},
+{q:'Có nên chạy e2fsck để sửa ext4 đang mount rw không?',opts:['Có, càng sớm càng tốt','Không, phải xử lý trạng thái mount và bảo vệ dữ liệu trước','Có, nếu dùng sudo'],a:1,why:'Repair khi kernel vẫn có thể thay đổi metadata là nguy hiểm. Cần unmount và chuẩn bị phương án recovery.'}];
+let answers={};const host=document.getElementById('quiz-questions');function renderQuiz(show=false){host.innerHTML='';questions.forEach((q,i)=>{const box=document.createElement('div');box.className='quiz-q';let p=document.createElement('p');p.textContent=(i+1)+'. '+q.q;box.append(p);q.opts.forEach((opt,j)=>{const label=document.createElement('label'),input=document.createElement('input');input.type='radio';input.name='q'+i;input.value=j;input.checked=answers[i]===j;input.addEventListener('change',()=>{answers[i]=j;renderQuiz(false)});label.append(input,document.createTextNode(' '+opt));box.append(label)});if(show){let f=document.createElement('div');f.className='feedback';f.textContent=(answers[i]===q.a?'Chính xác. ':'Đáp án: '+q.opts[q.a]+'. ')+q.why;box.append(f)}host.append(box)});document.getElementById('quiz-progress').textContent=Object.keys(answers).length+'/5 câu';document.getElementById('grade').disabled=Object.keys(answers).length!==5;document.getElementById('quiz-result').textContent=show?'Kết quả: '+questions.filter((q,i)=>answers[i]===q.a).length+'/5':''}
+document.getElementById('grade').addEventListener('click',()=>renderQuiz(true));document.getElementById('reset-quiz').addEventListener('click',()=>{answers={};renderQuiz(false)});renderQuiz();
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

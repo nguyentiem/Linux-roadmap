@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bài 11 — Package, Repository và Thư viện trong Linux</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#142238;--text:#e8f0fb;--muted:#a9bdd4;--line:#31435d;--accent:#61a7ff;--green:#45c5a1;--purple:#a58cff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+header{padding:65px 24px 42px;background:linear-gradient(135deg,#152e52,#101827);border-bottom:1px solid var(--line)}
+.wrap{max-width:1080px;margin:auto}h1{font-size:clamp(30px,5vw,52px);line-height:1.15;margin:0 0 18px}h2{font-size:29px;color:#94c5ff;margin-top:56px;border-bottom:1px solid var(--line);padding-bottom:10px}h3{font-size:22px;color:#b4d5ff;margin-top:32px}h4{font-size:18px;color:#a8e3d5}
+main{max-width:1080px;margin:auto;padding:26px 24px 90px}p,li{max-width:96ch}a{color:#8fc1ff}nav{padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--panel);columns:2}nav a{display:block;padding:3px 0;text-decoration:none;font-size:14px}
+pre{overflow:auto;padding:20px;background:#070e19;border:1px solid #2d415b;border-radius:12px;line-height:1.55;font-size:13.5px;white-space:pre}code{font-family:ui-monospace,Consolas,monospace}p code,li code{color:#a9e4db;background:#1a2c40;padding:2px 5px;border-radius:4px}
+table{width:100%;border-collapse:collapse;margin:18px 0 28px;display:block;overflow:auto}th,td{padding:12px 14px;border:1px solid var(--line);text-align:left;min-width:120px}th{background:#20334d;color:#dceaff}tr:nth-child(even){background:#121f31}
+.panel{background:var(--panel);border:1px solid var(--line);padding:22px;border-radius:14px;margin:22px 0}.question{border-left:4px solid var(--purple);padding:12px 18px;background:#1c213d;margin:24px 0}
+.diagram{padding:24px;border:1px solid var(--line);background:#101c2d;border-radius:14px;margin:24px 0;overflow:auto}.node{background:#23518c;color:white;border-radius:9px;padding:12px 20px;text-align:center;margin:auto;max-width:440px;font-weight:650}.node.green{background:#087f74}.node.purple{background:#624da2}.node.gray{background:#3d5069}.arrow{text-align:center;font-size:23px;line-height:1.5;color:#99bbd9}.diagram .small{font-size:12px;color:#d0e3f4;font-weight:400}.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}.columns .node{max-width:none}.note{color:var(--muted);font-size:13px}.controls{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0}button{background:#2470ba;color:white;border:1px solid #5596d5;border-radius:9px;padding:10px 16px;cursor:pointer;font-weight:650}button:hover{filter:brightness(1.15)}button:disabled{opacity:.4;cursor:not-allowed}.status{font-weight:700;color:#6de3bb}.bad{color:#ff9999}.card{background:#21334b;border-radius:10px;padding:18px;margin:8px 0}.tag{display:inline-block;background:#243c57;padding:3px 12px;border-radius:99px}.progress{height:12px;background:#293e55;border-radius:12px;overflow:hidden}.progress>div{height:100%;background:#36bda4;transition:width .35s}input[type=radio],input[type=checkbox]{accent-color:#62b2ff}label{display:block;margin:8px 0;cursor:pointer}.result{display:none;background:#20394b;border-radius:8px;padding:12px;margin-top:8px}.result.visible{display:block}.quizitem{border-bottom:1px solid var(--line);padding:16px 0}.foot{color:var(--muted);margin-top:70px;border-top:1px solid var(--line);padding-top:24px}
+@media(max-width:720px){nav{columns:1}.columns{grid-template-columns:1fr}main{padding:20px 14px}header{padding:40px 15px}h2{font-size:24px}}
+@media print{body{background:white;color:#111}header{background:white;color:#111}h2,h3{color:#173c6b}nav,.controls{display:none}pre{color:#111;background:#f2f4f7}.panel,.diagram{break-inside:avoid;background:white;color:#111}.node{print-color-adjust:exact}a{color:#173c6b}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="11"><header><div class="wrap"><div class="tag">Linux chuyên sâu · Senior / Embedded Linux Engineer</div><h1>Bài 11 — Package, Repository và Thư viện</h1><p>Tài liệu học tập độc lập, có code, bảng, sơ đồ và mô phỏng tương tác bằng JavaScript.</p></div></header><main>
+<nav id="toc"><strong>Mục lục — 45 chủ đề</strong><div id="toclinks"></div></nav>
+<section><h2>Phần I — Tại sao Linux cần Package Manager?</h2>
+<h3>1. Hãy tưởng tượng một máy Linux hoàn toàn mới</h3>
+<p>Bạn vừa cài Ubuntu Server và muốn gọi API bằng curl. Nhưng shell báo không tìm thấy lệnh.</p><pre><code>curl https://example.com
+# curl: command not found</code></pre>
+<p>Câu hỏi quan trọng không chỉ là “cài curl thế nào?” mà là: ai đưa chương trình vào máy, ai theo dõi phiên bản, ai quản lý thư viện phụ thuộc, và ai biết phải xóa file nào khi gỡ?</p>
+<h3>2. Nếu không có Package Manager thì sao?</h3><p>Bạn tải source và tự biên dịch:</p><pre><code>./configure
+make
+sudo make install
+# error: OpenSSL headers not found</code></pre><p>Ứng dụng có thể phụ thuộc OpenSSL, zlib và các thư viện khác. Giống một quán cà phê cần điện, nước, máy pha và nguyên liệu, ứng dụng cần một hệ sinh thái phụ thuộc.</p>
+<div class="diagram"><div class="node">Ứng dụng curl</div><div class="arrow">↙ ↓ ↘</div><div class="columns"><div class="node green">OpenSSL</div><div class="node green">zlib / libnghttp2</div></div><div class="arrow">↓</div><div class="node gray">Các thư viện nền khác</div><p class="note">Minh họa quan hệ phụ thuộc; cấu hình build thực tế có thể khác.</p></div>
+<h3>3. Package là gì?</h3><p>Package là đơn vị phân phối phần mềm chứa executable, thư viện, metadata, dependency, thông tin file và đôi khi maintainer scripts. Ví dụ tên file:</p><pre><code>curl_8.5.0-2ubuntu10_amd64.deb</code></pre>
+<table><tr><th>Thành phần</th><th>Ý nghĩa</th></tr><tr><td>curl</td><td>Tên package</td></tr><tr><td>8.5.0</td><td>Phiên bản upstream</td></tr><tr><td>2ubuntu10</td><td>Revision đóng gói</td></tr><tr><td>amd64</td><td>Kiến trúc đích</td></tr><tr><td>.deb</td><td>Định dạng Debian</td></tr></table><div class="question"><strong>Phản biện:</strong> Package có phải chỉ là file nén? Không. Metadata và scripts cho phép quản lý vòng đời, đồng thời làm package không tin cậy trở thành rủi ro bảo mật.</div></section>
+<section><h2>Phần II — Repository, APT và dpkg</h2><h3>4. Repository là gì?</h3><p>Repository là kho package và metadata. APT giống người điều phối lựa chọn hàng, dpkg giống bộ phận quản lý lắp đặt tại máy.</p>
+<div class="diagram"><div class="node">Repository<div class="small">Packages + metadata</div></div><div class="arrow">↓</div><div class="node green">APT<div class="small">Giải dependency, chọn version, tải</div></div><div class="arrow">↓</div><div class="node purple">dpkg<div class="small">Unpack, configure, local database</div></div><div class="arrow">↓</div><div class="node gray">Filesystem + cấu hình Linux</div></div>
+<h3>5. Phân biệt APT và dpkg</h3><pre><code>sudo dpkg -i example.deb
+sudo apt install curl</code></pre><table><tr><th>Tiêu chí</th><th>APT</th><th>dpkg</th></tr><tr><td>Tìm package trong repository</td><td>Có</td><td>Không trực tiếp</td></tr><tr><td>Giải dependency</td><td>Có</td><td>Không đầy đủ</td></tr><tr><td>Cài .deb</td><td>Có</td><td>Có</td></tr><tr><td>Database package local</td><td>Thông qua dpkg</td><td>Quản lý trực tiếp</td></tr></table>
+<h3>6. apt update có cập nhật phần mềm không?</h3><p><code>apt update</code> cập nhật metadata, không tự nâng cấp executable. <code>apt upgrade</code> mới thực hiện nâng cấp theo các quy tắc dependency phù hợp; <code>apt full-upgrade</code> có thể gỡ package.</p><pre><code>sudo apt update
+sudo apt upgrade</code></pre>
+<div class="panel"><strong>Mô phỏng APT update / upgrade</strong><div class="columns"><div class="card">APT biết phiên bản: <strong id="metadata">8.4</strong></div><div class="card">Đã cài: <strong id="installed">8.4</strong></div></div><div class="controls"><button onclick="aptUpdate()">apt update</button><button id="upgradeBtn" onclick="aptUpgrade()" disabled>apt upgrade</button><button onclick="aptReset()">Reset</button></div><p class="note">Mô phỏng, không thực thi lệnh. Phiên bản chỉ minh họa.</p></div></section>
+<section><h2>Phần III — Dependency và Dependency Hell</h2><h3>7. Dependency là gì?</h3><pre><code>Application A
+ ├── libnetwork >= 2.0
+ ├── libcrypto >= 3.0
+ └── libc >= 2.35</code></pre><p>Dependency là ràng buộc một thành phần cần thành phần khác để cài đặt hoặc hoạt động. Thiếu version phù hợp có thể khiến resolver từ chối cài.</p>
+<h3>8. Dependency Hell</h3><pre><code>Application A → libfoo 1.x
+Application B → libfoo 2.x</code></pre><p>Hai SONAME khác nhau có thể cùng tồn tại, nhưng conflict file, version constraint, hoặc ABI không tương thích vẫn có thể khiến hệ thống khó quản lý.</p>
+<h3>9. Tại sao không nên trộn repository?</h3><p>Trộn release có thể kéo theo nâng cấp thư viện nền ngoài ý muốn. Hãy xem policy và mô phỏng transaction trước khi xác nhận.</p><pre><code>apt-cache policy curl
+apt-cache depends curl
+sudo apt -s install curl</code></pre><div class="question">Nếu APT muốn gỡ hàng chục package để cài một công cụ nhỏ, hãy dừng và tìm nguyên nhân, không nhấn Y theo thói quen.</div></section>
+<section><h2>Phần IV — Trust và chữ ký Repository</h2><h3>10. Cài package từ Internet có đáng tin không?</h3><p>Chữ ký xác thực nguồn metadata và tính toàn vẹn chuỗi phân phối; nó không bảo đảm phần mềm không có bug hoặc mã độc.</p>
+<h3>11. Chuỗi xác thực APT</h3><div class="diagram"><div class="node">Trusted signing key</div><div class="arrow">↓</div><div class="node green">Signed Release / InRelease</div><div class="arrow">↓</div><div class="node purple">Packages metadata + hashes</div><div class="arrow">↓</div><div class="node gray">Downloaded .deb files</div></div><p>Khi thêm nguồn, cần xác minh người giữ khóa, release tương ứng và cấu hình <code>Signed-By</code>. Không chạy script tải từ Internet bằng sudo mà chưa xem xét nguồn và nội dung.</p></section>
+<section><h2>Phần V — Executable và PATH</h2><h3>12. Lệnh python3 được tìm như thế nào?</h3><pre><code>python3 --version
+type -a python3
+command -v python3
+echo "$PATH"</code></pre><p>Shell có thể xử lý alias, function, builtin hoặc tìm executable trong PATH. PATH không phải cơ chế tìm shared library.</p>
+<h3>13. Vấn đề bảo mật PATH</h3><p>Nếu thư mục không đáng tin đứng trước <code>/usr/bin</code>, executable giả mạo có thể được chạy. Kiểm tra bằng <code>type -a</code> và dùng đường dẫn tuyệt đối khi thích hợp.</p></section>
+<section><h2>Phần VI — ELF</h2><h3>14. ELF là gì?</h3><p>Executable and Linkable Format là định dạng phổ biến của executable, object file, shared object và core dump trên Linux.</p><pre><code>file /usr/bin/python3</code></pre>
+<h3>15. ELF header, section và segment</h3><table><tr><th>Thành phần</th><th>Vai trò</th></tr><tr><td>ELF header</td><td>Nhận diện file và vị trí bảng</td></tr><tr><td>Section</td><td>Tổ chức code/data/symbol phục vụ link/debug</td></tr><tr><td>Segment</td><td>Vùng được ánh xạ hoặc xử lý khi thực thi</td></tr></table><pre><code>.text       Machine code
+.rodata     Read-only data
+.data       Initialized writable data
+.bss        Uninitialized data
+.dynsym     Dynamic symbols
+.dynamic    Dynamic linking information</code></pre>
+<h3>16. Ánh xạ ELF vào process</h3><div class="diagram"><div class="columns"><div><h4>ELF trên đĩa</h4><div class="node gray">ELF header</div><div class="node gray">Program headers</div><div class="node">.text</div><div class="node green">.rodata</div><div class="node purple">.data / .bss metadata</div></div><div><h4>Bộ nhớ process</h4><div class="node">Code mapping</div><div class="node green">Read-only mapping</div><div class="node purple">Writable data + BSS</div><div class="node gray">Heap / libraries / stack</div></div></div><p class="note">Sơ đồ khái niệm, không phải ánh xạ một-một giữa section và mapping.</p></div><pre><code>readelf -h /usr/bin/python3
+readelf -l /usr/bin/python3
+readelf -S /usr/bin/python3</code></pre>
+<h3>17. Vì sao .bss không chứa hàng triệu byte zero?</h3><pre><code>static char buffer[1024 * 1024];</code></pre><p>ELF có thể biểu diễn vùng zero-initialized bằng kích thước bộ nhớ lớn hơn dữ liệu thực lưu trong file. Điều này tiết kiệm dung lượng.</p></section>
+<section><h2>Phần VII — Static và Dynamic Linking</h2><h3>18. Hai kiểu linking</h3><div class="diagram"><div class="columns"><div><h4>Static</h4><div class="node">App A + library code</div><div class="node">App B + library code</div></div><div><h4>Dynamic</h4><div class="node">App A</div><div class="node">App B</div><div class="arrow">↓</div><div class="node green">Shared Library</div></div></div></div>
+<h3>19. So sánh</h3><table><tr><th>Tiêu chí</th><th>Static</th><th>Dynamic</th></tr><tr><td>Binary</td><td>Thường lớn hơn</td><td>Thường nhỏ hơn</td></tr><tr><td>Phụ thuộc thư viện runtime</td><td>Ít hơn</td><td>Có</td></tr><tr><td>Chia sẻ mã</td><td>Hạn chế</td><td>Có thể</td></tr><tr><td>Cập nhật thư viện</td><td>Thường build lại</td><td>Có thể độc lập nếu ABI tương thích</td></tr></table><p>Static binary không có nghĩa hoàn toàn độc lập kernel ABI, kiến trúc hoặc tài nguyên runtime.</p></section>
+<section><h2>Phần VIII — execve và Dynamic Linker</h2><h3>20. Điều gì xảy ra khi chạy ./app?</h3><div class="diagram"><div class="node">Shell: ./app</div><div class="arrow">↓</div><div class="node gray">execve()</div><div class="arrow">↓</div><div class="node purple">Kernel ELF loader</div><div class="arrow">↓</div><div class="node green">Dynamic linker (ld-linux)</div><div class="arrow">↓</div><div class="node green">Shared libraries + relocation</div><div class="arrow">↓</div><div class="node">Runtime startup → main()</div></div>
+<h3>21. Dynamic linker là gì?</h3><p>Với ELF động, kernel nạp interpreter từ <code>PT_INTERP</code>. Dynamic linker giải quyết shared objects, relocation, symbol resolution và khởi tạo liên quan.</p><pre><code>readelf -l /usr/bin/python3
+# INTERP: Requesting program interpreter ...</code></pre></section>
+<section><h2>Phần IX — Tìm shared library</h2><h3>22. PATH khác đường tìm thư viện</h3><p>Loader có thể xét RPATH, RUNPATH, LD_LIBRARY_PATH, ldconfig cache và các thư mục mặc định, theo quy tắc chính xác tùy tag và ngữ cảnh.</p>
+<h3>23. RPATH và RUNPATH</h3><pre><code>/opt/myapp/
+├── bin/
+│   └── app
+└── lib/
+    └── libcustom.so
+
+# RUNPATH: $ORIGIN/../lib
+readelf -d /opt/myapp/bin/app</code></pre><p><code>$ORIGIN</code> là vị trí thư mục chứa ELF object được xét. RPATH và RUNPATH có quy tắc khác nhau đối với dependency gián tiếp.</p>
+<h3>24. Vì sao không sửa LD_LIBRARY_PATH toàn hệ thống?</h3><pre><code>export LD_LIBRARY_PATH=/opt/oldlibs</code></pre><p>Điều này có thể làm nhiều ứng dụng nạp nhầm thư viện, lỗi ABI và tăng rủi ro bảo mật. Hãy dùng cấu hình ứng dụng có kiểm soát.</p></section>
+<section><h2>Phần X — ABI và SONAME</h2><h3>25. API khác ABI thế nào?</h3><p>API là giao diện ở mức source. ABI là hợp đồng ở mức binary: calling convention, symbol, data layout, stack, register, version...</p><pre><code>int add(int a, int b);</code></pre>
+<h3>26. Lỗi ABI</h3><pre><code>error while loading shared libraries:
+libfoo.so.1: cannot open shared object file
+
+version `GLIBC_2.xx' not found</code></pre><p>Không symlink bừa <code>libfoo.so.2</code> thành <code>libfoo.so.1</code>; tên khác có thể phản ánh ABI không tương thích.</p>
+<h3>27. SONAME</h3><pre><code>libexample.so      -> libexample.so.1
+libexample.so.1    -> libexample.so.1.2.3
+libexample.so.1.2.3
+
+readelf -d /usr/lib/x86_64-linux-gnu/libz.so.1</code></pre><p>SONAME thường là tên dependency được ghi trong binary. File phát triển, SONAME và file thực tế có thể được tổ chức thành chuỗi symlink.</p></section>
+<section><h2>Phần XI — Lab kiểm kê executable</h2><h3>28. Tìm executable và package sở hữu</h3><pre><code>command -v python3
+type -a python3
+readlink -f "$(command -v python3)"
+dpkg-query -S /usr/bin/python3
+dpkg-query -W python3
+apt-cache policy python3</code></pre><p>Symlink có thể thuộc package khác với file đích. dpkg-query đọc database package chứ không xác nhận file không bị sửa.</p>
+<h3>29. Kiểm tra ELF và dependencies</h3><pre><code>file /usr/bin/python3
+readelf -h /usr/bin/python3
+readelf -l /usr/bin/python3
+readelf -d /usr/bin/python3
+ldd /usr/bin/python3</code></pre><p><strong>Cẩn trọng:</strong> Không chạy ldd trên binary không tin cậy. Ưu tiên phân tích tĩnh bằng readelf; NEEDED chỉ hiển thị dependency trực tiếp được ghi trong dynamic section.</p></section>
+<section><h2>Phần XII — Nâng cấp an toàn</h2><h3>30. Quy trình cài có kiểm soát</h3><pre><code>apt-cache policy curl
+apt-cache depends curl
+sudo apt -s install curl
+sudo apt update
+sudo apt install curl
+command -v curl
+curl --version
+dpkg-query -W curl</code></pre><p>Không thêm <code>-y</code> vào transaction chưa hiểu; cần đọc danh sách package cài mới, nâng cấp và gỡ.</p></section>
+<section><h2>Phần XIII — Process vẫn dùng thư viện cũ</h2><h3>31. Tại sao upgrade xong vẫn cần restart?</h3><p>Process có thể còn memory mapping của file thư viện cũ dù package trên đĩa đã được thay thế. Bản vá trên đĩa chưa chắc đã được process sử dụng.</p>
+<div class="panel"><strong>Mô phỏng thư viện cũ và mới</strong><div class="columns"><div class="card">Library trên đĩa: <strong id="disklib">v1</strong></div><div class="card">Library process đang dùng: <strong id="processlib">v1</strong></div></div><p id="libstatus">Process đang sử dụng v1.</p><div class="controls"><button id="libup" onclick="upgradeLib()">Upgrade package</button><button id="librestart" onclick="restartLib()" disabled>Restart service</button><button onclick="resetLib()">Reset</button></div></div>
+<pre><code>sudo grep '(deleted)' /proc/&lt;PID&gt;/maps
+sudo lsof +L1</code></pre><p>Đây là dấu hiệu hỗ trợ kiểm tra file cũ bị unlink. Nếu cập nhật kernel, có thể cần reboot để chạy kernel mới.</p></section>
+<section><h2>Phần XIV — Rollback và production</h2>
+<h3>32. Một tình huống production: nâng cấp thành công nhưng hệ thống hỏng</h3>
+<p>Ứng dụng bán hàng v1 sử dụng bảng <code>users(id,name)</code>. Bản v2 thay bằng <code>users(id,first_name,last_name)</code>. Sau migration, ứng dụng v2 lỗi; downgrade binary về v1 không giúp vì database vẫn dùng schema v2.</p>
+<pre><code>-- Schema v1
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+-- Schema v2
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50)
+);
+
+sudo apt install myapp=1.0</code></pre>
+<p><strong>Package downgrade ≠ System rollback.</strong> Trạng thái phải xét cả binary, thư viện, cấu hình, database schema, dữ liệu, service và kernel.</p>
+<div class="panel"><strong>Mô phỏng bốn trạng thái rollback</strong><div class="columns"><div class="card">Application: <strong id="rollapp">v1.0</strong></div><div class="card">Database: <strong id="rolldb">Schema v1</strong></div></div><p id="rollstate" class="status">Hoạt động bình thường</p><p id="rolldesc">Executable và database cùng sử dụng schema v1.</p><div class="controls"><button onclick="rollBack()">Quay lại</button><button onclick="rollNext()">Bước tiếp theo</button></div><p id="rollcount" class="note">1 / 4</p></div>
+<h4>Expand–Migrate–Contract</h4><p>Để rollback dễ hơn, hãy thêm cột mới nhưng giữ cột cũ (Expand), chuyển dữ liệu và cập nhật logic (Migrate), chỉ xóa cột cũ khi không còn client phụ thuộc (Contract).</p><pre><code>ALTER TABLE users
+ADD COLUMN first_name VARCHAR(50),
+ADD COLUMN last_name VARCHAR(50);
+
+-- Chuyển dữ liệu theo quy tắc nghiệp vụ và xử lý ghi đồng thời
+
+ALTER TABLE users DROP COLUMN name;</code></pre>
+<div class="question">Vì sao không restore database ngay? Vì có thể mất giao dịch phát sinh sau backup. Cần xác định RPO, RTO và phương án đối soát dữ liệu.</div></section>
+<section><h2>Phần XV — Python Virtual Environment</h2><h3>33. Tại sao pip có thể làm hỏng hệ thống?</h3><p>Ghi đè thư viện Python do distro quản lý có thể gây xung đột công cụ hệ thống. PEP 668 giúp đánh dấu môi trường Python được quản lý bên ngoài.</p><div class="diagram"><div class="node gray">System Python — /usr/bin/python3</div><div class="arrow">↙ ↘</div><div class="columns"><div class="node">Project A .venv<div class="small">Package X 1.x, Y 2.x</div></div><div class="node green">Project B .venv<div class="small">Package X 2.x, Z 3.x</div></div></div></div><pre><code>sudo apt update
+sudo apt install python3-venv
+mkdir -p ~/python-lab
+cd ~/python-lab
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install requests
+which python
+python -m pip --version
+deactivate</code></pre><p>venv cô lập dependency Python, không cô lập kernel, process và filesystem như một container được cấu hình phù hợp.</p></section>
+<section><h2>Phần XVI — Binary cài thủ công</h2><h3>34. Vì sao make install gây khó khăn?</h3><pre><code>./configure
+make
+sudo make install</code></pre><p>Không có manifest package thì khó biết các file nào đã cài. Nên chọn prefix rõ và ghi quy trình nâng cấp/gỡ.</p><table><tr><th>Đường dẫn</th><th>Ý nghĩa</th></tr><tr><td>/usr/bin</td><td>Chương trình distro</td></tr><tr><td>/usr/local/bin</td><td>Cài đặt bởi quản trị viên</td></tr><tr><td>/opt/myapp</td><td>Ứng dụng tự triển khai</td></tr><tr><td>/etc</td><td>Cấu hình</td></tr><tr><td>/var/lib</td><td>Trạng thái dữ liệu</td></tr></table><pre><code>/opt/myapp/
+├── releases/
+│   ├── 1.0/
+│   └── 1.1/
+└── current -> releases/1.1</code></pre><p>Đổi symlink không tự restart process, và cũng không đảo ngược database migration.</p></section>
+<section><h2>Phần XVII — Debug executable</h2>
+<h3>35. command not found</h3><pre><code>echo "$PATH"
+type -a myapp
+command -v myapp
+ls -l /opt/myapp/bin/myapp
+/opt/myapp/bin/myapp</code></pre><p>Chưa chắc package thiếu: có thể PATH sai hoặc shell đang ở môi trường khác.</p>
+<h3>36. No such file or directory dù file tồn tại</h3><pre><code>ls -l ./app
+file ./app
+readelf -l ./app
+# Requesting program interpreter: /lib64/ld-linux-x86-64.so.2</code></pre><p>ELF interpreter hoặc shebang interpreter có thể không tồn tại; ENOENT không nhất thiết chỉ file app bị thiếu.</p>
+<h3>37. Exec format error</h3><pre><code>file ./app
+uname -m
+readelf -h ./app
+aarch64-linux-gnu-gcc main.c -o app</code></pre><p>Binary x86-64 không tự chạy trên AArch64. Cần toolchain, ABI, libc và sysroot đúng.</p>
+<h3>38. GLIBC_x.y not found</h3><pre><code>getconf GNU_LIBC_VERSION
+readelf --version-info ./app</code></pre><p>Ứng dụng yêu cầu symbol version mà glibc trên target không có. Không copy bừa glibc mới vào /lib; nên build với sysroot tương thích hoặc nâng cấp môi trường có kiểm soát.</p></section>
+<section><h2>Phần XVIII — APT pinning</h2><h3>39. Tại sao APT chọn phiên bản này?</h3><pre><code>apt-cache policy libfoo
+# Installed: 1.0
+# Candidate: 2.0
+# Version table:
+#    2.0 500
+#    1.0 500</code></pre><p>APT dựa trên version và priority policy. Pinning cho phép ưu tiên nguồn/release, nhưng cấu hình sai có thể tạo lựa chọn version ngoài ý muốn.</p></section>
+<section><h2>Phần XIX — Package Lock</h2><h3>40. Vì sao không xóa lock khi APT đang chạy?</h3><p>Hai package manager ghi cùng database có thể gây bất nhất. Lock giúp ngăn transaction xung đột. Đừng xóa <code>/var/lib/dpkg/lock</code> một cách máy móc.</p><pre><code>ps aux | grep -E '[a]pt|[d]pkg'
+sudo fuser -v /var/lib/dpkg/lock-frontend
+sudo dpkg --audit
+sudo dpkg --configure -a</code></pre><p>Chỉ xem xét các lệnh phục hồi sau khi chắc chắn không còn transaction hợp lệ đang chạy và đã xác định trạng thái lỗi.</p></section>
+<section><h2>Phần XX — Embedded Linux và A/B update</h2><h3>41. Vì sao Embedded Linux không luôn dùng APT?</h3><p>Thiết bị công nghiệp thường cần image tái lập, giới hạn flash và cập nhật an toàn. Buildroot thường tạo root filesystem image; Yocto có thể tạo package feed hoặc image tùy cấu hình.</p>
+<div class="diagram"><div class="node gray">Bootloader</div><div class="arrow">↙ ↘</div><div class="columns"><div class="node">Slot A<div class="small">Firmware v1</div></div><div class="node green">Slot B<div class="small">Firmware v2</div></div></div></div>
+<div class="panel"><strong>Mô phỏng cập nhật firmware A/B</strong><div class="columns"><div class="card">Slot A — v1.0<br><span id="slotA" class="status">Active</span></div><div class="card">Slot B — v2.0<br><span id="slotB">Inactive</span></div></div><p id="slotstatus">Thiết bị đang sử dụng firmware v1.0.</p><div class="controls"><button id="bootB" onclick="bootSlotB()">Boot Slot B</button><button id="health" onclick="confirmSlot()" disabled>Health check OK</button><button id="rollback" onclick="rollbackSlot()" disabled>Rollback về A</button></div><p class="note">Mô phỏng. Hệ thống thực còn cần boot counter, image verification, xử lý mất điện và dữ liệu dùng chung.</p></div>
+<p>A/B update không bảo đảm rollback dữ liệu: nếu cả hai slot dùng chung phân vùng data đã migration, firmware cũ vẫn có thể lỗi.</p></section>
+<section><h2>Phần XXI — Quy trình kiểm kê production</h2><h3>42. Senior Linux Engineer kiểm tra gì?</h3><pre><code>dpkg-query -W curl
+apt-cache policy curl
+apt-cache depends curl
+sudo apt -s install curl
+systemctl status myapp.service
+systemctl is-active myapp.service
+curl --fail --silent http://127.0.0.1:8080/health</code></pre><p>Trước nâng cấp cần biết phiên bản hiện tại, dependency, transaction dự kiến, process cần restart, backup, RPO/RTO, và health check thực sự kiểm tra khả năng phục vụ.</p></section>
+<section><h2>Phần XXII — Tổng hợp</h2><h3>43. Từ source code đến running process</h3><div class="diagram"><div class="node gray">Source Code — C / C++ / Python</div><div class="arrow">↓</div><div class="node">Build / Compile / Link</div><div class="arrow">↓</div><div class="node purple">Package — executable, libraries, metadata</div><div class="arrow">↓</div><div class="node green">Repository / Package Manager</div><div class="arrow">↓</div><div class="node gray">Filesystem</div><div class="arrow">↓</div><div class="node">Kernel + Dynamic Linker</div><div class="arrow">↓</div><div class="node green">Running Process</div></div>
+<table><tr><th>Tầng</th><th>Câu hỏi</th></tr><tr><td>Build</td><td>Kiến trúc, ABI, toolchain?</td></tr><tr><td>Package</td><td>File và dependency nào?</td></tr><tr><td>Repository</td><td>Nguồn và phiên bản?</td></tr><tr><td>ELF</td><td>Interpreter, segment?</td></tr><tr><td>Dynamic linker</td><td>Thư viện và symbol nào?</td></tr><tr><td>Runtime</td><td>Process có phục vụ đúng?</td></tr><tr><td>Rollback</td><td>Khôi phục trạng thái nhất quán?</td></tr></table>
+<h3>44. Câu hỏi phỏng vấn Senior Linux / Embedded Engineer</h3>
+<ol><li>Tại sao apt update khác apt upgrade?</li><li>APT và dpkg khác nhau thế nào?</li><li>Repository signature bảo vệ điều gì?</li><li>Tại sao executable tồn tại nhưng báo No such file or directory?</li><li>ELF section và segment khác nhau thế nào?</li><li>Kernel và dynamic linker phân chia trách nhiệm ra sao?</li><li>Tại sao PATH không sửa lỗi thiếu shared library?</li><li>API và ABI khác nhau thế nào?</li><li>Vì sao không symlink libfoo.so.2 thành libfoo.so.1 tùy tiện?</li><li>Tại sao process vẫn dùng thư viện cũ sau upgrade?</li><li>Vì sao downgrade không phải system rollback?</li><li>Vì sao cross-compilation cần sysroot?</li><li>Buildroot và Yocto khác nhau thế nào?</li><li>Vì sao A/B update có thể rollback lỗi dữ liệu?</li><li>Phục hồi package manager sau transaction thất bại thế nào?</li></ol>
+<h3>45. Kết luận Bài 11</h3><p><strong>Cấp độ người sử dụng:</strong> biết apt install, update, remove. <strong>Cấp độ Linux Developer:</strong> hiểu dependency, ELF, dynamic linking, ABI và debug runtime. <strong>Cấp độ Senior/System Engineer:</strong> hiểu cả build, distribution, security, compatibility, deployment, service lifecycle và rollback.</p>
+<p><strong>Cài được package không có nghĩa ứng dụng sẽ chạy. Ứng dụng chạy không có nghĩa hệ thống tương thích. Và nâng cấp thành công không có nghĩa rollback an toàn.</strong></p></section>
+<section><h2>Bài kiểm tra tương tác</h2><div id="quiz"></div><div class="controls"><button onclick="grade()">Chấm điểm</button><button onclick="resetQuiz()">Làm lại</button></div><div id="score" class="panel" style="display:none"></div></section>
+<section><h2>Checklist thực hành</h2><div class="panel"><div id="checkcount"></div><div class="progress"><div id="checkbar" style="width:0"></div></div><div id="checklist"></div></div></section>
+<p class="foot">Tài liệu HTML độc lập: CSS, sơ đồ và JavaScript đều được nhúng trong một file. Không cần kết nối Internet. Sơ đồ mang tính minh họa, không thay thế tài liệu kỹ thuật của distro hoặc libc cụ thể.</p>
+</main><script>
+function aptUpdate(){document.getElementById('metadata').textContent='8.5';document.getElementById('upgradeBtn').disabled=false}
+function aptUpgrade(){document.getElementById('installed').textContent='8.5'}
+function aptReset(){document.getElementById('metadata').textContent='8.4';document.getElementById('installed').textContent='8.4';document.getElementById('upgradeBtn').disabled=true}
+function upgradeLib(){document.getElementById('disklib').textContent='v2';document.getElementById('libstatus').textContent='Đĩa đã cập nhật nhưng process có thể vẫn dùng mapping v1.';document.getElementById('libup').disabled=true;document.getElementById('librestart').disabled=false}
+function restartLib(){document.getElementById('processlib').textContent='v2';document.getElementById('libstatus').textContent='Process mới đã nạp thư viện v2.';document.getElementById('librestart').disabled=true}
+function resetLib(){document.getElementById('disklib').textContent='v1';document.getElementById('processlib').textContent='v1';document.getElementById('libstatus').textContent='Process đang sử dụng v1.';document.getElementById('libup').disabled=false;document.getElementById('librestart').disabled=true}
+const rolls=[['v1.0','Schema v1','Hoạt động bình thường','Executable và database cùng sử dụng schema v1.'],['v2.0','Schema v2','Có lỗi ứng dụng','Migration đã chạy nhưng phiên bản mới có lỗi logic.'],['v1.0','Schema v2','Không tương thích','Ứng dụng cũ tìm cột name đã bị xóa.'],['v1.0','Schema v1','Có thể hoạt động lại','Khôi phục trạng thái nhất quán và kiểm thử.']];let ri=0;
+function showRoll(){let r=rolls[ri];['rollapp','rolldb','rollstate','rolldesc'].forEach((id,i)=>document.getElementById(id).textContent=r[i]);document.getElementById('rollcount').textContent=(ri+1)+' / 4';document.getElementById('rollstate').className=ri===1||ri===2?'bad':'status'}
+function rollNext(){ri=(ri+1)%4;showRoll()}function rollBack(){ri=Math.max(0,ri-1);showRoll()}
+let active='A',confirmed=false;
+function showSlots(){document.getElementById('slotA').textContent=active==='A'?'Active':'Inactive';document.getElementById('slotB').textContent=active==='B'?'Active':'Inactive';document.getElementById('slotstatus').textContent=active==='A'?'Thiết bị đang sử dụng firmware v1.0.':confirmed?'Firmware v2.0 đã vượt qua health check.':'Firmware v2.0 đang được thử nghiệm, chưa xác nhận.';document.getElementById('bootB').disabled=active==='B';document.getElementById('health').disabled=active!=='B'||confirmed;document.getElementById('rollback').disabled=active!=='B'}
+function bootSlotB(){active='B';confirmed=false;showSlots()}function confirmSlot(){confirmed=true;showSlots()}function rollbackSlot(){active='A';confirmed=false;showSlots()}
+const qs=[
+['apt update có nâng cấp executable đã cài không?',['Có, luôn luôn','Không, chủ yếu cập nhật metadata','Chỉ khi sudo'],1,'apt update cập nhật package lists.'],
+['dpkg -i có tự giải mọi dependency không?',['Có','Không','Chỉ với ELF static'],1,'APT giải dependency ở mức cao hơn.'],
+['PATH dùng để tìm gì?',['Executable command','Shared library của ld.so','Kernel modules'],0,'PATH giúp tìm lệnh, không phải shared library.'],
+['ELF tồn tại nhưng No such file or directory có thể do đâu?',['Chắc chắn thiếu app','Thiếu ELF interpreter','Thiếu RAM'],1,'PT_INTERP có thể trỏ tới đường dẫn không tồn tại.'],
+['Symlink libfoo.so.2 thành libfoo.so.1 luôn an toàn?',['Có','Không, có thể khác ABI','Chỉ cần tên giống'],1,'SONAME có thể biểu thị ABI khác.'],
+['Upgrade thư viện thì process cũ luôn dùng mã mới ngay?',['Có','Không','Chỉ trên SSD'],1,'Process có thể giữ mapping cũ.'],
+['Downgrade package có tự rollback database?',['Có','Không','Chỉ với PostgreSQL'],1,'Database migration và package là trạng thái riêng.'],
+['venv có thay thế hoàn toàn container?',['Có','Không','Chỉ Ubuntu'],1,'venv chủ yếu cô lập Python dependency.']
+];
+function buildQuiz(){document.getElementById('quiz').innerHTML=qs.map((q,i)=>'<div class="quizitem"><strong>'+(i+1)+'. '+q[0]+'</strong>'+q[1].map((a,j)=>'<label><input type="radio" name="q'+i+'" value="'+j+'"> '+a+'</label>').join('')+'<div class="result" id="ex'+i+'"></div></div>').join('')}
+function grade(){let score=0,answered=0;qs.forEach((q,i)=>{let x=document.querySelector('input[name="q'+i+'"]:checked');if(x){answered++;if(+x.value===q[2])score++}let el=document.getElementById('ex'+i);el.textContent=(x&&+x.value===q[2]?'✓ Chính xác. ':'✗ Chưa chính xác. ')+q[3];el.classList.add('visible')});let el=document.getElementById('score');el.style.display='block';el.textContent='Kết quả: '+score+'/'+qs.length+' câu đúng ('+answered+' câu đã trả lời).'}
+function resetQuiz(){buildQuiz();document.getElementById('score').style.display='none'}
+const tasks=['Xác định executable bằng command -v và type -a','Kiểm tra symlink bằng readlink -f','Tìm package bằng dpkg-query -S','Kiểm tra version bằng apt-cache policy','Hiểu apt update khác apt upgrade','Mô phỏng transaction bằng apt -s','Kiểm tra ELF và interpreter bằng readelf','Kiểm tra NEEDED và RUNPATH/RPATH','Giải thích API, ABI và SONAME','Hiểu library mapping cũ sau upgrade','Chuẩn bị restart và rollback','Dùng Python venv đúng cách'];
+function updateChecks(){let n=document.querySelectorAll('#checklist input:checked').length;document.getElementById('checkcount').textContent='Tiến độ: '+n+'/'+tasks.length;document.getElementById('checkbar').style.width=(100*n/tasks.length)+'%'}
+function buildChecks(){document.getElementById('checklist').innerHTML=tasks.map((t,i)=>'<label><input type="checkbox" onchange="updateChecks()"> '+t+'</label>').join('');updateChecks()}
+function buildToc(){let headings=[...document.querySelectorAll('main h2,main h3')];let box=document.getElementById('toclinks');headings.forEach((h,i)=>{h.id='section-'+i;let a=document.createElement('a');a.href='#'+h.id;a.textContent=h.textContent;if(h.tagName==='H3')a.style.paddingLeft='15px';box.appendChild(a)})}
+buildQuiz();buildChecks();buildToc();
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

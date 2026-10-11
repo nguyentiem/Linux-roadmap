@@ -1,0 +1,540 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><title>Bài 14 — Toàn bộ quá trình Boot và Shutdown trong Linux</title><style>
+:root{--bg:#0b1220;--panel:#121e30;--panel2:#1a2940;--ink:#e8eef8;--muted:#a6b6ca;--accent:#60a5fa;--line:#30415a;--green:#4ade80;--bad:#fca5a5}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:#93c5fd}button{cursor:pointer;border:1px solid var(--line);border-radius:9px;background:#213652;color:var(--ink);padding:9px 14px;font:inherit}button:hover{background:#304c71}button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1600px;margin:auto}.sidebar{height:100vh;position:sticky;top:0;overflow:auto;border-right:1px solid var(--line);padding:24px 15px;background:#0f1929}.sidebar h2{font-size:17px;margin:0 0 15px}.sidebar a{display:block;padding:6px 10px;text-decoration:none;color:var(--muted);font-size:13px;border-radius:7px;line-height:1.5}.sidebar a:hover{background:var(--panel2);color:white}.main{min-width:0;max-width:1000px;width:100%;margin:auto;padding:24px 48px 80px}.hero{background:linear-gradient(125deg,#1d3a64,#152237 75%);border:1px solid #35547a;padding:40px;border-radius:20px;margin:10px 0 35px}.eyebrow{font-size:12px;letter-spacing:1.6px;color:#a8d0ff;font-weight:700}h1{font-size:clamp(30px,4vw,48px);line-height:1.2;margin:15px 0}h2{font-size:29px;line-height:1.3;margin:0 0 22px;color:#dceaff}h3{font-size:21px;color:#bcdcff;margin:28px 0 8px}p{margin:12px 0 18px}section{border-top:1px solid var(--line);padding-top:42px;margin-top:38px;scroll-margin-top:20px}section:first-of-type{border-top:0}ul{padding-left:26px}li{margin:6px 0}.code,.diagram{border:1px solid var(--line);border-radius:12px;background:#08111f;margin:17px 0;overflow:hidden}.codebar{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:#1b2c43;color:#9fb5d1;font:12px system-ui}.copy{font-size:12px;padding:4px 10px}pre{margin:0;padding:18px 20px;overflow-x:auto;white-space:pre;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4}.diagram{background:#112239;border-color:#365273}.diagram pre{color:#b6e3ff;font-size:14px}.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:20px 0}table{border-collapse:collapse;width:100%;font-size:14px}th{background:#213550;text-align:left}th,td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}tr:nth-child(even) td{background:#142238}code:not(pre code){background:#20344c;padding:2px 5px;border-radius:4px;color:#a9d5ff}blockquote{border-left:4px solid var(--accent);padding:15px 22px;background:#162840;border-radius:0 9px 9px 0;margin:20px 0}.flow{display:flex;flex-direction:column;align-items:center;gap:7px;margin:22px 0}.step{width:min(100%,530px);padding:13px 18px;background:#1a2c45;border:1px solid #405b7c;border-radius:12px;text-align:center;opacity:.7;transform:scale(.985);transition:opacity .4s,transform .4s,background .4s}.step.active{opacity:1;transform:scale(1);background:#24518a;border-color:#72b2ff}.step small{display:block;color:#b7cbe2;font-size:12px}.arrow{color:#84b9ee;font-size:20px;line-height:1}.controls,.heroactions{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}.heroactions a{padding:8px 16px;border-radius:9px;background:#357bd1;color:white;text-decoration:none}.timelines{background:#132238;padding:20px;border-radius:12px;border:1px solid var(--line)}.trow{display:grid;grid-template-columns:115px 1fr 50px;gap:12px;align-items:center;margin:12px 0;font-size:13px}.track{background:#2a3b54;border-radius:100px;height:13px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#387ed8,#70d6ff);border-radius:100px;transition:width .7s}.sim{display:grid;grid-template-columns:210px 1fr;gap:15px}.simoptions{display:flex;flex-direction:column;gap:8px}.simoptions button{text-align:left}.simoptions button.active{background:#285a96;border-color:#7db6ff}.simresult{padding:22px;border:1px solid var(--line);background:var(--panel);border-radius:12px}.simresult h3{margin-top:0}.quizitem{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px;margin:15px 0}.quizitem strong{display:block;margin-bottom:10px}.quizitem label{display:block;padding:7px;cursor:pointer}.feedback{font-size:14px;color:var(--muted);margin-top:10px}.good{color:var(--green)}.bad{color:var(--bad)}.quizbottom{display:flex;align-items:center;justify-content:space-between}details{border:1px solid var(--line);padding:12px 18px;margin:10px 0;border-radius:10px;background:var(--panel)}summary{cursor:pointer;font-weight:600}details p{margin-bottom:0}.top{position:fixed;bottom:20px;right:20px;z-index:3}.progress{height:3px;background:var(--accent);position:fixed;top:0;left:0;width:0;z-index:10}@media(max-width:950px){.layout{display:block}.sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line);max-height:210px}.main{padding:16px 20px 70px}.hero{padding:25px}.sim{grid-template-columns:1fr}.simoptions{flex-direction:row;flex-wrap:wrap}.trow{grid-template-columns:100px 1fr 45px}}@media print{body{background:white;color:#111}.sidebar,.top,.controls,.copy,.heroactions,.progress{display:none!important}.layout{display:block}.main{max-width:none;padding:0}.hero,section,.diagram,.code,.simresult,.quizitem{break-inside:avoid;color:#111;background:#fff;border-color:#aaa}.diagram pre,.code pre{color:#111}h1,h2,h3{color:#111}.step{color:#111;opacity:1}a{color:#111}details p{display:block}section{margin-top:15px;padding-top:15px}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="14"><div class="progress"></div><div class="layout"><aside class="sidebar"><h2>📚 Bài 14 · Mục lục</h2><a href="#s1">1. Đặt vấn đề</a><a href="#s2">2. CPU sau Reset</a><a href="#s3">3. Firmware BIOS / UEFI</a><a href="#s4">4. GRUB và U-Boot</a><a href="#s5">5. Kernel initialization</a><a href="#s6">6. Initramfs</a><a href="#s7">7. Switch root</a><a href="#s8">8. PID 1 / systemd</a><a href="#s9">9. Targets</a><a href="#s10">10. Boot timeline</a><a href="#s11">11. Shutdown</a><a href="#s12">12. Lab Ubuntu</a><a href="#s13">13. Debug boot failure</a><a href="#s14">14. Mô phỏng lỗi</a><a href="#s15">15. Câu hỏi phản biện</a><a href="#s16">16. Bài tập và quiz</a><a href="#s17">17. Liên hệ kiến thức</a><a href="#s18">18. Tổng kết</a></aside><main class="main"><div class="hero"><div class="eyebrow">LINUX SYSTEM INTERNALS · EMBEDDED LINUX · KERNEL · BOOTLOADER · SYSTEMD</div><h1>Bài 14 — Toàn bộ quá trình Boot và Shutdown trong Linux</h1><p>Từ lúc nhấn nút nguồn đến khi Linux sẵn sàng chạy ứng dụng — và chiều ngược lại khi shutdown. Giải thích theo tư duy kỹ sư Embedded Linux: vai trò, lý do tồn tại, lỗi thường gặp và cách khoanh vùng.</p><div class="heroactions"><a href="#s1">Bắt đầu học ↓</a><button onclick="window.print()">In / lưu PDF</button></div></div>
+<section id="s1"><h2>1. Đặt vấn đề: Ai chạy chương trình đầu tiên khi bật nguồn?</h2>
+<p>Khi máy đang chạy, kernel quản lý CPU, RAM, driver và process; scheduler chọn task; filesystem đọc/ghi dữ liệu; systemd quản lý service; shell thực thi lệnh. <strong>Nhưng nếu tất cả chưa chạy, ai khởi động chúng?</strong></p>
+<div class="code"><div class="codebar"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>int main(void)
+{
+    printf(&quot;Hello Linux\n&quot;);
+    return 0;
+}</code></pre></div>
+<p>Để chạy chương trình C cần hệ điều hành hỗ trợ executable, process và system call. Nhưng ai nạp kernel vào RAM? Ai truy cập ổ đĩa khi driver chưa chạy? Ai khởi tạo phần cứng?</p>
+<h3>1.1. Boot là gì?</h3>
+<p><strong>Boot (bootstrap)</strong> là quá trình đưa hệ thống từ trạng thái chưa có hệ điều hành đang chạy đến trạng thái hệ điều hành và các dịch vụ cần thiết đã sẵn sàng. Đây là quá trình hệ thống tự xây dựng môi trường để vận hành.</p>
+<p>Nghịch lý: muốn chạy chương trình cần môi trường thực thi, nhưng muốn tạo môi trường thực thi lại phải chạy một chương trình trước đó. Giải pháp: chia thành nhiều giai đoạn, mỗi giai đoạn chuẩn bị cho giai đoạn tiếp theo.</p>
+<h3>1.2. Ví dụ đời sống: Mở cửa nhà máy</h3>
+<p>Bảo vệ mở cổng → kỹ thuật viên bật điện → vận hành máy móc → quản lý phân công → dây chuyền sản xuất. Không thể yêu cầu công nhân chạy máy khi chưa có điện. Linux cũng cần chuỗi khởi động có thứ tự.</p>
+<h3>1.3. Sơ đồ tổng quan Linux Boot Process</h3>
+<div class="flow" id="bootflow"></div><div class="controls"><button id="playflow" onclick="playFlow()">▶ Chạy mô phỏng</button><button onclick="resetFlow()">↺ Đặt lại</button></div>
+<p><strong>Câu hỏi phản biện:</strong> Có phải mọi máy Linux đều đi qua đủ bảy giai đoạn? <strong>Không.</strong> Thiết bị nhúng có thể dùng U-Boot thay GRUB; có thể boot không initramfs; có thể dùng init khác systemd. Hãy hiểu vai trò logic, không học thuộc tên chương trình.</p>
+</section>
+<section id="s2"><h2>2. CPU làm gì sau Reset?</h2>
+<h3>2.1. CPU không tự biết Linux ở đâu</h3>
+<p>CPU lặp chu trình fetch → decode → execute → cập nhật Program Counter → fetch. Khi bật nguồn, điểm bắt đầu thực thi phụ thuộc kiến trúc CPU và SoC, thường gọi là reset vector hoặc reset entry.</p>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Fetch instruction
+      ↓
+Decode instruction
+      ↓
+Execute instruction
+      ↓
+Update program counter
+      ↓
+Fetch next instruction</code></pre></div>
+<ul><li>Cortex-M: vector table chứa stack pointer ban đầu và địa chỉ Reset_Handler.</li><li>x86 truyền thống: CPU bắt đầu tại địa chỉ reset do kiến trúc quy định, dẫn vào firmware.</li><li>Nhiều ARM SoC: Boot ROM thực thi trước để tìm và nạp stage tiếp theo.</li></ul>
+<h3>2.2. Liên hệ STM32</h3>
+<div class="code"><div class="codebar"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>void Reset_Handler(void)
+{
+    SystemInit();
+    /* Initialize .data and .bss */
+    __libc_init_array();
+    main();
+    while (1) {}
+}</code></pre></div>
+<p>Ví dụ đơn giản hóa: Cortex-M đọc vector table rồi chạy Reset_Handler để chuẩn bị môi trường C và gọi main(). <strong>Linux có gọi main() ngay sau reset?</strong> Không. Hệ thống Linux thường phải trải qua nhiều stage để chuẩn bị RAM, phần cứng và kernel.</p>
+<h3>2.3. Boot ROM là gì?</h3>
+<p>Boot ROM là chương trình do nhà sản xuất SoC cung cấp, thường nằm trong ROM hoặc vùng chỉ đọc trong chip. Nó có thể đọc boot strap, chọn SD/eMMC/SPI flash, nạp stage tiếp theo, xác minh chữ ký nếu nền tảng hỗ trợ.</p>
+<div class="diagram"><pre>Power On
+   ↓
+CPU Reset
+   ↓
+Internal Boot ROM
+   ↓
+Read boot configuration
+   ↓
+Find boot image on eMMC
+   ↓
+Load next-stage firmware</pre></div>
+<p><strong>Tại sao Boot ROM không nạp thẳng Linux?</strong> ROM nhỏ và ít linh hoạt; kernel cần DRAM, boot arguments, Device Tree và nhiều driver. ROM thường chỉ làm việc tối thiểu.</p>
+</section>
+<section id="s3"><h2>3. Firmware: BIOS và UEFI khác nhau thế nào?</h2>
+<h3>3.1. Firmware là gì?</h3>
+<p>Firmware là phần mềm gắn với nền tảng phần cứng, thường lưu trong flash không mất dữ liệu. Nó có thể khởi tạo RAM, CPU/chipset, khám phá thiết bị, chọn boot entry và chuyển quyền thực thi. BIOS và UEFI là hai cơ chế firmware phổ biến trên PC.</p>
+<h3>3.2. Legacy BIOS</h3>
+<div class="diagram"><pre>BIOS Firmware
+     ↓
+Boot sector / MBR boot code
+     ↓
+GRUB và các stage liên quan
+     ↓
+Linux Kernel</pre></div>
+<p>MBR truyền thống là sector 512 byte; thường có 446 byte vùng boot code, tiếp theo là bảng phân vùng và chữ ký. Quá nhỏ để chứa GRUB đầy đủ nên mã đầu phải chuyển sang stage khác.</p>
+<h3>3.3. UEFI</h3>
+<div class="diagram"><pre>UEFI Firmware
+     ↓
+EFI System Partition (ESP)
+     ↓
+EFI executable
+     ↓
+GRUB / EFI stub / UKI
+     ↓
+Linux Kernel</pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>EFI/
+├── BOOT/
+│   └── BOOTX64.EFI
+└── ubuntu/
+    ├── shimx64.efi
+    └── grubx64.efi</code></pre></div>
+<p>Đây là ví dụ Ubuntu x86-64. Đường dẫn thực tế phụ thuộc kiến trúc, distro và Secure Boot.</p>
+<h3>3.4. So sánh BIOS và UEFI</h3>
+<div class="tablewrap"><table><thead><tr><th>Đặc điểm</th><th>Legacy BIOS</th><th>UEFI</th></tr></thead><tbody><tr><td>Boot điển hình</td><td>Mã boot từ sector</td><td>Chạy EFI executable</td></tr><tr><td>Partition scheme</td><td>Thường MBR</td><td>Thường GPT</td></tr><tr><td>Boot manager</td><td>Thường dựa vào bootloader</td><td>Có boot manager trong firmware</td></tr><tr><td>Secure Boot chuẩn UEFI</td><td>Không</td><td>Có thể hỗ trợ</td></tr><tr><td>Nạp kernel qua EFI</td><td>Không</td><td>Có thể qua EFI stub / UKI</td></tr></tbody></table></div>
+<p>GPT không chỉ dành cho UEFI, MBR cũng không tuyệt đối chỉ dành cho BIOS. <strong>Dùng UEFI có bắt buộc GRUB?</strong> Không: có thể nạp kernel EFI stub hoặc UKI.</p>
+</section>
+<section id="s4"><h2>4. Bootloader: Tại sao cần GRUB hoặc U-Boot?</h2>
+<h3>4.1. Định nghĩa</h3>
+<p>Firmware giống người mở cửa kho; bootloader là người chọn đúng kiện hàng, chuẩn bị thông tin và giao nó đến nơi cần dùng. Bootloader có thể chọn kernel, nạp kernel/initramfs, truyền command line, cung cấp Device Tree và chuyển quyền thực thi.</p>
+<h3>4.2. GRUB trên PC</h3>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>GNU GRUB
+
+Ubuntu
+Advanced options for Ubuntu
+UEFI Firmware Settings</code></pre></div>
+<div class="code"><div class="codebar"><span>grub</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>menuentry &quot;Linux&quot; {
+    linux /boot/vmlinuz root=UUID=xxxx ro quiet
+    initrd /boot/initrd.img
+}</code></pre></div>
+<p><code>linux</code> chọn kernel; <code>root=</code> định danh root; <code>ro</code> yêu cầu mount read-only ban đầu; <code>quiet</code> giảm thông báo; <code>initrd</code> chọn image initramfs. Đây là ví dụ minh họa.</p>
+<h3>4.3. U-Boot trên Embedded Linux</h3>
+<div class="diagram"><pre>Boot ROM
+   ↓
+SPL / early firmware
+   ↓
+U-Boot
+   ↓
+Linux kernel + DTB + optional initramfs
+   ↓
+Linux userspace</pre></div>
+<p>SPL (Secondary Program Loader) thường chạy trong SRAM nội bộ nhỏ, khởi tạo DRAM rồi nạp U-Boot đầy đủ. Nếu DRAM chưa sẵn sàng, bootloader lớn chưa thể dùng nó.</p>
+<h3>4.4. ODROID XU4</h3>
+<p>ODROID XU4 dùng Samsung Exynos 5422. Chuỗi điển hình có thể bao gồm:</p>
+<div class="diagram"><pre>Exynos Boot ROM
+       ↓
+BL1
+       ↓
+BL2
+       ↓
+U-Boot
+       ↓
+Linux Kernel + Device Tree
+       ↓
+Root filesystem
+       ↓
+Init / systemd</pre></div>
+<p>Các boot stage và cách đóng gói tùy image. Không phải mọi stage nằm trong partition mà <code>ls</code> nhìn thấy: một số nằm ở sector/vùng lưu trữ đặc biệt. Chỉ copy kernel Image vào SD/eMMC chưa đủ đảm bảo boot.</p>
+<h3>4.5. Kernel command line</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>cat /proc/cmdline</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>BOOT_IMAGE=/boot/vmlinuz root=UUID=1234-5678 ro quiet console=ttyS0,115200</code></pre></div>
+<div class="tablewrap"><table><thead><tr><th>Tham số</th><th>Công dụng</th></tr></thead><tbody><tr><td>root=</td><td>Định danh root filesystem</td></tr><tr><td>ro / rw</td><td>Yêu cầu mount root read-only / read-write</td></tr><tr><td>console=</td><td>Chỉ định kernel console</td></tr><tr><td>quiet</td><td>Giảm thông báo</td></tr><tr><td>loglevel=</td><td>Điều chỉnh mức thông báo kernel</td></tr><tr><td>init=</td><td>Chọn init trong đường boot phù hợp</td></tr><tr><td>rootwait</td><td>Chờ root device xuất hiện</td></tr></tbody></table></div>
+<p><strong>Tại sao cần root=?</strong> Một máy có thể có Windows, Linux, backup, EFI trên nhiều phân vùng; kernel/initramfs cần biết root nào là mong muốn.</p>
+</section>
+<section id="s5"><h2>5. Kernel khởi động như thế nào?</h2>
+<h3>5.1. Kernel image</h3>
+<p>Kernel image là mã kernel build cho kiến trúc và định dạng boot cụ thể. Các tên thường gặp: <code>vmlinuz</code>, <code>bzImage</code>, <code>Image</code>, <code>zImage</code>, <code>uImage</code>, <code>fitImage</code>. Chúng không hoàn toàn tương đương; chẳng hạn uImage là định dạng legacy U-Boot có header.</p>
+<h3>5.2. Kernel initialization</h3>
+<div class="diagram"><pre>Kernel entry
+    ↓
+Architecture-specific setup
+    ↓
+Memory management
+    ↓
+Interrupt / timer initialization
+    ↓
+Scheduler initialization
+    ↓
+Driver and subsystem initialization
+    ↓
+Root filesystem preparation
+    ↓
+Start first userspace program</pre></div>
+<p>Đây là thứ tự logic, không phải thứ tự chính xác mọi hàm. Trong source Linux, <code>start_kernel()</code> là một hàm khởi tạo trung tâm:</p>
+<div class="code"><div class="codebar"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>asmlinkage __visible void __init start_kernel(void)
+{
+    /* Many architecture and kernel initialization steps */
+}</code></pre></div>
+<h3>5.3. Vì sao scheduler phải khởi tạo sớm?</h3>
+<p>Scheduler cần runqueue, timer, cấu trúc task, cơ chế context switch để điều phối nhiều task. Giống công ty phải lập bộ phận phân công trước khi cho hàng trăm nhân viên hoạt động.</p>
+<h3>5.4. Vì sao cần memory management?</h3>
+<p>Kernel phải thiết lập physical/virtual memory, page table, mapping, allocator và cache. Không thể tùy tiện gọi <code>malloc()</code> của libc khi kernel còn đang tự khởi tạo.</p>
+<h3>5.5. Device Tree trên ARM</h3>
+<div class="code"><div class="codebar"><span>dts</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>uart0: serial@10000000 {
+    compatible = &quot;vendor,soc-uart&quot;;
+    reg = &lt;0x10000000 0x1000&gt;;
+    status = &quot;okay&quot;;
+};</code></pre></div>
+<p>Ví dụ giả định, không phải địa chỉ UART ODROID XU4. Device Tree mô tả địa chỉ thanh ghi, interrupt, clock, GPIO, trạng thái và quan hệ thiết bị. Tách mô tả phần cứng khỏi logic driver; PC thường dùng ACPI và cơ chế khám phá như PCI.</p>
+</section>
+<section id="s6"><h2>6. Initramfs: Vì sao Linux cần root filesystem tạm?</h2>
+<p>Kernel muốn mount root từ ổ đĩa nhưng driver storage có thể nằm ngay trong root chưa mount được. <strong>Vậy lấy driver ở đâu?</strong> Initramfs giải quyết một phần bài toán con gà và quả trứng này.</p>
+<h3>6.1. Initramfs là gì?</h3>
+<p>Initramfs (initial RAM filesystem) là filesystem ban đầu, thường đóng gói dạng archive cpio có thể nén, chứa chương trình và công cụ cho early userspace.</p>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>initramfs/
+├── init
+├── bin/
+├── sbin/
+├── lib/
+├── etc/
+└── usr/</code></pre></div>
+<h3>6.2. Ổ đĩa mã hóa LUKS</h3>
+<div class="diagram"><pre>SSD
+ └── LUKS encrypted partition
+       └── ext4 root filesystem</pre></div>
+<p>Để mount ext4 bên trong LUKS, hệ thống phải tìm device, nạp thành phần, mở khóa, tạo block device đã giải mã rồi mount root. Công cụ <code>cryptsetup</code> có thể nằm trong initramfs.</p>
+<div class="diagram"><pre>Kernel
+   ↓
+Initramfs → /init
+   ↓
+Find encrypted disk
+   ↓
+Unlock LUKS
+   ↓
+Mount real root filesystem
+   ↓
+Switch to real root
+   ↓
+Start real init</pre></div>
+<h3>6.3. RAID và LVM</h3>
+<div class="diagram"><pre>/dev/sda2 ─┐
+           ├── LVM volume group
+/dev/sdb2 ─┘       ↓
+                Logical volume
+                    ↓
+                 ext4 root</pre></div>
+<p>Nếu root trên LVM, initramfs có thể kích hoạt volume trước khi mount. LVM không mặc định ghép hai physical volume theo kiểu RAID; hình chỉ mô tả các tầng.</p>
+<h3>6.4. Initramfs khác /boot?</h3>
+<div class="tablewrap"><table><thead><tr><th>Thành phần</th><th>Vai trò</th></tr></thead><tbody><tr><td>/boot</td><td>Thường lưu kernel, initramfs image và boot files</td></tr><tr><td>Initramfs</td><td>Filesystem ban đầu trong early userspace</td></tr><tr><td>/</td><td>Root filesystem của hệ thống đang chạy</td></tr><tr><td>ESP</td><td>Partition chứa EFI executable trên UEFI</td></tr></tbody></table></div>
+<p><code>/boot/initrd.img-6.x</code> là file image trên storage; khi boot, kernel sử dụng nội dung image tạo môi trường rootfs ban đầu trong RAM. Không nên hiểu /boot chính là initramfs.</p>
+<h3>6.5. Có bắt buộc initramfs?</h3>
+<div class="diagram"><pre>Kernel
+  ↓
+Built-in MMC driver
+  ↓
+Built-in ext4 support
+  ↓
+Mount root from eMMC
+  ↓
+Start /sbin/init</pre></div>
+<p>Không. Nếu driver storage và filesystem cần thiết đã built-in và root truy cập trực tiếp được, có thể boot không initramfs. Distro vẫn thường dùng để hỗ trợ nhiều phần cứng, encryption và storage.</p>
+</section>
+<section id="s7"><h2>7. Chuyển từ initramfs sang root thực</h2>
+<h3>7.1. Root filesystem là gì?</h3>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>/
+├── bin
+├── boot
+├── dev
+├── etc
+├── home
+├── proc
+├── sys
+├── usr
+└── var</code></pre></div>
+<p>Root filesystem là filesystem được mount tại <code>/</code> trong mount namespace liên quan. Nó chứa ứng dụng, thư viện, cấu hình và dữ liệu. Một số hệ thống có thể dùng RAM root mãi mãi, nhưng distro thông thường chuyển sang root trên storage.</p>
+<h3>7.2. switch_root</h3>
+<div class="diagram"><pre>Initial rootfs
+    /
+    ├── init
+    └── ...
+         ↓
+Mount real root at /newroot
+         ↓
+switch_root
+         ↓
+Real root becomes /
+         ↓
+exec /sbin/init</pre></div>
+<p><code>switch_root</code> không đơn giản là <code>chroot</code>: chroot thay đổi cách một process phân giải đường dẫn root, không tự hoàn tất việc thay root của boot.</p>
+<h3>7.3. PID 1 có bị thay thế?</h3>
+<div class="code"><div class="codebar"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>execl(&quot;/sbin/init&quot;, &quot;init&quot;, (char *)NULL);</code></pre></div>
+<p>Trong đường boot mà /init đang là PID 1 và exec init thực, PID vẫn là 1. <code>fork()</code> tạo process mới; <code>execve()</code> thay program image trong process hiện tại. Không có hai PID 1 được tạo theo cách này.</p>
+</section>
+<section id="s8"><h2>8. PID 1: Process đặc biệt nhất trong user space</h2>
+<h3>8.1. PID 1 là gì?</h3>
+<p>Kernel và root đã sẵn sàng nhưng mạng, SSH, database, desktop và ứng dụng chính có thể chưa chạy. Init system điều phối các việc đó; trên nhiều distro hiện đại là systemd.</p>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ps -p 1 -o pid,comm,args</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>PID  COMMAND  COMMAND
+1    systemd  /sbin/init</code></pre></div>
+<h3>8.2. PID 1 đặc biệt ở đâu?</h3>
+<ul><li>Khởi động và theo dõi service.</li><li>Quản lý dependency và target.</li><li>Thu nhận trạng thái kết thúc của các process con được nhận nuôi.</li><li>Điều phối shutdown và có các quy tắc signal đặc biệt.</li></ul>
+<h3>8.3. systemd và unit</h3>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>.service
+.socket
+.target
+.mount
+.timer
+.device
+.path</code></pre></div>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl status ssh.service</code></pre></div>
+<div class="code"><div class="codebar"><span>ini</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>[Unit]
+Description=My Application
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/myapp
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+<p><code>After=network.target</code> không đảm bảo đã có IP/Internet. Nếu cần mạng sẵn sàng, phải dùng dependency/readiness thích hợp, ví dụ network-online.target khi phù hợp.</p>
+<h3>8.4. systemd so với init script tuần tự</h3>
+<div class="diagram"><pre>                  systemd
+                     │
+          ┌──────────┼──────────┐
+          ↓          ↓          ↓
+       udev       logging    networking
+          │          │          │
+          └──────────┼──────────┘
+                     ↓
+                 services
+                     ↓
+                 application</pre></div>
+<p>systemd tạo đồ thị dependency và có thể chạy những unit độc lập song song. Sơ đồ chỉ minh họa, không có nghĩa mọi service đều chờ cả ba nhánh.</p>
+<h3>8.5. After= khác Requires=</h3>
+<div class="code"><div class="codebar"><span>ini</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>[Unit]
+Requires=database.service
+After=database.service</code></pre></div>
+<p><code>Requires=</code> kéo dependency vào transaction và ràng buộc trạng thái theo quy tắc systemd; <code>After=</code> chỉ định thứ tự khi cả hai được khởi động. Cả hai không tự đảm bảo database đã sẵn sàng nhận kết nối: cần readiness và retry phù hợp.</p>
+</section>
+<section id="s9"><h2>9. default.target, multi-user.target, graphical.target</h2>
+<h3>9.1. Target là gì?</h3>
+<p>Target là systemd unit dùng để nhóm hoặc đồng bộ các unit khác, giống cột mốc vận hành: hệ thống cơ bản, nhiều người dùng, hoặc đồ họa.</p>
+<h3>9.2. Quan hệ target</h3>
+<div class="diagram"><pre>basic system services
+         ↓
+multi-user.target
+(Networking, services, console login)
+         ↓
+graphical.target
+(Thêm các thành phần đồ họa)</pre></div>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl get-default</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>graphical.target</code></pre></div>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo systemctl set-default multi-user.target
+systemctl list-dependencies multi-user.target</code></pre></div>
+<p>Lệnh <code>set-default</code> thay đổi cấu hình các lần boot sau. Đừng chạy chỉ để quan sát nếu không muốn thay đổi máy.</p>
+</section>
+<section id="s10"><h2>10. Boot nhanh hay chậm do đâu?</h2>
+<h3>10.1. Timeline boot tương tác</h3>
+<p>Ví dụ số liệu minh họa, không phải phép đo từ máy thực. Nhấn nút để xem thanh thời gian xuất hiện theo từng giai đoạn.</p>
+<div class="timelines" id="timeline"></div><div class="controls"><button onclick="animateTimeline()">▶ Phát timeline</button><button onclick="resetTimeline()">↺ Đặt lại</button></div>
+<h3>10.2. systemd-analyze time</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemd-analyze time</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Startup finished in
+2.100s (firmware) +
+1.000s (loader) +
+2.400s (kernel) +
+1.500s (initrd) +
+5.000s (userspace)
+= 12.000s</code></pre></div>
+<p>Không phải nền tảng nào cũng cung cấp timestamp cho firmware, loader hay initrd. Thiếu thời gian không có nghĩa giai đoạn không tồn tại.</p>
+<h3>10.3. systemd-analyze blame</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemd-analyze blame</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>4.201s NetworkManager-wait-online.service
+2.015s docker.service
+1.220s systemd-udev-settle.service</code></pre></div>
+<p><strong>Service chậm nhất có chắc kéo dài boot?</strong> Không: systemd chạy song song. Một service 4 giây ngoài đường critical path có thể không kéo dài boot 4 giây.</p>
+<h3>10.4. Critical path</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemd-analyze critical-chain</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>graphical.target
+└─multi-user.target
+  └─docker.service
+    └─network-online.target
+      └─NetworkManager-wait-online.service</code></pre></div>
+<p>Critical chain cho thấy chuỗi thứ tự activation quan trọng theo dữ liệu systemd, không phải phép đo đầy đủ mọi dependency/readiness. Đừng tối ưu một service chỉ vì đứng đầu blame.</p>
+</section>
+<section id="s11"><h2>11. Shutdown: Điều gì xảy ra khi poweroff?</h2>
+<h3>11.1. Shutdown là gì?</h3>
+<p>Shutdown đưa hệ thống đang hoạt động sang trạng thái dừng có kiểm soát: ngăn công việc mới, cho ứng dụng kết thúc, dừng service, xử lý process, sync/unmount filesystem và yêu cầu kernel poweroff/reboot.</p>
+<h3>11.2. Luồng shutdown</h3>
+<div class="flow" id="shutdownflow"></div><div class="controls"><button onclick="playShutdown()">▶ Mô phỏng shutdown</button><button onclick="resetShutdown()">↺ Đặt lại</button></div>
+<h3>11.3. SIGTERM và SIGKILL</h3>
+<div class="diagram"><pre>systemd
+   ↓
+SIGTERM
+   ↓
+Application cleanup
+   ↓
+Exit
+
+Nếu không kết thúc theo timeout/policy:
+SIGTERM → Timeout → SIGKILL</pre></div>
+<p>SIGTERM có thể được ứng dụng xử lý; SIGKILL không thể bị bắt hoặc bỏ qua theo cách xử lý signal thông thường.</p>
+<div class="code"><div class="codebar"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>#include &lt;signal.h&gt;
+#include &lt;unistd.h&gt;
+
+static volatile sig_atomic_t running = 1;
+
+static void handle_term(int sig)
+{
+    (void)sig;
+    running = 0;
+}
+
+int main(void)
+{
+    struct sigaction sa = {0};
+    sa.sa_handler = handle_term;
+    sigaction(SIGTERM, &amp;sa, NULL);
+
+    while (running) {
+        /* Do work */
+        sleep(1);
+    }
+
+    /* Perform cleanup outside signal handler */
+    return 0;
+}</code></pre></div>
+<p>Production cần xử lý lỗi system call, race condition và cơ chế wake-up phù hợp; signal handler nên làm việc tối thiểu.</p>
+<h3>11.4. Vì sao phải sync?</h3>
+<div class="code"><div class="codebar"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>write(fd, buffer, size);
+fsync(fd);</code></pre></div>
+<p><code>write()</code> thành công không đồng nghĩa dữ liệu đã bền vững trên storage: có thể còn trong page cache. <code>fsync()</code> yêu cầu đồng bộ file. Khi tạo file tạm rồi rename, có thể phải sync cả file và directory. Durability vẫn phụ thuộc filesystem, driver và thiết bị.</p>
+<h3>11.5. Journaling có cứu mọi dữ liệu?</h3>
+<div class="diagram"><pre>Transfer 1,000,000 VND
+Account A → Account B
+      ↓
+Power loss before commit?</pre></div>
+<p>Không. Journaling hỗ trợ tính nhất quán filesystem, không đảm bảo mọi transaction ứng dụng chưa commit. Database cần transaction log/recovery riêng. Thiết bị nhúng đặc biệt cần tính đến power loss, nguồn không ổn định, UPS và storage.</p>
+</section>
+<section id="s12"><h2>12. Lab: Điều tra boot trên Ubuntu</h2>
+<h3>Bước 1. Firmware mode</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>if [ -d /sys/firmware/efi ]; then
+    echo &quot;UEFI boot&quot;
+else
+    echo &quot;EFI interface not detected&quot;
+fi</code></pre></div>
+<p>Không thấy /sys/firmware/efi trên PC có thể chỉ Legacy BIOS, nhưng trên ARM/container/môi trường hạn chế không nên kết luận chỉ từ dấu hiệu này.</p>
+<h3>Bước 2. Kernel command line</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>cat /proc/cmdline</code></pre></div>
+<p>Tìm root=, console=, quiet, rootwait, init=.</p>
+<h3>Bước 3. Root filesystem</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>findmnt /
+lsblk -f</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>TARGET SOURCE         FSTYPE OPTIONS
+/      /dev/mmcblk0p2 ext4   rw,relatime</code></pre></div>
+<h3>Bước 4. /boot</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ls -lh /boot</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>config-6.x
+initrd.img-6.x
+System.map-6.x
+vmlinuz-6.x</code></pre></div>
+<p>Nội dung /boot phụ thuộc distro và cách boot; không phải mọi thiết bị đều lưu tất cả image tại đây.</p>
+<h3>Bước 5. PID 1</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ps -p 1 -o pid,comm,args
+systemctl get-default
+systemctl --failed</code></pre></div>
+<h3>Bước 6. Đo thời gian</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemd-analyze time
+systemd-analyze blame
+systemd-analyze critical-chain
+systemctl status ssh.service</code></pre></div>
+<h3>Bước 7. Kernel log</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>journalctl -b -k --no-pager | head -n 60
+journalctl -b -k --no-pager
+journalctl -b -p warning --no-pager</code></pre></div>
+<p>-b chọn boot hiện tại, -k chọn kernel, --no-pager không mở pager, head lấy 60 dòng. Trong shell có pipefail, head đóng pipe sớm có thể gây SIGPIPE cho producer. Warning không luôn là lỗi gây boot failure.</p>
+<h3>Bước 8. Chỉnh boot arguments tạm thời</h3>
+<ul><li>Chỉ thực hiện trong VM/máy thử nghiệm có console và khả năng phục hồi.</li><li>Chụp snapshot VM.</li><li>Mở GRUB, chọn boot entry, nhấn e.</li><li>Tìm dòng nạp kernel, bỏ quiet nếu có.</li><li>Boot theo hướng dẫn GRUB, quan sát log, reboot để trở về mặc định.</li></ul>
+<p>Chỉnh sửa trong GRUB menu chỉ áp dụng cho lần boot đó, không cần thay đổi cấu hình lâu dài.</p>
+</section>
+<section id="s13"><h2>13. Debug boot failure theo tư duy senior</h2>
+<p>Kỹ sư mới dễ thử cài lại GRUB/kernel/OS khi máy không boot. Kỹ sư có kinh nghiệm hỏi: <strong>Hệ thống đã đến giai đoạn nào, và bằng chứng cuối cùng cho thấy nó dừng ở đâu?</strong></p>
+<h3>13.1. Triệu chứng và điểm kiểm tra</h3>
+<div class="tablewrap"><table><thead><tr><th>Triệu chứng</th><th>Nghi ngờ ban đầu</th><th>Công cụ</th></tr></thead><tbody><tr><td>Không thấy boot device</td><td>Firmware, boot media, boot entry</td><td>Firmware setup, serial console</td></tr><tr><td>GRUB không thấy kernel</td><td>Path, partition, boot config</td><td>GRUB console</td></tr><tr><td>Kernel panic mount root</td><td>root=, driver, initramfs, filesystem</td><td>Kernel log, initramfs shell</td></tr><tr><td>Emergency mode</td><td>fstab, mount, dependency</td><td>journalctl, systemctl</td></tr><tr><td>Có login nhưng SSH lỗi</td><td>Network, ssh service, firewall</td><td>ip, ss, systemctl</td></tr><tr><td>Boot được, app không chạy</td><td>Service, permission, config</td><td>journalctl -u, systemctl status</td></tr></tbody></table></div>
+<h3>13.2. Kernel panic mount root</h3>
+<div class="code"><div class="codebar"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>VFS: Unable to mount root fs on unknown-block(0,0)</code></pre></div>
+<p>Kiểm tra root=, thời điểm root device xuất hiện, driver storage, hỗ trợ filesystem, initramfs và boot image. Nếu kernel đã chạy, cài lại GRUB không phải bước đầu tiên hợp lý.</p>
+<h3>13.3. Emergency mode</h3>
+<div class="code"><div class="codebar"><span>fstab</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>UUID=wrong-uuid /data ext4 defaults 0 2</code></pre></div>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>findmnt --verify
+blkid
+systemctl --failed
+journalctl -xb</code></pre></div>
+<p>Mount bắt buộc trong fstab sai UUID có thể ảnh hưởng boot. nofail đôi khi phù hợp cho mount không quan trọng, nhưng không nên dùng để che lỗi storage.</p>
+<h3>13.4. Boot được nhưng ứng dụng không chạy</h3>
+<div class="diagram"><pre>Kernel started
+Root mounted
+systemd started
+SSH available
+       ↓
+motor-controller.service FAILED</pre></div>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl status motor-controller.service
+journalctl -u motor-controller.service -b</code></pre></div>
+<p>Có thể do binary mất, ExecStart sai, thiếu thư viện, permission, /dev chưa sẵn sàng, dependency lỗi hoặc app crash. Đây là tầng service/application, không nên cài lại GRUB.</p>
+</section>
+<section id="s14"><h2>14. Mô phỏng tương tác: Boot dừng ở đâu?</h2>
+<p>Chọn giai đoạn gặp lỗi để xem triệu chứng, kiểm tra và lý do ưu tiên điều tra.</p>
+<div class="sim"><div class="simoptions" id="phasebuttons"></div><div class="simresult" id="phaseresult" aria-live="polite"></div></div>
+</section>
+<section id="s15"><h2>15. Câu hỏi phản biện thường gặp</h2>
+<details><summary>Linux có chạy không GRUB?</summary><p>Có. Kernel có thể được nạp qua U-Boot, EFI stub, UKI hoặc boot mechanism khác.</p></details>
+<details><summary>Linux có chạy không initramfs?</summary><p>Có, nếu kernel và đường root có đủ driver và hỗ trợ cần thiết.</p></details>
+<details><summary>Linux có chạy không systemd?</summary><p>Có. Có thể dùng SysV init, OpenRC hoặc BusyBox init.</p></details>
+<details><summary>/boot có phải root filesystem?</summary><p>Không. /boot là thư mục chứa boot files, có thể nằm trong root hoặc partition riêng.</p></details>
+<details><summary>Kernel có phải PID 1?</summary><p>Không. PID 1 là userspace init trong PID namespace ban đầu.</p></details>
+<details><summary>blame xác định chính xác thủ phạm boot chậm?</summary><p>Không. Cần xem critical chain, dependency và readiness.</p></details>
+<details><summary>Secure Boot mã hóa ổ đĩa?</summary><p>Không. Nó xác minh chuỗi tin cậy; mã hóa ổ đĩa như LUKS là cơ chế khác.</p></details>
+<details><summary>Kernel panic luôn là kernel bug?</summary><p>Không. Có thể do config, root device, driver, phần cứng hoặc lỗi nghiêm trọng khác.</p></details>
+</section>
+<section id="s16"><h2>16. Bài tập thực hành và tự kiểm tra</h2>
+<h3>Bài tập 1: Vẽ timeline máy bạn</h3>
+<div class="code"><div class="codebar"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>cat /proc/cmdline
+findmnt /
+ps -p 1 -o pid,comm,args
+systemd-analyze time
+systemd-analyze critical-chain</code></pre></div>
+<div class="tablewrap"><table><thead><tr><th>Giai đoạn</th><th>Bằng chứng</th><th>Kết quả</th></tr></thead><tbody><tr><td>Firmware</td><td>EFI interface / boot log</td><td>...</td></tr><tr><td>Bootloader</td><td>Command line / boot config</td><td>...</td></tr><tr><td>Kernel</td><td>Kernel log</td><td>...</td></tr><tr><td>Initramfs</td><td>Boot log / image/config</td><td>...</td></tr><tr><td>Root filesystem</td><td>findmnt /</td><td>...</td></tr><tr><td>PID 1</td><td>ps -p 1</td><td>...</td></tr><tr><td>Services</td><td>systemctl</td><td>...</td></tr></tbody></table></div>
+<p>Nếu giai đoạn không có bằng chứng trực tiếp từ Linux đang chạy, hãy ghi rõ giới hạn quan sát thay vì suy đoán.</p>
+<h3>Bài tập 2: Trắc nghiệm tương tác</h3>
+<div class="quiz" id="quiz"></div><div class="quizbottom"><strong id="score">0/5 câu đúng</strong><button onclick="resetQuiz()">↺ Làm lại</button></div>
+</section>
+<section id="s17"><h2>17. Liên hệ với các bài Linux khác</h2>
+<div class="tablewrap"><table><thead><tr><th>Kiến thức</th><th>Liên hệ với boot</th></tr></thead><tbody><tr><td>CPU architecture</td><td>Reset vector, kernel entry</td></tr><tr><td>Memory management</td><td>Kernel memory init, initramfs</td></tr><tr><td>Process/thread</td><td>PID 1, exec, service process</td></tr><tr><td>Scheduler</td><td>Scheduling initialization</td></tr><tr><td>Filesystem</td><td>Mount root, fstab, sync, journaling</td></tr><tr><td>Driver</td><td>Storage, console, network device</td></tr><tr><td>Shell scripting</td><td>Init scripts, boot automation</td></tr><tr><td>systemd</td><td>Dependencies và shutdown</td></tr><tr><td>Embedded Linux</td><td>Boot ROM, SPL, U-Boot, DTB</td></tr></tbody></table></div>
+<p>Ví dụ thiết bị ODROID XU4 đọc CAN và gửi dữ liệu Ethernet:</p>
+<div class="diagram"><pre>Exynos Boot ROM
+      ↓
+Boot stages / U-Boot
+      ↓
+Linux kernel
+      ↓
+Device Tree + Drivers
+      ↓
+Root filesystem
+      ↓
+systemd
+      ↓
+Network service
+      ↓
+CAN application service
+      ↓
+Data acquisition</pre></div>
+<p>Không nhận CAN có thể do driver, Device Tree, bus enumeration, permission, thứ tự khởi động hoặc cấu hình ứng dụng. Cùng một triệu chứng có thể xuất phát từ nhiều tầng.</p>
+</section>
+<section id="s18"><h2>18. Tổng kết theo tư duy hệ thống</h2>
+<p><strong>Ba câu hỏi quan trọng:</strong> (1) Ai đang điều khiển: Boot ROM, firmware, bootloader, kernel, initramfs hay PID 1? (2) Giai đoạn này chuẩn bị gì cho giai đoạn sau? (3) Bằng chứng nào cho thấy nó thành công hay thất bại?</p>
+<div class="diagram"><pre>Hardware → Firmware → Bootloader → Kernel
+        → Root filesystem → Init → Services → Application</pre></div>
+<p>Boot là chuỗi chuyển giao trách nhiệm. Mỗi giai đoạn nhận môi trường chưa hoàn chỉnh, bổ sung khả năng mới và chuyển quyền cho giai đoạn sau.</p>
+<h3>Tài liệu đọc tiếp</h3>
+<ul><li><code>man bootup</code> — các giai đoạn boot trong hệ thống systemd.</li><li><code>man kernel-command-line</code> — tham số kernel và userspace.</li><li><code>man systemd-analyze</code> — phân tích startup.</li><li><a href="https://docs.kernel.org/filesystems/ramfs-rootfs-initramfs.html">Linux Kernel: ramfs, rootfs và initramfs</a>.</li><li><a href="https://www.freedesktop.org/software/systemd/man/latest/bootup.html">systemd bootup documentation</a>.</li></ul>
+<blockquote><strong>Điểm cốt lõi:</strong> Khi Linux không boot, đừng hỏi “phải cài lại cái gì?”. Hãy hỏi <strong>“Giai đoạn cuối cùng đã hoạt động thành công là giai đoạn nào?”</strong> — từ đó chọn debug firmware, bootloader, kernel, root filesystem hay service.</blockquote>
+</section><footer><p>HTML độc lập · CSS + JavaScript tích hợp · Không yêu cầu Internet</p></footer></main></div><button class="top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Đầu trang</button><script>
+const bootStages=[['1 · Reset / Power On','CPU bắt đầu thực thi mã khởi động'],['2 · Firmware','Khởi tạo nền tảng và xác định đường boot'],['3 · Bootloader / EFI','Nạp hoặc chuyển quyền cho Linux kernel'],['4 · Linux Kernel','Thiết lập bộ nhớ, scheduler, driver'],['5 · Initramfs (nếu cần)','Chuẩn bị root filesystem thực'],['6 · PID 1 / systemd','Khởi động và quản lý các service'],['7 · Login / Application','Hệ thống sẵn sàng phục vụ']];
+const shutdownStages=['User: systemctl poweroff','systemd bắt đầu poweroff transaction','Dừng service và ứng dụng','Xử lý process còn lại','Unmount / remount filesystem','Kernel thực hiện bước poweroff','Firmware / phần cứng tắt nguồn'];
+let timers=[];function clearTimers(){timers.forEach(clearTimeout);timers=[]}function renderFlow(id,arr){document.getElementById(id).innerHTML=arr.map((s,i)=>`${i?'<div class="arrow">↓</div>':''}<div class="step" data-step="${i}"><strong>${Array.isArray(s)?s[0]:s}</strong>${Array.isArray(s)?`<small>${s[1]}</small>`:''}</div>`).join('')};renderFlow('bootflow',bootStages);renderFlow('shutdownflow',shutdownStages);
+function play(id){clearTimers();document.querySelectorAll('#'+id+' .step').forEach(x=>x.classList.remove('active'));document.querySelectorAll('#'+id+' .step').forEach((el,i)=>timers.push(setTimeout(()=>el.classList.add('active'),i*600)))}function reset(id){clearTimers();document.querySelectorAll('#'+id+' .step').forEach(x=>x.classList.remove('active'))}function playFlow(){play('bootflow')}function resetFlow(){reset('bootflow')}function playShutdown(){play('shutdownflow')}function resetShutdown(){reset('shutdownflow')}
+const times=[['Firmware',2.1],['Bootloader',1],['Kernel',2.4],['Initramfs',1.5],['Userspace',5]];let tt=[];document.getElementById('timeline').innerHTML=times.map(([name,v],i)=>`<div class="trow"><span>${name}</span><div class="track"><div class="fill" data-w="${v/12*100}%"></div></div><strong>${v.toFixed(1)}s</strong></div>`).join('')+'<strong>Tổng minh họa: 12.0 giây</strong>';
+function resetTimeline(){tt.forEach(clearTimeout);document.querySelectorAll('.fill').forEach(x=>x.style.width='0')};function animateTimeline(){resetTimeline();document.querySelectorAll('.fill').forEach((x,i)=>tt.push(setTimeout(()=>x.style.width=x.dataset.w,i*750)))}
+const phases=[{name:'Firmware',symptom:'Máy không tìm thấy thiết bị boot hoặc không chuyển sang boot stage tiếp theo.',check:'Kiểm tra boot mode, thứ tự boot, SD/eMMC/SSD, thông báo firmware và serial console.',why:'Kernel chưa được nạp nên chưa có cơ sở đổ lỗi cho systemd.'},{name:'Bootloader',symptom:'Có GRUB/U-Boot nhưng không tìm thấy hoặc không nạp được kernel.',check:'Kiểm tra boot entry, kernel image, DTB, initramfs, partition và đường dẫn.',why:'Đây là bước chuẩn bị kernel; root filesystem chưa chắc đã được truy cập.'},{name:'Kernel',symptom:'Kernel bắt đầu chạy nhưng panic hoặc không tìm thấy root device.',check:'Kiểm tra console log, root=, driver storage, DTB, filesystem và initramfs.',why:'Đã có bằng chứng kernel thực thi; cần tập trung vào kernel và đường đến root.'},{name:'Initramfs',symptom:'Vào initramfs shell hoặc không mở được LUKS/LVM/root.',check:'Kiểm tra block device, UUID, công cụ unlock, module và script /init.',why:'Early userspace chưa hoàn tất chuẩn bị root thực.'},{name:'systemd',symptom:'Root đã mount nhưng vào emergency hoặc service lỗi.',check:'Kiểm tra fstab, systemctl --failed, journalctl -xb và dependency.',why:'Boot đã vượt qua nạp kernel; sửa bootloader không phải ưu tiên.'},{name:'Application',symptom:'Có login/SSH nhưng ứng dụng chính không chạy.',check:'Kiểm tra unit, application log, permission, thư viện và device.',why:'Hệ điều hành có thể đã hoạt động bình thường; lỗi ở tầng ứng dụng.'}];
+function choosePhase(i){document.querySelectorAll('.simoptions button').forEach((b,j)=>b.classList.toggle('active',i===j));const p=phases[i];document.getElementById('phaseresult').innerHTML=`<h3>${p.name}</h3><p><strong>⚠ Triệu chứng:</strong> ${p.symptom}</p><p><strong>🔧 Nên kiểm tra:</strong> ${p.check}</p><p><strong>💡 Lý do:</strong> ${p.why}</p>`}document.getElementById('phasebuttons').innerHTML=phases.map((p,i)=>`<button onclick="choosePhase(${i})">${p.name}</button>`).join('');choosePhase(2);
+const questions=[{q:'Kernel đã in thông báo nhưng không mount được root. Nên kiểm tra gì trước?',a:['GRUB theme','root=, driver và initramfs','Desktop environment'],correct:1,why:'Kernel đã chạy, cần điều tra đường truy cập root filesystem trước.'},{q:'Initramfs có bắt buộc trong mọi hệ thống Linux?',a:['Có','Không','Chỉ bắt buộc trên ARM'],correct:1,why:'Có thể boot trực tiếp nếu kernel có đủ driver built-in và root truy cập được.'},{q:'execve() thay thế chương trình của PID 1 có tạo PID mới không?',a:['Có','Không','Luôn tạo PID 2'],correct:1,why:'execve thay program image trong cùng process.'},{q:'Service chạy 8 giây trong systemd-analyze blame có chắc làm boot chậm 8 giây?',a:['Có','Không'],correct:1,why:'Service chạy song song; cần xem critical path.'},{q:'Journaling filesystem đảm bảo transaction database chưa commit không bị mất?',a:['Có','Không'],correct:1,why:'Filesystem consistency khác application transaction durability.'}];let answers={};function renderQuiz(){document.getElementById('quiz').innerHTML=questions.map((q,i)=>`<div class="quizitem"><strong>${i+1}. ${q.q}</strong>${q.a.map((a,j)=>`<label><input type="radio" name="q${i}" value="${j}" ${answers[i]===j?'checked':''} onchange="answer(${i},${j})"> ${a}</label>`).join('')}${answers[i]!==undefined?`<div class="feedback ${answers[i]===q.correct?'good':'bad'}">${answers[i]===q.correct?'✓ Chính xác':'✗ Chưa đúng'} — ${q.why}</div>`:''}</div>`).join('');document.getElementById('score').textContent=`${questions.filter((q,i)=>answers[i]===q.correct).length}/${questions.length} câu đúng · đã trả lời ${Object.keys(answers).length}/${questions.length}`};function answer(i,j){answers[i]=j;renderQuiz()}function resetQuiz(){answers={};renderQuiz()}renderQuiz();
+async function copyCode(btn){const s=btn.closest('.code').querySelector('code').innerText;try{await navigator.clipboard.writeText(s);btn.textContent='✓ Đã sao chép';setTimeout(()=>btn.textContent='Sao chép',1300)}catch(e){btn.textContent='Chọn code để sao chép'}}
+window.addEventListener('scroll',()=>{let h=document.documentElement;document.querySelector('.progress').style.width=(100*h.scrollTop/(h.scrollHeight-h.clientHeight))+'%'});
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

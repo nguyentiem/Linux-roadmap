@@ -1,0 +1,579 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Bài 27 — Hardening và quản lý bản vá Linux, 43 mục, sơ đồ, mã lệnh và bài tập tương tác offline"><title>Bài 27 — Hardening và quản lý bản vá Linux | Tài liệu tương tác</title><style>
+:root{color-scheme:dark;--bg:#090e1b;--panel:#111b2d;--panel2:#17243b;--ink:#edf3fc;--muted:#a8b6cc;--line:#2c3d59;--accent:#65b9ff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.78 system-ui,-apple-system,Segoe UI,Arial,sans-serif}a{color:#8acaff}aside{position:fixed;inset:0 auto 0 0;width:300px;overflow:auto;padding:22px 14px;background:#0e1727;border-right:1px solid var(--line)}aside h2{font-size:15px;margin:0 0 15px;padding:0 8px}aside a{display:block;color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:8px;font-size:12.5px;line-height:1.5}aside a:hover,aside a.active{background:var(--panel2);color:var(--ink)}aside a span{color:var(--accent);margin-right:6px}main{max-width:1120px;margin:0 auto 0 300px;padding:45px clamp(20px,5vw,75px) 100px}h1{font-size:clamp(30px,4vw,49px);line-height:1.2;margin:0 0 18px}h2{font-size:clamp(23px,3vw,30px);line-height:1.3;margin:10px 0 20px}h3{font-size:20px}p{margin:13px 0}strong{color:white}header{padding:28px 0 40px;border-bottom:1px solid var(--line)}.eyebrow,.chapter-number{letter-spacing:.12em;color:#8acaff;font-size:12px;font-weight:800}.intro{color:var(--muted);font-size:18px}.lesson{padding:43px 0 48px;border-bottom:1px solid var(--line);scroll-margin-top:20px}pre{background:#070e1b;border:1px solid #263650;border-radius:13px;padding:20px;overflow-x:auto;position:relative;margin:20px 0}pre code{color:#c6e6ff;font-size:13px;line-height:1.6}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#1a2b43;border-radius:4px;padding:2px 5px;font-size:.9em}pre code{background:none;padding:0}table{border-collapse:collapse;width:100%;margin:22px 0;font-size:14px;display:block;overflow-x:auto}th,td{padding:11px 14px;border:1px solid var(--line);text-align:left;min-width:120px}th{background:#1a2b43}td{background:#111a2a}blockquote{border-left:3px solid var(--accent);padding:8px 20px;background:var(--panel);margin:18px 0}.diagram{background:#0f1b2c;border:1px solid var(--line);border-radius:16px;padding:18px;margin:20px 0}.diagram svg{display:block;max-width:100%;width:100%;height:auto}button{background:#2563eb;color:white;border:0;border-radius:9px;padding:10px 16px;font-weight:700;cursor:pointer}button.secondary{background:#243750}button:disabled{opacity:.4;cursor:not-allowed}.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}.widget{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:22px;margin:30px 0}.progress{height:8px;border-radius:8px;background:#293a54;overflow:hidden;margin:15px 0}.progress>div{height:100%;background:#38bdf8;transition:width .3s}.option{display:block;margin:10px 0;padding:12px;background:#1b2b43;border-radius:9px;cursor:pointer}.feedback{margin:12px 0;padding:13px;background:#19334a;border-radius:9px}.check-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.check-row input{accent-color:#38bdf8}.accordion{border-bottom:1px solid var(--line)}.accordion button{width:100%;text-align:left;background:none;color:var(--ink);padding:15px 5px}.accordion p{padding:0 15px 15px;margin:0;color:var(--muted)}.floating{position:fixed;right:20px;bottom:20px;z-index:5}small,.muted{color:var(--muted)}.print-only{display:none}@media(max-width:850px){aside{display:none}main{margin:0;padding:24px 18px 100px}.floating{right:10px;bottom:10px}}@media print{:root{color-scheme:light;--bg:white;--ink:#111;--muted:#444;--line:#ccc}body{background:white;color:#111}aside,.floating,.toolbar,.widget{display:none!important}main{margin:0;max-width:none;padding:0}.lesson{break-inside:avoid-page}.diagram{background:#fff}pre{white-space:pre-wrap;background:#f4f4f4;color:#111}pre code{color:#111}th,td{background:white}.print-only{display:block}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="27"><aside><h2>🛡️ BÀI 27 · MỤC LỤC</h2><input aria-label="Tìm mục" oninput="filterNav(this.value)" placeholder="Tìm chủ đề..." style="width:100%;padding:10px;border-radius:8px;background:#17243b;color:white;border:1px solid #2c3d59;margin-bottom:12px"><a href="#s1"><span>01</span> Tư duy nền tảng về Hardening</a><a href="#s2"><span>02</span> Attack Surface — Bề mặt tấn công</a><a href="#s3"><span>03</span> Defense in Depth — Phòng thủ nhiều lớp</a><a href="#s4"><span>04</span> Baseline theo vai trò</a><a href="#s5"><span>05</span> Thiết kế baseline có thể kiểm chứng</a><a href="#s6"><span>06</span> Kiểm kê port và listener</a><a href="#s7"><span>07</span> Kiểm kê service và dependency</a><a href="#s8"><span>08</span> Kiểm kê tài khoản</a><a href="#s9"><span>09</span> SSH Host Key và User Key</a><a href="#s10"><span>10</span> SSH public key và tạo khóa</a><a href="#s11"><span>11</span> Quy trình SSH Hardening an toàn</a><a href="#s12"><span>12</span> Least Privilege</a><a href="#s13"><span>13</span> Sudo và lệnh nguy hiểm</a><a href="#s14"><span>14</span> Chỉnh sudoers và capabilities</a><a href="#s15"><span>15</span> Vì sao phần mềm ổn định vẫn cần patch?</a><a href="#s16"><span>16</span> Vulnerability, Exploit, CVE, Advisory</a><a href="#s17"><span>17</span> Backport Security Fix</a><a href="#s18"><span>18</span> Patch Workflow: Inventory và Assess</a><a href="#s19"><span>19</span> Patch Workflow: Test, Prepare, Deploy</a><a href="#s20"><span>20</span> Patch Workflow: Verify runtime</a><a href="#s21"><span>21</span> Rollback package khác rollback dữ liệu</a><a href="#s22"><span>22</span> Secrets và credential</a><a href="#s23"><span>23</span> Vì sao không lưu secret trong Git?</a><a href="#s24"><span>24</span> Audit, logging và time synchronization</a><a href="#s25"><span>25</span> Lab kiểm kê và thay đổi nhỏ</a><a href="#s26"><span>26</span> Câu hỏi phản biện tổng hợp</a><a href="#s27"><span>27</span> Systemd Sandboxing</a><a href="#s28"><span>28</span> File Integrity Monitoring (FIM)</a><a href="#s29"><span>29</span> Vulnerability Scanning và Compliance Scanning</a><a href="#s30"><span>30</span> CIS Benchmark và OpenSCAP</a><a href="#s31"><span>31</span> Kernel Hardening</a><a href="#s32"><span>32</span> Filesystem Hardening</a><a href="#s33"><span>33</span> Systemd Hardening nâng cao</a><a href="#s34"><span>34</span> Container Hardening</a><a href="#s35"><span>35</span> Supply Chain Security</a><a href="#s36"><span>36</span> Audit SSH và Sudo</a><a href="#s37"><span>37</span> Kernel Patch, Live Patching và Reboot</a><a href="#s38"><span>38</span> Incident Response</a><a href="#s39"><span>39</span> Security Compliance và Configuration Drift</a><a href="#s40"><span>40</span> Lab Hardening Production-like Server</a><a href="#s41"><span>41</span> Những sai lầm thường gặp trong Production</a><a href="#s42"><span>42</span> Câu hỏi phỏng vấn Senior Linux Security Engineer</a><a href="#s43"><span>43</span> Kết nối sang Bài 28 — Ansible</a><a href="#diagrams">Sơ đồ tổng hợp</a><a href="#interactive">Tương tác &amp; checklist</a></aside><main><header><div class="eyebrow">LINUX SYSTEM ADMINISTRATION · SECURITY ENGINEERING</div><h1>Bài 27 — Hardening và quản lý bản vá</h1><p class="intro">Tài liệu HTML độc lập, đọc offline. Bao gồm 43 mục kiến thức, bảng, code, sơ đồ vector SVG và các tương tác JavaScript.</p><div class="toolbar"><button onclick="toggleTheme()">◐ Đổi giao diện</button><button class="secondary" onclick="window.print()">⎙ In / Lưu PDF</button><a href="#interactive" style="align-self:center">Đến bài tập tương tác ↗</a></div><p class="muted">Lưu ý an toàn: các lệnh thay đổi cấu hình cần thử trên VM clone hoặc staging; không áp dụng mù quáng trên production.</p></header><section id="s1" class="lesson"><div class="chapter-number">MỤC 01 / 43</div><h2>Tư duy nền tảng về Hardening</h2><div class="diagram"><svg viewBox="0 0 640 280" role="img" aria-label="Sơ đồ client, Linux server, database, MQTT và SSH"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#38bdf8"/></marker></defs><rect x="236" y="15" width="168" height="48" rx="12" fill="#1e40af"/><text x="320" y="44" text-anchor="middle" fill="white">Internet / Client</text><path d="M320 63 V96" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/><rect x="200" y="99" width="240" height="63" rx="12" fill="#065f46"/><text x="320" y="125" text-anchor="middle" fill="white">Linux Server</text><text x="320" y="146" text-anchor="middle" fill="#d1fae5">Nginx / API</text><path d="M320 162 V190 M105 190 H535 M105 190 V214 M320 190 V214 M535 190 V214" stroke="#38bdf8" stroke-width="2"/><g fill="#334155" stroke="#64748b"><rect x="25" y="214" width="160" height="50" rx="9"/><rect x="240" y="214" width="160" height="50" rx="9"/><rect x="455" y="214" width="160" height="50" rx="9"/></g><g fill="white" text-anchor="middle"><text x="105" y="243">Database</text><text x="320" y="243">MQTT Broker</text><text x="535" y="243">SSH Admin</text></g></svg></div><p>Một server có thể hoạt động tốt nhưng vẫn không an toàn. Ví dụ một máy chạy Nginx, API, PostgreSQL và SSH: website vẫn trả lời HTTP 200 nhưng SSH cho phép root password, database lắng nghe công khai và các service thử nghiệm chưa được tắt.</p>
+<p><strong>Hardening</strong> là giảm các khả năng không cần thiết mà kẻ tấn công có thể lợi dụng, đồng thời duy trì chức năng, khả năng quản trị và khả năng khôi phục.</p>
+<p><strong>Ví dụ đời sống:</strong> Một ngôi nhà có mười cửa nhưng chỉ cần hai cửa. Khóa tám cửa không dùng, kiểm soát chìa khóa hai cửa còn lại và có phương án thoát hiểm. Nếu khóa cả lối thoát hiểm, biện pháp an ninh lại gây nguy hiểm.</p>
+<p><strong>Câu hỏi phản biện:</strong> Tắt hết dịch vụ có an toàn hơn không? Không, nếu nó khiến hệ thống không thể vận hành hoặc khôi phục.</p>
+</section><section id="s2" class="lesson"><div class="chapter-number">MỤC 02 / 43</div><h2>Attack Surface — Bề mặt tấn công</h2><p>Attack surface không chỉ là port mở mà còn gồm API, user, sudo, package, kernel, dependency, secrets, CI/CD và giao diện quản trị.</p>
+<pre><code class="language-bash">sudo ss -lntup
+</code></pre>
+<p>Ví dụ output:</p>
+<pre><code class="language-text">tcp LISTEN 0 128 0.0.0.0:22
+tcp LISTEN 0 511 0.0.0.0:80
+tcp LISTEN 0 511 0.0.0.0:443
+tcp LISTEN 0 128 0.0.0.0:3306
+</code></pre>
+<p>Nếu MySQL chỉ phục vụ ứng dụng trên cùng host, cân nhắc <code>bind-address = 127.0.0.1</code> hoặc Unix socket. Tuy nhiên, bind localhost không ngăn ứng dụng web bị chiếm quyền truy cập database từ chính host.</p>
+<p><strong>Tại sao?</strong> Bảo vệ mạng không thay thế phân quyền ứng dụng và database.</p>
+</section><section id="s3" class="lesson"><div class="chapter-number">MỤC 03 / 43</div><h2>Defense in Depth — Phòng thủ nhiều lớp</h2><div class="diagram"><svg viewBox="0 0 640 330" role="img" aria-label="Các lớp phòng thủ từ network đến dữ liệu"><rect x="20" y="15" width="600" height="300" rx="20" fill="#172554" stroke="#3b82f6" stroke-width="3"/><text x="320" y="43" text-anchor="middle" fill="white">Firewall / Network isolation</text><rect x="70" y="60" width="500" height="238" rx="18" fill="#064e3b" stroke="#10b981" stroke-width="3"/><text x="320" y="88" text-anchor="middle" fill="white">SSH / Authentication</text><rect x="125" y="105" width="390" height="174" rx="16" fill="#78350f" stroke="#f59e0b" stroke-width="3"/><text x="320" y="134" text-anchor="middle" fill="white">Least privilege / sudo</text><rect x="170" y="152" width="300" height="110" rx="15" fill="#701a75" stroke="#e879f9" stroke-width="3"/><text x="320" y="180" text-anchor="middle" fill="white">SELinux / AppArmor</text><rect x="240" y="201" width="160" height="45" rx="9" fill="#0f172a"/><text x="320" y="229" text-anchor="middle" fill="white">Protected Data</text></svg></div><p>Firewall hạn chế đường truy cập; SSH xác thực quản trị viên; sudo giới hạn đặc quyền; SELinux/AppArmor giới hạn thao tác; logging/audit giúp phát hiện; backup giúp khôi phục.</p>
+<p>Nếu firewall bị vượt qua, attacker vẫn phải đối mặt với xác thực, phân quyền và MAC. Không lớp nào là tuyệt đối.</p>
+<p><strong>Câu hỏi:</strong> Có firewall rồi thì có cần quyền database không? Có, vì firewall chỉ giải quyết một phần luồng mạng.</p>
+</section><section id="s4" class="lesson"><div class="chapter-number">MỤC 04 / 43</div><h2>Baseline theo vai trò</h2><p><strong>Security baseline</strong> là tập yêu cầu cấu hình và kiểm chứng tối thiểu cho từng vai trò máy chủ. Web server, database server và build server không nên có cùng phần mềm, port và quyền.</p>
+<table>
+<thead>
+<tr>
+  <th>Hạng mục</th>
+  <th>Web</th>
+  <th>Database</th>
+  <th>Build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>HTTP/HTTPS</td>
+  <td>Có</td>
+  <td>Không</td>
+  <td>Tùy</td>
+</tr>
+<tr>
+  <td>Database listener</td>
+  <td>Không</td>
+  <td>Mạng riêng</td>
+  <td>Không</td>
+</tr>
+<tr>
+  <td>Compiler</td>
+  <td>Thường không</td>
+  <td>Thường không</td>
+  <td>Cần</td>
+</tr>
+<tr>
+  <td>SSH</td>
+  <td>Hạn chế</td>
+  <td>Hạn chế</td>
+  <td>Hạn chế</td>
+</tr>
+</tbody>
+</table>
+<p>Baseline cần người sở hữu, lý do, bằng chứng kiểm tra, ngoại lệ và ngày đánh giá lại.</p>
+</section><section id="s5" class="lesson"><div class="chapter-number">MỤC 05 / 43</div><h2>Thiết kế baseline có thể kiểm chứng</h2><table>
+<thead>
+<tr>
+  <th>Hạng mục</th>
+  <th>Yêu cầu</th>
+  <th>Kiểm tra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>OS</td>
+  <td>Phiên bản được hỗ trợ</td>
+  <td><code>cat /etc/os-release</code></td>
+</tr>
+<tr>
+  <td>Service</td>
+  <td>Chỉ chạy khi cần</td>
+  <td><code>systemctl</code>, <code>ss</code></td>
+</tr>
+<tr>
+  <td>SSH</td>
+  <td>Xác thực được kiểm soát</td>
+  <td><code>sshd -T</code></td>
+</tr>
+<tr>
+  <td>Privilege</td>
+  <td>Least privilege</td>
+  <td><code>sudo -l</code></td>
+</tr>
+<tr>
+  <td>Firewall</td>
+  <td>Chỉ traffic cần</td>
+  <td><code>nft list ruleset</code></td>
+</tr>
+<tr>
+  <td>Patch</td>
+  <td>Theo advisory</td>
+  <td><code>apt-cache policy</code></td>
+</tr>
+<tr>
+  <td>Time</td>
+  <td>Đã đồng bộ</td>
+  <td><code>timedatectl</code></td>
+</tr>
+<tr>
+  <td>Log</td>
+  <td>Có retention</td>
+  <td><code>journalctl</code></td>
+</tr>
+<tr>
+  <td>Backup</td>
+  <td>Restore test</td>
+  <td>Biên bản khôi phục</td>
+</tr>
+</tbody>
+</table>
+<p>Checklist dài không có giá trị nếu không thể chứng minh workload vẫn hoạt động.</p>
+</section><section id="s6" class="lesson"><div class="chapter-number">MỤC 06 / 43</div><h2>Kiểm kê port và listener</h2><pre><code class="language-bash">sudo ss -lntup
+</code></pre>
+<p><code>-l</code> liệt kê listening socket phù hợp; <code>-n</code> giữ dạng số; <code>-t</code> TCP; <code>-u</code> UDP; <code>-p</code> process. UDP không có trạng thái LISTEN giống TCP.</p>
+<p><code>0.0.0.0:22</code> nghĩa là bind mọi IPv4 interface, không chứng minh port có thể truy cập từ Internet: firewall, routing và NAT vẫn ảnh hưởng.</p>
+</section><section id="s7" class="lesson"><div class="chapter-number">MỤC 07 / 43</div><h2>Kiểm kê service và dependency</h2><pre><code class="language-bash">systemctl list-unit-files --state=enabled
+systemctl --type=service --state=running
+systemctl list-sockets
+systemctl list-timers --all
+</code></pre>
+<p><code>enabled</code> không đồng nghĩa <code>active</code>. Service có thể chạy vì socket activation hoặc dependency.</p>
+<pre><code class="language-bash">sudo systemctl disable example.service
+sudo systemctl mask example.service
+</code></pre>
+<p><code>disable</code> bỏ enablement, không nhất thiết dừng tiến trình; <code>mask</code> ngăn nhiều cơ chế kích hoạt nhưng có thể phá dependency. Đừng mask mù quáng.</p>
+</section><section id="s8" class="lesson"><div class="chapter-number">MỤC 08 / 43</div><h2>Kiểm kê tài khoản</h2><pre><code class="language-bash">getent passwd
+getent group sudo
+sudo -l
+</code></pre>
+<p>Dòng passwd có dạng <code>username:password:UID:GID:GECOS:home:shell</code>. Ký tự <code>x</code> thường chỉ password hash được quản lý riêng. Shell <code>/usr/sbin/nologin</code> không phải sandbox tuyệt đối. Không xóa tài khoản hệ thống chỉ vì tên lạ.</p>
+</section><section id="s9" class="lesson"><div class="chapter-number">MỤC 09 / 43</div><h2>SSH Host Key và User Key</h2><div class="diagram"><svg viewBox="0 0 640 220" role="img" aria-label="Xác thực SSH hai chiều"><rect x="25" y="35" width="200" height="150" rx="16" fill="#1e40af"/><rect x="415" y="35" width="200" height="150" rx="16" fill="#065f46"/><g fill="white" text-anchor="middle"><text x="125" y="70" font-size="19">SSH Client</text><text x="125" y="105">User private key</text><text x="125" y="132">Known host keys</text><text x="515" y="70" font-size="19">SSH Server</text><text x="515" y="105">Host private key</text><text x="515" y="132">authorized_keys</text></g><path d="M225 88 H415" stroke="#38bdf8" stroke-width="3"/><path d="M415 135 H225" stroke="#34d399" stroke-width="3"/><text x="320" y="78" text-anchor="middle" fill="currentColor">User authentication →</text><text x="320" y="158" text-anchor="middle" fill="currentColor">← Host identity</text></svg></div><p><strong>Host key</strong> cho client biết danh tính server; <strong>user key</strong> giúp server xác thực người đăng nhập. Ví dụ đời sống: bạn phải biết mình đến đúng ngân hàng trước khi ngân hàng kiểm tra giấy tờ của bạn.</p>
+<pre><code class="language-bash">ssh admin@192.168.1.50
+sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+</code></pre>
+<p>Fingerprint cần đối chiếu qua kênh đáng tin cậy. Host key thay đổi có thể do rebuild hợp lệ hoặc máy giả mạo; không xóa toàn bộ <code>known_hosts</code> để né cảnh báo.</p>
+</section><section id="s10" class="lesson"><div class="chapter-number">MỤC 10 / 43</div><h2>SSH public key và tạo khóa</h2><p>Private key được giữ ở client; public key được server cho phép. Client chứng minh sở hữu private key bằng mật mã mà không gửi private key cho server.</p>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -a 100 -C &quot;admin-laptop&quot;
+ssh-copy-id admin@192.168.1.50
+ssh -o PreferredAuthentications=publickey \
+    -o PasswordAuthentication=no admin@192.168.1.50
+</code></pre>
+<p><code>-a 100</code> điều chỉnh KDF khi bảo vệ private key OpenSSH, không phải số vòng chữ ký Ed25519.</p>
+</section><section id="s11" class="lesson"><div class="chapter-number">MỤC 11 / 43</div><h2>Quy trình SSH Hardening an toàn</h2><p>Trước khi tắt password login: giữ phiên hiện tại, bảo đảm console dự phòng, thử key login trong <strong>phiên mới</strong>, kiểm tra sudo và sao lưu cấu hình.</p>
+<pre><code class="language-ini">PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+</code></pre>
+<p>Đánh giá MFA/PAM trước khi tắt keyboard-interactive.</p>
+<pre><code class="language-bash">sudo sshd -t
+sudo sshd -T
+sudo sshd -T -C user=admin,host=client.example,addr=192.0.2.10
+sudo systemctl reload ssh
+</code></pre>
+<p>Tên service có thể là <code>ssh</code> hoặc <code>sshd</code>. <code>Match</code> block làm thay đổi cấu hình hiệu lực theo ngữ cảnh. Phiên SSH cũ vẫn sống <strong>không</strong> chứng minh login mới sẽ thành công.</p>
+</section><section id="s12" class="lesson"><div class="chapter-number">MỤC 12 / 43</div><h2>Least Privilege</h2><p>Mỗi người dùng và service chỉ nên có quyền cần thiết. Ví dụ người giao hàng chỉ cần vào khu nhận hàng, không cần chìa khóa phòng tài chính.</p>
+<p>Một API đọc dữ liệu không nên chạy root nếu không cần. Hạn chế quyền giúp giảm thiệt hại nếu ứng dụng bị khai thác.</p>
+</section><section id="s13" class="lesson"><div class="chapter-number">MỤC 13 / 43</div><h2>Sudo và lệnh nguy hiểm</h2><pre><code class="language-sudoers">operator ALL=(root) NOPASSWD: /usr/bin/vim
+</code></pre>
+<p>Rule trên nguy hiểm vì editor có thể thực thi shell. Interpreter, shell, package manager và công cụ gọi subprocess cũng cần đánh giá tương tự.</p>
+<pre><code class="language-sudoers">operator ALL=(root) /usr/bin/systemctl restart myapp.service
+</code></pre>
+<p>Ngay cả rule restart cụ thể cũng phải kiểm tra ai có thể sửa unit, binary và file mà service dùng.</p>
+</section><section id="s14" class="lesson"><div class="chapter-number">MỤC 14 / 43</div><h2>Chỉnh sudoers và capabilities</h2><pre><code class="language-bash">sudo visudo
+sudo visudo -f /etc/sudoers.d/myapp
+sudo visudo -c
+</code></pre>
+<p>Linux capabilities tách một phần quyền root. Ví dụ service cần bind port đặc quyền có thể dùng:</p>
+<pre><code class="language-ini">[Service]
+User=webapp
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=yes
+</code></pre>
+<p>Cần xét socket activation và cấu hình hệ thống trước khi cấp capability.</p>
+</section><section id="s15" class="lesson"><div class="chapter-number">MỤC 15 / 43</div><h2>Vì sao phần mềm ổn định vẫn cần patch?</h2><p>Một thư viện có thể trả kết quả đúng trong mọi kiểm thử thông thường nhưng có memory corruption khi nhận input độc hại. <strong>Functional correctness</strong> khác <strong>security assurance</strong>.</p>
+<p>Patch management là quá trình kiểm kê, đánh giá, kiểm thử, triển khai và xác minh bản sửa lỗi xuyên suốt vòng đời hệ thống.</p>
+</section><section id="s16" class="lesson"><div class="chapter-number">MỤC 16 / 43</div><h2>Vulnerability, Exploit, CVE, Advisory</h2><table>
+<thead>
+<tr>
+  <th>Thuật ngữ</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Vulnerability</td>
+  <td>Điểm yếu có thể bị khai thác</td>
+</tr>
+<tr>
+  <td>Exploit</td>
+  <td>Cách/mã khai thác điểm yếu</td>
+</tr>
+<tr>
+  <td>CVE</td>
+  <td>Mã định danh lỗ hổng</td>
+</tr>
+<tr>
+  <td>Advisory</td>
+  <td>Thông báo bảo mật của vendor</td>
+</tr>
+</tbody>
+</table>
+<p>Không quyết định chỉ bằng CVSS: cần xét tài sản, khả năng tiếp cận, exploit đang được dùng và biện pháp bù trừ.</p>
+</section><section id="s17" class="lesson"><div class="chapter-number">MỤC 17 / 43</div><h2>Backport Security Fix</h2><p>Distro có thể lấy bản sửa từ upstream mới và áp dụng vào nhánh cũ. Vì vậy phiên bản upstream nhìn vẫn cũ nhưng package distro đã được vá.</p>
+<pre><code class="language-bash">dpkg-query -W openssh-server
+apt-cache policy openssh-server
+uname -r
+dpkg -l 'linux-image*'
+</code></pre>
+<p>Cần đọc advisory của đúng distro và đúng package build.</p>
+</section><section id="s18" class="lesson"><div class="chapter-number">MỤC 18 / 43</div><h2>Patch Workflow: Inventory và Assess</h2><p>Bước 1: kiểm kê OS, kernel, package, service, container, virtual environment và static binaries.</p>
+<pre><code class="language-bash">cat /etc/os-release
+uname -r
+dpkg-query -W
+systemctl --type=service --state=running
+</code></pre>
+<p>Bước 2: đánh giá CVE có ảnh hưởng tới cấu hình thực tế không, mức độ exposed, mức độ quan trọng của tài sản và tình trạng khai thác ngoài thực tế.</p>
+</section><section id="s19" class="lesson"><div class="chapter-number">MỤC 19 / 43</div><h2>Patch Workflow: Test, Prepare, Deploy</h2><div class="diagram"><svg viewBox="0 0 640 405" role="img" aria-label="Sáu bước quản lý bản vá"><rect x="75" y="10" width="490" height="54" rx="12" fill="#1e40af"/><circle cx="105" cy="37" r="16" fill="#0f172a"/><text x="105" y="43" fill="white" text-anchor="middle">1</text><text x="140" y="43" fill="white">Inventory — Kiểm kê</text><rect x="75" y="76" width="490" height="54" rx="12" fill="#155e75"/><circle cx="105" cy="103" r="16" fill="#0f172a"/><text x="105" y="109" fill="white" text-anchor="middle">2</text><text x="140" y="109" fill="white">Assess — Đánh giá</text><rect x="75" y="142" width="490" height="54" rx="12" fill="#065f46"/><circle cx="105" cy="169" r="16" fill="#0f172a"/><text x="105" y="175" fill="white" text-anchor="middle">3</text><text x="140" y="175" fill="white">Test — Kiểm thử</text><rect x="75" y="208" width="490" height="54" rx="12" fill="#854d0e"/><circle cx="105" cy="235" r="16" fill="#0f172a"/><text x="105" y="241" fill="white" text-anchor="middle">4</text><text x="140" y="241" fill="white">Prepare — Backup / Rollback</text><rect x="75" y="274" width="490" height="54" rx="12" fill="#7c2d12"/><circle cx="105" cy="301" r="16" fill="#0f172a"/><text x="105" y="307" fill="white" text-anchor="middle">5</text><text x="140" y="307" fill="white">Deploy — Cập nhật</text><rect x="75" y="340" width="490" height="54" rx="12" fill="#14532d"/><circle cx="105" cy="367" r="16" fill="#0f172a"/><text x="105" y="373" fill="white" text-anchor="middle">6</text><text x="140" y="373" fill="white">Verify — Xác minh runtime</text></svg></div><p>Bước 3: kiểm thử trên clone/staging với workload đại diện.</p>
+<pre><code class="language-bash">curl -fsS http://127.0.0.1:8080/health
+</code></pre>
+<p>HTTP 200 chưa đủ: cần thử xác thực, đọc/ghi dữ liệu và dependency.</p>
+<p>Bước 4: chuẩn bị backup, restore test, rollback, maintenance window, tiêu chí dừng.</p>
+<p>Bước 5: triển khai theo chính sách:</p>
+<pre><code class="language-bash">sudo apt update
+sudo apt upgrade
+</code></pre>
+<p>Production có thể cần pin package, staged rollout và change approval.</p>
+</section><section id="s20" class="lesson"><div class="chapter-number">MỤC 20 / 43</div><h2>Patch Workflow: Verify runtime</h2><p><strong>Installed version ≠ Running version.</strong> Tiến trình có thể giữ thư viện cũ trong RAM sau khi package trên disk được cập nhật.</p>
+<pre><code class="language-bash">sudo lsof +L1
+uname -r
+systemctl status myapp.service
+journalctl -u myapp.service -b --no-pager
+</code></pre>
+<p><code>lsof +L1</code> không phải công cụ xác minh bản vá đầy đủ. <code>needrestart</code> có thể giúp trên hệ thống hỗ trợ.</p>
+</section><section id="s21" class="lesson"><div class="chapter-number">MỤC 21 / 43</div><h2>Rollback package khác rollback dữ liệu</h2><div class="diagram"><svg viewBox="0 0 640 190" role="img" aria-label="Rollback ứng dụng và schema"><rect x="35" y="30" width="230" height="110" rx="14" fill="#1e40af"/><rect x="375" y="30" width="230" height="110" rx="14" fill="#065f46"/><g text-anchor="middle" fill="white"><text x="150" y="77" font-size="22">App v1</text><text x="150" y="110">Schema v1</text><text x="490" y="77" font-size="22">App v2</text><text x="490" y="110">Schema v2</text></g><path d="M265 82 H375" stroke="#38bdf8" stroke-width="4"/><text x="320" y="68" text-anchor="middle" fill="currentColor">→</text><text x="320" y="175" text-anchor="middle" fill="currentColor">Rollback binary ≠ rollback dữ liệu</text></svg></div><p>Giả sử App v2 thay đổi schema database. Quay lại binary App v1 không đồng nghĩa schema tự quay lại v1.</p>
+<pre><code class="language-sql">CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);
+ALTER TABLE users ADD COLUMN email TEXT;
+</code></pre>
+<p>Cần phân biệt rollback binary, cấu hình, schema, restore dữ liệu và toàn bộ hệ thống. Migration phá hủy dữ liệu có thể không đảo ngược được. Xem thêm expand-and-contract, blue-green và canary.</p>
+</section><section id="s22" class="lesson"><div class="chapter-number">MỤC 22 / 43</div><h2>Secrets và credential</h2><p>Secret gồm API token, database password, SSH private key, TLS private key và signing key.</p>
+<pre><code class="language-bash">myapp --password &quot;SuperSecret123&quot;
+</code></pre>
+<p>Argument có thể lộ qua process listing, shell history hoặc log. Environment variable cũng không phải kho bí mật tuyệt đối. Dùng secret manager hoặc cơ chế phù hợp, quyền file hẹp và rotation.</p>
+</section><section id="s23" class="lesson"><div class="chapter-number">MỤC 23 / 43</div><h2>Vì sao không lưu secret trong Git?</h2><pre><code class="language-python">API_TOKEN = &quot;secret-value&quot;
+</code></pre>
+<p>Xóa secret ở commit mới không xóa nó khỏi lịch sử, clone hoặc CI log. Nếu lộ: thu hồi/rotate, điều tra phạm vi ảnh hưởng, kiểm tra log, xử lý lịch sử khi cần và bổ sung secret scanning. Xóa Git history không thay thế rotation.</p>
+</section><section id="s24" class="lesson"><div class="chapter-number">MỤC 24 / 43</div><h2>Audit, logging và time synchronization</h2><p>Application log ghi hành vi ứng dụng; audit tập trung vào sự kiện cần truy vết. Log local có thể bị sửa nếu host bị chiếm quyền cao, nên cân nhắc hệ thống log tập trung.</p>
+<pre><code class="language-bash">sudo systemctl status auditd
+sudo auditctl -s
+timedatectl status
+chronyc tracking
+chronyc sources -v
+</code></pre>
+<p>NTP service <code>active</code> không chứng minh đồng hồ đã <code>synchronized</code>. Thời gian sai gây khó điều tra incident, kiểm tra certificate và token.</p>
+</section><section id="s25" class="lesson"><div class="chapter-number">MỤC 25 / 43</div><h2>Lab kiểm kê và thay đổi nhỏ</h2><pre><code class="language-bash">mkdir -p ~/hardening-lab
+cd ~/hardening-lab
+cat /etc/os-release &gt; os-before.txt
+uname -a &gt; kernel-before.txt
+sudo ss -lntup &gt; ports-before.txt
+systemctl list-unit-files --state=enabled &gt; services-before.txt
+getent passwd &gt; users-before.txt
+timedatectl status &gt; time-before.txt
+</code></pre>
+<p>Trên VM clone, chọn service thử nghiệm <strong>đã xác nhận không cần</strong>, kiểm tra reverse dependencies rồi mới đổi:</p>
+<pre><code class="language-bash">systemctl status lab-demo.service
+systemctl list-dependencies --reverse lab-demo.service
+sudo systemctl disable --now lab-demo.service
+systemctl is-active lab-demo.service
+systemctl is-enabled lab-demo.service
+curl -fsS http://127.0.0.1:8080/health
+</code></pre>
+<p>Rollback phải khôi phục <strong>đúng</strong> trạng thái trước thay đổi. <code>enable --now</code> không đúng nếu service trước đó active nhưng disabled.</p>
+</section><section id="s26" class="lesson"><div class="chapter-number">MỤC 26 / 43</div><h2>Câu hỏi phản biện tổng hợp</h2><ul>
+<li>Tắt tất cả port có an toàn tuyệt đối? <strong>Không</strong>: còn local exploit, supply chain, credential và rủi ro phục hồi.</li>
+<li>Có SSH key thì còn cần firewall? <strong>Có</strong>: xác thực khác network access control.</li>
+<li>Package đã update có cần reboot? <strong>Tùy</strong> kernel, thư viện và tiến trình.</li>
+<li>Vì sao không tắt log để tiết kiệm disk? Vì mất điều tra; nên rotation, retention và compression.</li>
+<li>SELinux enforcing có thay thế patch? <strong>Không</strong>.</li>
+<li>Snapshot có đồng nghĩa backup? <strong>Không</strong>.</li>
+<li>Phiên SSH cũ còn sống có chứng minh cấu hình mới? <strong>Không</strong>.</li>
+</ul>
+</section><section id="s27" class="lesson"><div class="chapter-number">MỤC 27 / 43</div><h2>Systemd Sandboxing</h2><p>Systemd hỗ trợ giới hạn môi trường thực thi service, nhưng không thay thế SELinux/AppArmor và không tạo sandbox tuyệt đối.</p>
+<pre><code class="language-ini">[Service]
+User=myapp
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+StateDirectory=myapp
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Directive</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>User=</code></td>
+  <td>Chạy bằng user cụ thể</td>
+</tr>
+<tr>
+  <td><code>NoNewPrivileges=</code></td>
+  <td>Giảm khả năng tăng đặc quyền khi exec</td>
+</tr>
+<tr>
+  <td><code>PrivateTmp=</code></td>
+  <td>Namespace thư mục tạm riêng</td>
+</tr>
+<tr>
+  <td><code>ProtectSystem=strict</code></td>
+  <td>Phần lớn cây filesystem chỉ đọc</td>
+</tr>
+<tr>
+  <td><code>ProtectHome=yes</code></td>
+  <td>Hạn chế đường dẫn home</td>
+</tr>
+<tr>
+  <td><code>RestrictAddressFamilies=</code></td>
+  <td>Giới hạn họ socket</td>
+</tr>
+<tr>
+  <td><code>StateDirectory=</code></td>
+  <td>Quản lý vùng dữ liệu ghi được</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">systemd-analyze security myapp.service
+</code></pre>
+<p>Điểm số là gợi ý, không phải chứng nhận an toàn.</p>
+</section><section id="s28" class="lesson"><div class="chapter-number">MỤC 28 / 43</div><h2>File Integrity Monitoring (FIM)</h2><p><strong>Đặt vấn đề:</strong> hôm qua SSH cấm root login, hôm nay cấu hình bị sửa cho phép root password. Server vẫn chạy; làm sao phát hiện?</p>
+<p>FIM theo dõi nội dung, file mới/xóa, ownership, permission và metadata. Ví dụ đời sống: kiểm kê kho mỗi tối và so sánh với hôm trước.</p>
+<pre><code class="language-bash">sha256sum /etc/ssh/sshd_config
+</code></pre>
+<p>Hash chỉ so sánh với trạng thái tham chiếu, không tự chứng minh file an toàn. Baseline phải được bảo vệ.</p>
+<p><strong>AIDE:</strong></p>
+<pre><code class="language-bash">sudo apt update
+sudo apt install aide
+sudo aide --init
+sudo aide --check
+</code></pre>
+<p>Tùy distro cần đặt database vừa tạo vào đúng vị trí. AIDE báo khác biệt không tự chứng minh có attacker: package update và automation cũng có thể thay đổi file.</p>
+</section><section id="s29" class="lesson"><div class="chapter-number">MỤC 29 / 43</div><h2>Vulnerability Scanning và Compliance Scanning</h2><p><strong>Vulnerability scanning:</strong> phần mềm có lỗ hổng đã biết không? <strong>Compliance scanning:</strong> cấu hình có tuân baseline không?</p>
+<table>
+<thead>
+<tr>
+  <th>Tiêu chí</th>
+  <th>Vulnerability</th>
+  <th>Compliance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Mục tiêu</td>
+  <td>Tìm lỗ hổng</td>
+  <td>Kiểm tra baseline</td>
+</tr>
+<tr>
+  <td>Ví dụ</td>
+  <td>Package bị CVE</td>
+  <td>SSH root login</td>
+</tr>
+<tr>
+  <td>Dữ liệu</td>
+  <td>Advisory, CVE</td>
+  <td>CIS, policy</td>
+</tr>
+<tr>
+  <td>Kết quả</td>
+  <td>Finding, risk</td>
+  <td>Pass/fail/exception</td>
+</tr>
+</tbody>
+</table>
+<p>Scanner có false positive, false negative, thiếu runtime context hoặc không nhận biết backport. Kết quả cần được triage.</p>
+</section><section id="s30" class="lesson"><div class="chapter-number">MỤC 30 / 43</div><h2>CIS Benchmark và OpenSCAP</h2><p>Khi có 200 server, cần benchmark nhất quán thay vì mỗi quản trị viên tự chọn cấu hình. CIS cung cấp khuyến nghị; SCAP là hệ sinh thái chuẩn biểu diễn và đánh giá; OpenSCAP là bộ công cụ.</p>
+<pre><code class="language-bash">sudo apt install libopenscap8
+oscap --version
+oscap info benchmark.xml
+sudo oscap xccdf eval \
+  --profile PROFILE_ID \
+  --results results.xml \
+  --report report.html \
+  benchmark.xml
+</code></pre>
+<p>Package CLI thay đổi theo distro; <code>PROFILE_ID</code> phải tồn tại trong SCAP content. Không chạy remediation tự động trên production khi chưa review và test.</p>
+</section><section id="s31" class="lesson"><div class="chapter-number">MỤC 31 / 43</div><h2>Kernel Hardening</h2><p>Kernel quản lý memory, process, file, network, driver và syscall. Kernel exploit có thể phá vỡ nhiều lớp bảo vệ.</p>
+<p><strong>ASLR</strong> làm ngẫu nhiên hóa vị trí vùng nhớ, tăng độ khó của nhiều kỹ thuật memory exploitation, nhưng không sửa memory corruption.</p>
+<pre><code class="language-bash">cat /proc/sys/kernel/randomize_va_space
+sysctl kernel.randomize_va_space
+sysctl net.ipv4.conf.all.rp_filter
+sysctl net.ipv4.ip_forward
+</code></pre>
+<p>Giá trị ASLR thường là 0=tắt, 1=một phần, 2=mở rộng. <code>rp_filter</code> có thể ảnh hưởng asymmetric routing. Không copy hàng trăm sysctl từ Internet mà không hiểu network topology.</p>
+</section><section id="s32" class="lesson"><div class="chapter-number">MỤC 32 / 43</div><h2>Filesystem Hardening</h2><p>Quyền chmod/chown chưa đủ; mount option bổ sung rào chắn:</p>
+<ul>
+<li><code>nodev</code>: không diễn giải device special files trên mount.</li>
+<li><code>nosuid</code>: hạn chế setuid/setgid và file capabilities.</li>
+<li><code>noexec</code>: ngăn thực thi trực tiếp file trên mount theo cơ chế tương ứng.</li>
+</ul>
+<pre><code class="language-bash">findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS
+</code></pre>
+<p><code>noexec</code> cho <code>/tmp</code> không ngăn interpreter đọc script từ đó và có thể làm hỏng ứng dụng.</p>
+<pre><code class="language-bash">sudo chattr +i important.conf
+lsattr important.conf
+sudo chattr -i important.conf
+</code></pre>
+<p>Immutable attribute không chống được mọi người có đủ quyền và có thể cản package updates.</p>
+</section><section id="s33" class="lesson"><div class="chapter-number">MỤC 33 / 43</div><h2>Systemd Hardening nâng cao</h2><p>Seccomp hạn chế system calls:</p>
+<pre><code class="language-ini">[Service]
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+IPAddressDeny=any
+IPAddressAllow=localhost
+ProtectSystem=strict
+StateDirectory=myapp
+</code></pre>
+<p>Đây là ví dụ các cơ chế, <strong>không</strong> phải profile phù hợp mọi service. Các filter có thể làm hỏng dependency hoặc workload; phải kiểm thử thực tế.</p>
+<pre><code class="language-bash">systemd-analyze security myapp.service
+</code></pre>
+<p>Một service sandbox chặt vẫn có thể bị SQL injection.</p>
+</section><section id="s34" class="lesson"><div class="chapter-number">MỤC 34 / 43</div><h2>Container Hardening</h2><p>Container thông thường chia sẻ host kernel; VM có guest kernel riêng. Vì vậy container không tương đương VM về isolation.</p>
+<pre><code class="language-dockerfile">FROM python:3.12-slim
+RUN groupadd -r app &amp;&amp; useradd -r -g app app
+WORKDIR /app
+COPY --chown=app:app . /app
+USER app
+CMD [&quot;python&quot;, &quot;main.py&quot;]
+</code></pre>
+<pre><code class="language-bash">docker run --read-only myapp:latest
+docker run --cap-drop=ALL myapp:latest
+</code></pre>
+<p>Có thể cần tmpfs/volume ghi riêng. Không dùng <code>--privileged</code> như cách mặc định để chữa lỗi permission. <code>USER app</code> không tự loại bỏ mọi capability.</p>
+</section><section id="s35" class="lesson"><div class="chapter-number">MỤC 35 / 43</div><h2>Supply Chain Security</h2><p>Hardening server rất tốt vẫn có thể bị ảnh hưởng nếu tải binary/script từ nguồn không đáng tin cậy và chạy root.</p>
+<p>Chuỗi cung ứng gồm repository, chữ ký package, dependency, build pipeline, CI/CD credential, artifact provenance, container image và SBOM.</p>
+<pre><code class="language-bash">curl https://example.com/install.sh | sudo bash
+</code></pre>
+<p>Đây là <strong>ví dụ phản diện</strong>, không nên chạy. Nội dung script có thể đổi; nguồn bị xâm nhập; khó tái hiện; quyền root rất rộng. Nên xác minh chữ ký/hash qua kênh đáng tin cậy và review artifact trước khi chạy.</p>
+</section><section id="s36" class="lesson"><div class="chapter-number">MỤC 36 / 43</div><h2>Audit SSH và Sudo</h2><p>Credential bị đánh cắp có thể tạo login <strong>thành công</strong>, vì vậy không chỉ giám sát failed login.</p>
+<pre><code class="language-bash">sudo journalctl -u ssh
+sudo journalctl -u sshd
+last
+sudo lastb
+sudo journalctl _COMM=sudo
+</code></pre>
+<p>Tên unit và nguồn log khác nhau theo distro. Dữ liệu local không phải bằng chứng duy nhất nếu host bị chiếm quyền cao. Nên có collector, central logging, retention, integrity và alerting.</p>
+</section><section id="s37" class="lesson"><div class="chapter-number">MỤC 37 / 43</div><h2>Kernel Patch, Live Patching và Reboot</h2><p>Package kernel mới trên disk không đồng nghĩa kernel đang chạy đã đổi:</p>
+<pre><code class="language-bash">uname -r
+</code></pre>
+<p>Live patching áp dụng <strong>một số</strong> sửa lỗi lên kernel đang chạy, nhưng không hỗ trợ mọi thay đổi và không thay thế hoàn toàn reboot.</p>
+<p>Rolling update với 3 web server: rút A khỏi load balancer → update/reboot → health check → đưa lại → lặp B, C. Cần đủ capacity, session handling và dependency; rolling update không tự bảo đảm zero downtime.</p>
+</section><section id="s38" class="lesson"><div class="chapter-number">MỤC 38 / 43</div><h2>Incident Response</h2><p>Không có hệ thống nào an toàn tuyệt đối. Chu trình: Preparation → Detection &amp; Analysis → Containment → Eradication → Recovery → Lessons Learned.</p>
+<pre><code class="language-bash">ps auxf
+sudo ss -tunap
+journalctl -b
+</code></pre>
+<p>Khi phát hiện process lạ, kết nối outbound bất thường hoặc SSH config thay đổi, không vội xóa/reboot nếu cần bảo toàn bằng chứng. Host bị chiếm root có thể cung cấp kết quả lệnh/log không đáng tin; cần nguồn telemetry độc lập và điều tra theo quy trình.</p>
+</section><section id="s39" class="lesson"><div class="chapter-number">MỤC 39 / 43</div><h2>Security Compliance và Configuration Drift</h2><p><strong>Configuration drift:</strong> nhiều server ban đầu cùng baseline, sau sáu tháng khác nhau do manual changes, exception cũ, package lạ.</p>
+<p>Drift khiến quyền, firewall, service, log và phiên bản không đồng nhất; bản sửa trên máy A chưa chắc hoạt động trên B.</p>
+<p>Giải pháp: version control, configuration management, automated compliance checks, change review và exception tracking. Đây là cầu nối trực tiếp sang Ansible.</p>
+</section><section id="s40" class="lesson"><div class="chapter-number">MỤC 40 / 43</div><h2>Lab Hardening Production-like Server</h2><p>Môi trường: Ubuntu VM chạy SSH, Nginx, Python API, PostgreSQL. Chỉ làm trên clone/lab hoặc trong maintenance window có console dự phòng.</p>
+<pre><code class="language-bash">cat /etc/os-release
+uname -r
+sudo ss -lntup
+systemctl --type=service --state=running
+getent passwd
+sudo sshd -t
+sudo sshd -T
+sudo nft list ruleset
+systemctl cat myapp.service
+systemd-analyze security myapp.service
+sudo apt update
+apt list --upgradable
+timedatectl status
+journalctl -p warning -b
+</code></pre>
+<p>Thực hiện restore test trên môi trường cô lập. Ghi bảng before/after cho SSH, database bind, API user, firewall, patch, backup và bằng chứng kiểm chứng. Không ghi “đạt” khi chưa thực sự kiểm thử.</p>
+</section><section id="s41" class="lesson"><div class="chapter-number">MỤC 41 / 43</div><h2>Những sai lầm thường gặp trong Production</h2><table>
+<thead>
+<tr>
+  <th>Sai lầm</th>
+  <th>Hậu quả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Tắt SSH password trước khi thử key</td>
+  <td>Mất quyền quản trị</td>
+</tr>
+<tr>
+  <td>Disable service không xét dependency</td>
+  <td>Hỏng workload</td>
+</tr>
+<tr>
+  <td>Áp sysctl tùy tiện</td>
+  <td>Lỗi network</td>
+</tr>
+<tr>
+  <td>Remediation không test</td>
+  <td>Downtime</td>
+</tr>
+<tr>
+  <td>Chỉ xem package version</td>
+  <td>Bỏ sót runtime cũ</td>
+</tr>
+<tr>
+  <td>Coi snapshot là backup</td>
+  <td>Không restore được</td>
+</tr>
+<tr>
+  <td>Tắt log để tiết kiệm disk</td>
+  <td>Mất bằng chứng</td>
+</tr>
+<tr>
+  <td>Lưu secret trong Git</td>
+  <td>Lộ credential</td>
+</tr>
+<tr>
+  <td>Container luôn chạy root</td>
+  <td>Tăng tác động exploit</td>
+</tr>
+<tr>
+  <td>Không ghi exception</td>
+  <td>Drift</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mọi thay đổi bảo mật cần đánh giá tác động vận hành.</strong></p>
+</section><section id="s42" class="lesson"><div class="chapter-number">MỤC 42 / 43</div><h2>Câu hỏi phỏng vấn Senior Linux Security Engineer</h2><ol>
+<li>Vì sao firewall không thay thế SELinux? Vì một bên giới hạn network, bên kia giới hạn subject-object theo policy.</li>
+<li>Vì sao cập nhật OpenSSL chưa chắc có hiệu lực? Process có thể giữ thư viện cũ.</li>
+<li>Vì sao sudo Python/root nguy hiểm? Interpreter có thể truy cập file và chạy lệnh tùy ý.</li>
+<li>Vì sao scanner có thể báo sai CVE? Distro backport bản vá.</li>
+<li>Vì sao hardening có thể gây downtime? Chặn quyền/network/dependency hợp lệ.</li>
+<li>Vì sao cần restore test? Backup tồn tại không chứng minh phục hồi được.</li>
+<li>Vì sao compliance 100% không đồng nghĩa an toàn? Checklist không bao phủ mọi lỗ hổng.</li>
+<li>Vì sao cần configuration management? Để duy trì desired state và chống drift.</li>
+</ol>
+</section><section id="s43" class="lesson"><div class="chapter-number">MỤC 43 / 43</div><h2>Kết nối sang Bài 28 — Ansible</h2><div class="diagram"><svg viewBox="0 0 640 430" role="img" aria-label="Liên kết Bài 25 đến Bài 30"><rect x="80" y="12" width="480" height="62" rx="12" fill="#1e40af"/><text x="320" y="39" text-anchor="middle" fill="white" font-size="17">Bài 25 — Network & Firewall</text><text x="320" y="59" text-anchor="middle" fill="white" font-size="12">Giới hạn đường truy cập</text><rect x="80" y="95" width="480" height="62" rx="12" fill="#155e75"/><text x="320" y="122" text-anchor="middle" fill="white" font-size="17">Bài 26 — Authentication & MAC</text><text x="320" y="142" text-anchor="middle" fill="white" font-size="12">Giới hạn hành động</text><rect x="80" y="178" width="480" height="62" rx="12" fill="#065f46"/><text x="320" y="205" text-anchor="middle" fill="white" font-size="17">Bài 27 — Hardening & Patching</text><text x="320" y="225" text-anchor="middle" fill="white" font-size="12">Duy trì trạng thái bảo mật</text><rect x="80" y="261" width="480" height="62" rx="12" fill="#854d0e"/><text x="320" y="288" text-anchor="middle" fill="white" font-size="17">Bài 28 — Ansible</text><text x="320" y="308" text-anchor="middle" fill="white" font-size="12">Tự động hóa desired state</text><rect x="80" y="344" width="480" height="62" rx="12" fill="#581c87"/><text x="320" y="371" text-anchor="middle" fill="white" font-size="17">Bài 29–30 — Observability & Recovery</text><text x="320" y="391" text-anchor="middle" fill="white" font-size="12">Phát hiện và khôi phục</text></svg></div><p>Hardening một máy là vấn đề kỹ thuật; duy trì baseline trên 10, 100, 1.000 máy là vấn đề tự động hóa và vận hành.</p>
+<p><strong>Desired state</strong> mô tả trạng thái mong muốn thay vì một chuỗi thao tác thủ công.</p>
+<pre><code class="language-yaml">- name: Harden SSH
+  hosts: linux_servers
+  become: true
+  tasks:
+    - name: Ensure root SSH login is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        validate: '/usr/sbin/sshd -t -f %s'
+</code></pre>
+<p>Ví dụ trên <strong>chưa</strong> xử lý đầy đủ include files, Match blocks, duplicate directives, effective config hoặc safe rollout. Production cần kiểm tra cấu hình hiệu lực, test login mới và rollback.</p>
+<p><strong>Kết luận:</strong> Hardening không phải làm Linux khó dùng nhất có thể. Hardening là giảm rủi ro có kiểm soát trong khi vẫn giữ khả năng vận hành, cập nhật và khôi phục.</p>
+</section><section id="diagrams" class="lesson"><div class="chapter-number">SƠ ĐỒ TỔNG HỢP</div><h2>Kiến trúc bảo mật và vòng đời vận hành</h2><div class="diagram"><svg viewBox="0 0 640 250" role="img" aria-label="Attack surface"><g fill="#1e40af"><rect x="20" y="18" width="180" height="90" rx="12"/><rect x="230" y="18" width="180" height="90" rx="12"/><rect x="440" y="18" width="180" height="90" rx="12"/></g><g fill="#065f46"><rect x="20" y="138" width="180" height="90" rx="12"/><rect x="230" y="138" width="180" height="90" rx="12"/><rect x="440" y="138" width="180" height="90" rx="12"/></g><g fill="white" text-anchor="middle" font-size="17"><text x="110" y="55">Network</text><text x="110" y="79" font-size="13">Ports / API</text><text x="320" y="55">Identity</text><text x="320" y="79" font-size="13">Users / sudo</text><text x="530" y="55">Software</text><text x="530" y="79" font-size="13">Packages / kernel</text><text x="110" y="176">Data</text><text x="110" y="200" font-size="13">Secrets / backup</text><text x="320" y="176">Configuration</text><text x="320" y="200" font-size="13">Services / MAC</text><text x="530" y="176">Operations</text><text x="530" y="200" font-size="13">CI/CD / patching</text></g></svg></div><div class="diagram"><svg viewBox="0 0 640 230" role="img" aria-label="Container và VM so sánh"><rect x="25" y="20" width="280" height="190" rx="12" fill="#1e40af"/><rect x="335" y="20" width="280" height="190" rx="12" fill="#065f46"/><g fill="white" text-anchor="middle"><text x="165" y="49" font-size="18">Virtual Machine</text><text x="165" y="83">Application</text><text x="165" y="115">Guest OS / Kernel</text><text x="165" y="147">Hypervisor</text><text x="165" y="179">Hardware</text><text x="475" y="49" font-size="18">Container</text><text x="475" y="83">Application</text><text x="475" y="115">Container Runtime</text><text x="475" y="147">Shared Host Kernel</text><text x="475" y="179">Hardware</text></g></svg></div><div class="diagram"><svg viewBox="0 0 640 180" role="img" aria-label="Rolling update qua load balancer"><rect x="240" y="10" width="160" height="50" rx="10" fill="#1e40af"/><text x="320" y="40" text-anchor="middle" fill="white">Load Balancer</text><path d="M320 60 V92 M115 92 H525 M115 92 V115 M320 92 V115 M525 92 V115" stroke="#38bdf8" stroke-width="3" fill="none"/><g fill="#065f46"><rect x="40" y="115" width="150" height="52" rx="10"/><rect x="245" y="115" width="150" height="52" rx="10"/><rect x="450" y="115" width="150" height="52" rx="10"/></g><g text-anchor="middle" fill="white"><text x="115" y="147">Server A</text><text x="320" y="147">Server B</text><text x="525" y="147">Server C</text></g></svg></div></section><section id="interactive" class="lesson"><div class="chapter-number">TƯƠNG TÁC</div><h2>Kiểm tra kiến thức và checklist</h2><div class="widget"><h3>Mô phỏng: Quyết định Hardening</h3><b id="qcount"></b><div class="progress"><div id="qbar"></div></div><p id="question"></p><div id="options"></div><div id="feedback"></div><button id="prev" class="secondary" onclick="prevQ()">← Câu trước</button> <button id="next" onclick="nextQ()">Câu tiếp →</button><p id="score"></p></div><div class="widget"><h3>Checklist Linux production</h3><b id="checkcount"></b><div class="progress"><div id="checkbar"></div></div><div id="checks"></div><div class="toolbar"><button class="secondary" onclick="checked.clear();renderChecks()">Đặt lại</button><button onclick="copyChecklist()">Sao chép checklist</button></div></div><div class="widget"><h3>Câu hỏi phỏng vấn Senior</h3><div id="faq"></div></div></section><footer style="padding:40px 0;color:var(--muted)">Kết thúc Bài 27 · Chuyển sang Bài 28 — Ansible để tự động hóa baseline.</footer></main><a class="floating" href="#" title="Về đầu trang"><button>↑</button></a><script>
+const checklist=["Đã xác định vai trò, owner và dữ liệu quan trọng của máy", "Đã kiểm kê service, listener, tài khoản và dependency", "Đã giới hạn SSH và kiểm tra đăng nhập mới", "Đã rà soát sudo và các quyền root không cần thiết", "Đã cấu hình firewall và kiểm tra đường truy cập thực tế", "Đã kiểm tra trạng thái bản vá theo advisory của distro", "Đã xác minh service/kernel đang chạy phiên bản phù hợp", "Đã kiểm tra đồng bộ thời gian và logging", "Đã bảo vệ secret và có quy trình rotation", "Đã có backup và thực hiện restore test", "Đã ghi lại thay đổi, kết quả kiểm thử và rollback", "Đã xác định lịch đánh giá lại baseline"];const quiz=[["Bạn chuẩn bị tắt SSH password authentication trên server chỉ có remote access. Bạn làm gì trước?", ["Sửa cấu hình rồi restart ngay", "Kiểm tra key login trong phiên mới và bảo đảm có đường quản trị dự phòng", "Xóa toàn bộ known_hosts"], 1, "Phải kiểm tra đường đăng nhập mới và khả năng cứu hộ trước khi đổi xác thực."], ["Scanner báo OpenSSL có upstream version cũ. Xử lý thế nào?", ["Kết luận chắc chắn có lỗ hổng", "Đọc advisory và thông tin backport của distro", "Tự biên dịch bản mới nhất lên production"], 1, "Distro có thể backport bản vá."], ["Package cập nhật nhưng process chưa restart. Bản vá đã có hiệu lực?", ["Có, apt báo thành công", "Chưa; phải kiểm tra thành phần đang chạy", "Chỉ cần xóa cache APT"], 1, "Tiến trình có thể giữ thư viện cũ trong RAM."], ["Muốn tắt service không rõ chức năng, làm gì đầu tiên?", ["Disable ngay", "Gỡ package liên quan", "Xác định owner, dependency và workload"], 2, "Không thay đổi mù quáng trước khi biết dependency."]];const faq=[["Tại sao firewall không thay thế được SELinux?", "Firewall chủ yếu kiểm soát luồng mạng; SELinux giới hạn hành động subject lên object theo policy."], ["Tại sao cập nhật OpenSSL chưa chắc ứng dụng dùng bản mới?", "Process có thể giữ thư viện cũ đã nạp vào RAM."], ["Tại sao sudo Python bằng root nguy hiểm?", "Interpreter có thể thực thi chương trình và truy cập tài nguyên rộng."], ["Tại sao scanner có thể báo sai CVE trên Ubuntu?", "Bản sửa lỗi có thể đã được backport."], ["Tại sao hardening có thể gây downtime?", "Chính sách mới có thể chặn luồng hợp lệ hoặc phá dependency."], ["Tại sao backup cần restore test?", "Backup tồn tại không chứng minh phục hồi được."], ["Tại sao compliance 100% không đồng nghĩa an toàn?", "Checklist không bao phủ mọi lỗ hổng và rủi ro."], ["Tại sao cần configuration management?", "Để duy trì desired state và phát hiện drift."]];
+let checked=new Set(),qidx=0,answers={};
+function updateChecks(){document.getElementById('checkcount').textContent=checked.size+'/'+checklist.length;document.getElementById('checkbar').style.width=(100*checked.size/checklist.length)+'%';}
+function renderChecks(){document.getElementById('checks').innerHTML=checklist.map((t,i)=>`<label class="check-row"><input type="checkbox" data-c="${i}" ${checked.has(i)?'checked':''}><span>${t}</span></label>`).join('');document.querySelectorAll('[data-c]').forEach(e=>e.onchange=()=>{let i=+e.dataset.c;e.checked?checked.add(i):checked.delete(i);updateChecks()});updateChecks()}
+function copyChecklist(){const t=checklist.map((s,i)=>(checked.has(i)?'[x] ':'[ ] ')+s).join('\n');navigator.clipboard?.writeText(t).then(()=>alert('Đã sao chép checklist')).catch(()=>prompt('Sao chép checklist:',t))}
+function renderQuiz(){const [q,opts,right,why]=quiz[qidx],sel=answers[qidx];document.getElementById('qcount').textContent=`Tình huống ${qidx+1}/${quiz.length}`;document.getElementById('qbar').style.width=(100*(qidx+1)/quiz.length)+'%';document.getElementById('question').textContent=q;document.getElementById('options').innerHTML=opts.map((o,i)=>`<label class="option"><input type="radio" name="q" value="${i}" ${sel===i?'checked':''}> ${o}</label>`).join('');document.querySelectorAll('input[name=q]').forEach(e=>e.onchange=()=>{answers[qidx]=+e.value;renderQuiz()});document.getElementById('feedback').innerHTML=sel===undefined?'':`<div class="feedback"><b>${sel===right?'Chính xác!':'Chưa chính xác.'}</b> ${why}</div>`;document.getElementById('prev').disabled=qidx===0;document.getElementById('next').disabled=sel===undefined;document.getElementById('next').textContent=qidx===quiz.length-1?'Làm lại':'Câu tiếp →';document.getElementById('score').textContent=Object.keys(answers).length===quiz.length?'Kết quả: '+quiz.filter((q,i)=>answers[i]===q[2]).length+'/'+quiz.length+' câu đúng':''}
+function nextQ(){if(qidx===quiz.length-1){qidx=0;answers={}}else qidx++;renderQuiz()}
+function prevQ(){qidx=Math.max(0,qidx-1);renderQuiz()}
+function renderFaq(){document.getElementById('faq').innerHTML=faq.map(([q,a],i)=>`<div class="accordion"><button aria-expanded="false" onclick="toggleFaq(this)">${i+1}. ${q} <span style="float:right">⌄</span></button><p hidden>${a}</p></div>`).join('')}
+function toggleFaq(b){let p=b.nextElementSibling;p.hidden=!p.hidden;b.setAttribute('aria-expanded',String(!p.hidden))}
+function filterNav(v){document.querySelectorAll('aside a').forEach(a=>a.style.display=a.textContent.toLowerCase().includes(v.toLowerCase())?'block':'none')}
+function toggleTheme(){document.documentElement.classList.toggle('light');let light=document.documentElement.classList.contains('light');document.documentElement.style.setProperty('--bg',light?'#f8fafc':'#090e1b');document.documentElement.style.setProperty('--panel',light?'#fff':'#111b2d');document.documentElement.style.setProperty('--panel2',light?'#e2e8f0':'#17243b');document.documentElement.style.setProperty('--ink',light?'#0f172a':'#edf3fc');document.documentElement.style.setProperty('--muted',light?'#475569':'#a8b6cc');document.documentElement.style.setProperty('--line',light?'#cbd5e1':'#2c3d59')}
+function copyCode(b){let text=b.parentElement.querySelector('code').textContent;navigator.clipboard?.writeText(text).then(()=>{b.textContent='Đã chép';setTimeout(()=>b.textContent='Sao chép',1500)}).catch(()=>prompt('Sao chép:',text))}
+document.querySelectorAll('pre').forEach(pre=>{const b=document.createElement('button');b.textContent='Sao chép';b.className='secondary';b.style.cssText='position:absolute;right:8px;top:8px;font-size:11px;padding:5px 8px';b.onclick=()=>copyCode(b);pre.appendChild(b)});
+renderChecks();renderQuiz();renderFaq();
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('aside a').forEach(a=>a.classList.toggle('active',a.hash==='#'+e.target.id))}}),{rootMargin:'-15% 0px -75% 0px'});document.querySelectorAll('.lesson').forEach(s=>obs.observe(s));
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

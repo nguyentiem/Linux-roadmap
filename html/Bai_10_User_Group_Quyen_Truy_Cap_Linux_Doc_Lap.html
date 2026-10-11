@@ -1,0 +1,484 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 10 — User, Group và quyền truy cập Linux</title><style>
+:root{--bg:#0b1522;--surface:#102338;--text:#e8f1f9;--muted:#9fb4c7;--border:#29445b;--accent:#42a5f5;--good:#4adeae;--bad:#ff7777;--code:#07121d}
+body.light{--bg:#f7fafc;--surface:#fff;--text:#1c2b38;--muted:#536778;--border:#cbd5df;--accent:#1464b2;--good:#0b7d58;--bad:#ba3434;--code:#edf3f8}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font:16px/1.8 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;margin:0}
+header{padding:42px 24px 30px;background:linear-gradient(135deg,#123a55,#0e2539);border-bottom:1px solid #2e5871;color:#fff}
+header .wrap{max-width:1180px;margin:auto}header h1{font-size:clamp(29px,4vw,48px);line-height:1.2;margin:0 0 12px}header p{color:#c4d9e8;max-width:900px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:1px solid var(--border);border-radius:8px;padding:8px 14px;background:var(--surface);color:var(--text);cursor:pointer;font-size:14px}.btn:hover{border-color:var(--accent)}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;max-width:1480px;margin:auto;padding:24px}
+nav{position:sticky;top:18px;align-self:start;max-height:calc(100vh - 36px);overflow:auto;background:var(--surface);border:1px solid var(--border);padding:16px;border-radius:14px}nav h3{margin:0 0 8px}nav a{display:block;color:var(--muted);font-size:13px;text-decoration:none;padding:6px;border-radius:5px;line-height:1.4}nav a:hover{color:var(--accent);background:var(--bg)}
+main{min-width:0}.lesson{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:22px;overflow-wrap:anywhere}.lesson h2{font-size:26px;line-height:1.35;color:var(--accent);margin-top:0}.lesson h3{margin-top:28px}.lesson p{margin:14px 0}.lesson strong{color:var(--text)}.lesson table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;display:block;overflow:auto}.lesson th,.lesson td{border:1px solid var(--border);padding:9px 12px;text-align:left}.lesson th{background:var(--bg)}
+pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:17px;overflow:auto;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;position:relative}code{font:0.92em ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--accent)}pre code{color:var(--text);font-size:inherit}.copy{position:absolute;right:8px;top:7px;padding:3px 9px;border:1px solid var(--border);border-radius:5px;color:var(--muted);background:var(--surface);cursor:pointer}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.sim{border:1px solid var(--border);border-radius:12px;padding:17px}.sim h3{margin:0 0 8px;color:var(--accent)}label{display:block;margin:8px 0}input,select{accent-color:#2aa1e6}select,input:not([type=checkbox]){background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px;margin:4px}.checkrow{display:flex;flex-wrap:wrap;gap:8px}.checkrow label{font-size:13px;white-space:nowrap}.out{margin-top:14px;background:var(--bg);border-left:3px solid var(--accent);border-radius:4px;padding:11px;min-height:42px;font-family:ui-monospace,monospace;font-size:13px;white-space:pre-wrap}.lesson svg{width:100%;height:auto;max-height:360px;display:block;background:#0d1e2c;border:1px solid #29445b;border-radius:12px;margin:14px 0}.quizitem{border:1px solid var(--border);border-radius:9px;padding:12px;margin:10px 0}.answer{display:none;color:var(--good);padding:8px 0}.quizitem.open .answer{display:block}.note{border-left:4px solid #e5b35d;padding:12px 16px;background:var(--surface);border-radius:8px;margin:20px 0}.muted{color:var(--muted)}footer{padding:30px;text-align:center;color:var(--muted)}
+@media(max-width:900px){.layout{display:block;padding:12px}nav{position:static;max-height:250px;margin-bottom:18px}.lesson{padding:18px}}
+@media print{body{background:#fff;color:#000}nav,.toolbar,.copy{display:none!important}.layout{display:block}.lesson{break-inside:avoid;border:0;padding:0;margin-bottom:26px}pre{white-space:pre-wrap}header{background:#fff;color:#000}header p{color:#333}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="10">
+<header><div class="wrap"><h1>Bài 10 — User, Group và quyền truy cập Linux</h1><p>Giáo trình tự học từ nền tảng đến troubleshooting production và Embedded Linux. Bao gồm ví dụ Bash, bảng, sơ đồ SVG và mô phỏng JavaScript chạy offline.</p><div class="toolbar"><button class="btn" id="theme">Chế độ sáng</button><button class="btn" id="print">In / Lưu PDF</button><button class="btn" id="expand">Hiện mục lục</button></div></div></header>
+<div class="layout"><nav><h3>Mục lục</h3><a href="#s1">1. Đặt vấn đề — tại sao Linux cần phân quyền?</a><a href="#s2">2. User, UID, Group và GID</a><a href="#s3">3. Credentials của tiến trình</a><a href="#s4">4. Quyền truyền thống: owner / group / other</a><a href="#s5">5. Directory permission — điểm dễ nhầm nhất</a><a href="#s6">6. Path resolution và symlink</a><a href="#s7">7. chmod: symbolic và octal</a><a href="#s8">8. chown, chgrp và ownership</a><a href="#s9">9. Group và quyền thiết bị</a><a href="#s10">10. umask — quyền mặc định</a><a href="#s11">11. Setgid directory và kế thừa group</a><a href="#s12">12. POSIX ACL và Default ACL</a><a href="#s13">13. Setuid, Setgid executable và Sticky bit</a><a href="#s14">14. sudo, root và least privilege</a><a href="#s15">15. Linux capabilities</a><a href="#s16">16. Lab tổng hợp cộng tác</a><a href="#s17">17. Debug Permission denied theo tầng</a><a href="#s18">18. Các tình huống production</a><a href="#s19">19. Case study Embedded Linux — BLDC motor controller</a><a href="#s20">20. Các chủ đề liên quan</a><a href="#s21">21. Tự kiểm tra kiến thức</a><a href="#s22">22. Checklist production</a><a href="#s23">23. Tổng kết và tài liệu tham khảo</a><a href="#simulations">Mô phỏng tương tác</a><a href="#quiz">Bài kiểm tra</a></nav><main>
+<div class="note"><strong>Lưu ý về tính nguyên văn:</strong> Đây là bản biên soạn lại đầy đủ theo chủ đề và các phần hội thoại có thể truy xuất, <strong>không phải bản sao nguyên văn 100%</strong> của toàn bộ các câu trả lời cũ. Các mô phỏng được tái tạo bằng JavaScript và sơ đồ được vẽ bằng SVG nội tuyến.</div>
+<section class="lesson" id="s1"><h2>1. Đặt vấn đề — tại sao Linux cần phân quyền?</h2><p>Một máy Linux có thể chạy đồng thời web server, cơ sở dữ liệu, ứng dụng điều khiển động cơ, tài khoản lập trình viên và các tiến trình hệ thống. Nếu mọi tiến trình đều có quyền đọc, sửa và xóa mọi dữ liệu, một lỗi nhỏ có thể ảnh hưởng toàn hệ thống.</p>
+<p><strong>Ví dụ đời sống:</strong> Một tòa nhà có nhiều phòng. Thẻ nhân viên là danh tính; quyền mở từng cửa là permission; bảo vệ và quy định an ninh tương ứng với những tầng kiểm soát bổ sung.</p>
+<p><strong>Câu hỏi:</strong> Nếu ứng dụng chỉ cần đọc cảm biến, tại sao phải cho phép nó sửa <code>/etc/shadow</code>? Không có lý do hợp lý. Đây là nền tảng của <em>least privilege</em>.</p>
+</section>
+<section class="lesson" id="s2"><h2>2. User, UID, Group và GID</h2><p>Linux dùng số <strong>UID</strong> để biểu diễn user và <strong>GID</strong> để biểu diễn group. Tên như <code>alice</code> hoặc <code>developers</code> là biểu diễn thuận tiện cho con người, thường được phân giải qua NSS.</p>
+<pre><code class="language-bash">id
+id alice
+getent passwd alice
+getent group developers
+cat /etc/passwd
+</code></pre>
+<p><code>/etc/passwd</code> chứa metadata tài khoản; mật khẩu dạng hash thường nằm ở <code>/etc/shadow</code> trên các hệ thống truyền thống. Không phải mọi tài khoản đều bắt buộc xuất hiện trong file cục bộ vì NSS có thể tra cứu nguồn khác.</p>
+<table>
+<thead>
+<tr>
+  <th>Thuật ngữ</th>
+  <th>Diễn giải</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>UID</td>
+  <td>Định danh số của user</td>
+</tr>
+<tr>
+  <td>Primary GID</td>
+  <td>Group chính của user</td>
+</tr>
+<tr>
+  <td>Supplementary groups</td>
+  <td>Các group bổ sung</td>
+</tr>
+<tr>
+  <td>Root</td>
+  <td>Tài khoản đặc quyền, thường UID 0 trong user namespace ban đầu</td>
+</tr>
+<tr>
+  <td>Service account</td>
+  <td>Danh tính dành cho daemon, thường không cho đăng nhập tương tác</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="lesson" id="s3"><h2>3. Credentials của tiến trình</h2><p>Quyền truy cập được kiểm tra dựa trên <strong>credentials của tiến trình</strong>, không chỉ dựa vào tên đăng nhập hiển thị. Linux có real/effective/saved-set UID/GID và filesystem UID/GID; trong các thao tác filesystem, fsuid/fsgid có vai trò quan trọng.</p>
+<pre><code class="language-bash">cat /proc/self/status | grep -E '^(Uid|Gid|Groups|Cap)'
+ps -eo pid,user,group,comm | head
+</code></pre>
+<p>Một user được thêm vào group sau khi tiến trình đã khởi chạy không làm credentials của tiến trình cũ tự thay đổi. Vì vậy, khi sửa group cho daemon, cần tạo lại tiến trình, thường bằng cách restart service.</p>
+</section>
+<section class="lesson" id="s4"><h2>4. Quyền truyền thống: owner / group / other</h2><p>Ví dụ:</p>
+<pre><code class="language-text">-rwxr-x--- 1 alice developers 1024 main.sh
+</code></pre>
+<p>Ba bộ <code>rwx</code> lần lượt dành cho owner, owning group và other. Linux không đơn giản cộng cả ba bộ quyền: trước tiên xác định lớp phù hợp, sau đó kiểm tra quyền của lớp đó. Với ACL mở rộng, quy tắc chọn entry và mask chi tiết hơn.</p>
+<table>
+<thead>
+<tr>
+  <th>Ký hiệu</th>
+  <th>File thường</th>
+  <th>Directory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>r</td>
+  <td>Đọc nội dung</td>
+  <td>Liệt kê tên entries</td>
+</tr>
+<tr>
+  <td>w</td>
+  <td>Sửa nội dung</td>
+  <td>Tạo/xóa/đổi tên entries, nếu điều kiện khác thỏa</td>
+</tr>
+<tr>
+  <td>x</td>
+  <td>Thực thi file phù hợp</td>
+  <td>Search/traverse directory</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tại sao file <code>666</code> vẫn không mở được?</strong> Vì có thể thiếu quyền search trên một directory cha hoặc bị một chính sách khác từ chối.</p>
+</section>
+<section class="lesson" id="s5"><h2>5. Directory permission — điểm dễ nhầm nhất</h2><p>Đối với directory, <code>x</code> là <strong>quyền tra cứu tên</strong>, không phải quyền chạy directory. <code>r</code> cho phép liệt kê tên; <code>w</code> kết hợp với <code>x</code> thường cần để thay đổi directory entries.</p>
+<pre><code class="language-bash">mkdir -p /tmp/perm-demo
+touch /tmp/perm-demo/report.txt
+ls -ld /tmp/perm-demo
+namei -l /tmp/perm-demo/report.txt
+</code></pre>
+<p>Quyền xóa file phụ thuộc chủ yếu vào directory cha, sticky bit và những giới hạn khác; file writable không có nghĩa có thể xóa file đó. Ngược lại, file không writable vẫn có thể bị unlink khi directory cho phép.</p>
+</section>
+<section class="lesson" id="s6"><h2>6. Path resolution và symlink</h2><p>Để mở <code>/srv/project/a.txt</code>, kernel phải đi qua <code>/</code>, <code>/srv</code>, <code>/srv/project</code> rồi mới kiểm tra đối tượng đích. Thiếu search permission ở bất kỳ directory nào có thể gây <code>EACCES</code>.</p>
+<pre><code class="language-bash">namei -l /srv/project/a.txt
+readlink -f /srv/project/a.txt
+stat /srv/project/a.txt
+</code></pre>
+<p>Symlink là một bước phân giải tên khác; quyền trên đối tượng đích và các directory trong đường dẫn đã phân giải mới là những yếu tố quan trọng. Cần cẩn trọng với symlink race khi làm việc trong directory không tin cậy.</p>
+</section>
+<section class="lesson" id="s7"><h2>7. chmod: symbolic và octal</h2><p>Mỗi quyền có giá trị <code>r=4</code>, <code>w=2</code>, <code>x=1</code>. <code>755</code> nghĩa là owner <code>rwx</code>, group <code>r-x</code>, other <code>r-x</code>.</p>
+<pre><code class="language-bash">chmod 640 config.ini
+chmod u+x deploy.sh
+chmod g+w shared.txt
+chmod o-rwx secret.key
+</code></pre>
+<p><strong>Phản biện:</strong> <code>chmod -R 777</code> có phải cách xử lý Permission denied? Không. Nó mở rộng quyền quá mức, làm mất thông tin thiết kế bảo mật và vẫn không sửa được read-only mount, MAC denial hoặc sandbox.</p>
+</section>
+<section class="lesson" id="s8"><h2>8. chown, chgrp và ownership</h2><pre><code class="language-bash">sudo chown alice:developers report.txt
+sudo chgrp developers report.txt
+stat -c '%n %u:%g %a' report.txt
+</code></pre>
+<p>Thay ownership không tương đương với cấp quyền. UID/GID số là dữ liệu cốt lõi trên inode; tái sử dụng UID cũ có thể vô tình trao quyền với những file còn tồn tại. Trên NFS/container, ánh xạ UID/GID cần được kiểm tra kỹ.</p>
+</section>
+<section class="lesson" id="s9"><h2>9. Group và quyền thiết bị</h2><p>Ví dụ:</p>
+<pre><code class="language-text">crw-rw---- 1 root dialout ... /dev/ttyUSB0
+</code></pre>
+<p>Một daemon muốn mở UART có thể cần thuộc group <code>dialout</code> hoặc có ACL phù hợp.</p>
+<pre><code class="language-bash">ls -l /dev/ttyUSB0
+id motorapp
+sudo usermod -aG dialout motorapp
+</code></pre>
+<p>Cờ <code>-aG</code> rất quan trọng: dùng <code>-G</code> mà thiếu <code>-a</code> có thể thay thế danh sách supplementary groups. Khởi động lại service để credentials mới được áp dụng. Không mặc định <code>chmod 666 /dev/ttyUSB0</code> vì quyền thiết bị sẽ bị mở rộng và node có thể được udev tạo lại.</p>
+</section>
+<section class="lesson" id="s10"><h2>10. umask — quyền mặc định</h2><p>Khi tạo file, ứng dụng đưa ra requested mode. Trong trường hợp không có default ACL, mode được giới hạn bởi umask:</p>
+<pre><code class="language-text">regular file: requested 0666
+directory:    requested 0777
+umask:        0022
+result file:  0644
+result dir:   0755
+</code></pre>
+<pre><code class="language-bash">umask
+umask 0002
+touch demo.txt
+mkdir demo-dir
+stat -c '%a %n' demo.txt demo-dir
+</code></pre>
+<p><strong>Lưu ý:</strong> Ứng dụng có thể chủ động yêu cầu <code>0600</code>, nên <code>umask 0002</code> không đảm bảo mọi file group-writable. Default ACL cũng ảnh hưởng cơ chế hình thành quyền.</p>
+</section>
+<section class="lesson" id="s11"><h2>11. Setgid directory và kế thừa group</h2><pre><code class="language-bash">sudo mkdir -p /srv/project
+sudo chown root:developers /srv/project
+sudo chmod 2770 /srv/project
+ls -ld /srv/project
+</code></pre>
+<p><code>drwxrws---</code> cho biết setgid bit trên directory. Trên Linux, file mới trong directory thường kế thừa <strong>owning group</strong> từ directory, nhưng <strong>không kế thừa owner</strong>. Quyền mode của file không đơn giản sao chép từ directory cha.</p>
+<p><strong>11.3. Điều gì được kế thừa?</strong> Alice tạo file: owner thường là Alice, group là <code>developers</code>. Bob tạo file: owner Bob, group <code>developers</code>. Tuy nhiên Bob chỉ sửa được file Alice nếu quyền group/ACL cho phép.</p>
+<pre><code class="language-text">/srv/project       root:developers   2770
+├── main.c         alice:developers  0664
+└── test.c         bob:developers    0664
+</code></pre>
+<p>Các mode <code>0664</code> chỉ là ví dụ, không được bảo đảm bởi setgid một mình.</p>
+</section>
+<section class="lesson" id="s12"><h2>12. POSIX ACL và Default ACL</h2><p>ACL cho phép named user và named group có quyền riêng, vượt ra ngoài owner/group/other truyền thống.</p>
+<pre><code class="language-bash">getfacl /srv/project
+sudo setfacl -m g:developers:rwx /srv/project
+sudo setfacl -m d:g:developers:rwx /srv/project
+sudo setfacl -m d:m::rwx /srv/project
+</code></pre>
+<p><strong>Access ACL</strong> kiểm soát đối tượng hiện tại; <strong>Default ACL</strong> trên directory làm khuôn mẫu cho ACL đối tượng mới. Requested mode của ứng dụng vẫn giới hạn quyền mới; default ACL không tự cấp execute cho regular file được tạo với mode <code>0666</code>.</p>
+<pre><code class="language-text">user::rw-
+user:bob:rwx
+group::r--
+mask::r--
+other::---
+</code></pre>
+<p>Trong ví dụ, named user Bob có quyền hiệu lực <code>r--</code> vì mask giới hạn <code>rwx</code>. Owner entry và other entry không chịu mask theo cùng quy tắc. Khi có ACL mở rộng, <code>chmod g-w</code> có thể thay đổi ACL mask.</p>
+</section>
+<section class="lesson" id="s13"><h2>13. Setuid, Setgid executable và Sticky bit</h2><ul>
+<li><strong>Setuid executable:</strong> có thể làm effective UID khi thực thi lấy từ owner file nếu các điều kiện cho phép.</li>
+<li><strong>Setgid executable:</strong> tương tự với effective GID.</li>
+<li><strong>Sticky bit directory:</strong> giới hạn quyền unlink/rename entries của người khác, điển hình <code>/tmp</code>.</li>
+</ul>
+<pre><code class="language-bash">ls -ld /tmp
+# drwxrwxrwt root root /tmp
+
+mkdir -p /tmp/sticky-demo
+chmod 1777 /tmp/sticky-demo
+ls -ld /tmp/sticky-demo
+</code></pre>
+<p>Đừng sử dụng setuid executable chỉ để chữa một lỗi quyền thông thường: lỗi bảo mật trong chương trình có thể dẫn đến leo thang đặc quyền.</p>
+</section>
+<section class="lesson" id="s14"><h2>14. sudo, root và least privilege</h2><p><code>sudo</code> áp dụng chính sách cho phép thực thi lệnh với danh tính khác, thường là root. Nó không phải một permission bit của file.</p>
+<pre><code class="language-bash">sudo -u motorapp id
+sudo -u motorapp test -r /var/lib/motor-controller/state.db
+</code></pre>
+<p>Root không tự động vượt qua mọi giới hạn: SELinux/AppArmor, read-only mount, seccomp và namespace có thể tiếp tục hạn chế. Một daemon chỉ cần đọc UART và ghi state không nên mặc định chạy root.</p>
+</section>
+<section class="lesson" id="s15"><h2>15. Linux capabilities</h2><p>Capabilities chia một phần đặc quyền thành những đơn vị nhỏ hơn.</p>
+<table>
+<thead>
+<tr>
+  <th>Capability</th>
+  <th>Công dụng tiêu biểu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>CAP_NET_BIND_SERVICE</td>
+  <td>Bind privileged ports</td>
+</tr>
+<tr>
+  <td>CAP_NET_RAW</td>
+  <td>Một số thao tác raw socket</td>
+</tr>
+<tr>
+  <td>CAP_CHOWN</td>
+  <td>Thay ownership trong phạm vi cho phép</td>
+</tr>
+<tr>
+  <td>CAP_DAC_OVERRIDE</td>
+  <td>Vượt qua nhiều kiểm tra DAC</td>
+</tr>
+<tr>
+  <td>CAP_SYS_ADMIN</td>
+  <td>Tập hợp thao tác rất rộng, cần tránh cấp tùy tiện</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">grep '^Cap' /proc/self/status
+capsh --print
+getcap /usr/local/bin/myserver
+sudo setcap cap_net_bind_service=+ep /usr/local/bin/myserver
+</code></pre>
+<p>Việc cấp capability cho file phụ thuộc filesystem, mount flags, namespace và chính sách thực thi. Không xem capabilities là cách thay thế sudo trong mọi trường hợp.</p>
+</section>
+<section class="lesson" id="s16"><h2>16. Lab tổng hợp cộng tác</h2><p><strong>Chỉ chạy trong VM hoặc môi trường lab.</strong> Kiểm tra trước để tránh đụng tài khoản/đường dẫn có sẵn.</p>
+<pre><code class="language-bash">getent passwd labalice
+getent group labteam
+test -e /srv/linux-team-lab &amp;&amp; echo 'Already exists'
+
+sudo groupadd labteam
+sudo useradd -m -s /bin/bash labalice
+sudo usermod -aG labteam labalice
+sudo install -d -o root -g labteam -m 2770 /srv/linux-team-lab
+
+sudo -u labalice sh -c '
+  umask 0002
+  printf &quot;hello\n&quot; &gt; /srv/linux-team-lab/note.txt
+'
+ls -l /srv/linux-team-lab/note.txt
+</code></pre>
+<p><strong>Tạo lỗi có chủ đích:</strong></p>
+<pre><code class="language-bash">sudo chmod 2700 /srv/linux-team-lab
+sudo -u labalice cat /srv/linux-team-lab/note.txt
+# Permission denied
+sudo chmod 2770 /srv/linux-team-lab
+</code></pre>
+<p><strong>Thử ACL mask:</strong> phải dùng named user khác owner để quan sát mask chính xác, vì owner entry không chịu ACL mask theo quy tắc của named user.</p>
+</section>
+<section class="lesson" id="s17"><h2>17. Debug Permission denied theo tầng</h2><p>Một senior engineer không bắt đầu bằng <code>chmod -R 777</code>. Họ tìm syscall thất bại, pathname, credentials và tầng kiểm soát đang từ chối.</p>
+<p><strong>17.1. Danh tính:</strong></p>
+<pre><code class="language-bash">id
+systemctl show myapp.service -p User -p Group -p SupplementaryGroups
+</code></pre>
+<p><strong>17.2. Kiểm tra file:</strong></p>
+<pre><code class="language-bash">ls -l /var/lib/motor-controller/state.db
+stat /var/lib/motor-controller/state.db
+stat -c '%n %a %U:%G %F' /var/lib/motor-controller/state.db
+stat -c 'UID=%u GID=%g MODE=%a' /var/lib/motor-controller/state.db
+</code></pre>
+<p><code>-rw-r----- root:motorapp</code> cho phép group đọc nhưng không ghi. Tuy nhiên, nếu file chưa tồn tại và ứng dụng dùng <code>O_CREAT</code>, quyền trên directory cha mới là trọng tâm.</p>
+<p><strong>17.3. Kiểm tra toàn bộ pathname:</strong></p>
+<pre><code class="language-bash">namei -l /var/lib/motor-controller/state.db
+</code></pre>
+<p><strong>17.4. Kiểm tra ACL:</strong></p>
+<pre><code class="language-bash">getfacl /var/lib/motor-controller/state.db
+</code></pre>
+<p><strong>17.5. Mount/read-only:</strong></p>
+<pre><code class="language-bash">findmnt -T /var/lib/motor-controller/state.db
+findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS
+</code></pre>
+<p><strong>17.6. SELinux/AppArmor:</strong></p>
+<pre><code class="language-bash">getenforce
+sudo ausearch -m AVC,USER_AVC -ts recent
+sudo aa-status
+sudo journalctl -k
+</code></pre>
+<p><strong>17.7. systemd sandbox:</strong></p>
+<pre><code class="language-bash">systemctl cat motor-controller.service
+systemctl show motor-controller.service -p ProtectSystem -p ProtectHome -p ReadWritePaths -p StateDirectory -p DynamicUser
+</code></pre>
+<p><strong>17.8. Syscall và errno:</strong></p>
+<pre><code class="language-bash">strace -f -e trace=%file ./motor-controller
+# openat(..., O_WRONLY|O_CREAT, 0644) = -1 EACCES
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Errno</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>EACCES</td>
+  <td>Quyền truy cập bị từ chối</td>
+</tr>
+<tr>
+  <td>EPERM</td>
+  <td>Thao tác không được phép</td>
+</tr>
+<tr>
+  <td>EROFS</td>
+  <td>Filesystem read-only</td>
+</tr>
+<tr>
+  <td>ENOENT</td>
+  <td>Không tìm thấy file/thành phần đường dẫn</td>
+</tr>
+<tr>
+  <td>ENOTDIR</td>
+  <td>Thành phần đường dẫn không phải directory</td>
+</tr>
+<tr>
+  <td>ELOOP</td>
+  <td>Vấn đề vòng lặp/giới hạn symlink</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Câu hỏi phản biện:</strong> Root cũng không ghi được có chắc do SELinux? Không. Có thể do read-only mount, immutable attribute, AppArmor hoặc sandbox.</p>
+</section>
+<section class="lesson" id="s18"><h2>18. Các tình huống production</h2><p><strong>UART:</strong> <code>/dev/ttyUSB0</code> có mode <code>crw-rw---- root:dialout</code>; kiểm tra <code>id motorapp</code>, group và udev.</p>
+<p><strong>File writable nhưng không xóa được:</strong> unlink phụ thuộc directory cha, sticky bit và chính sách khác.</p>
+<p><strong>Shell chạy được, systemd lỗi:</strong> kiểm tra <code>ProtectSystem=strict</code>, <code>ReadWritePaths</code>, <code>StateDirectory</code>, <code>ProtectHome</code>, credentials và mount namespace.</p>
+<p><strong>Readonly filesystem:</strong> <code>chmod</code> không giải quyết <code>EROFS</code>; cần sửa kiến trúc lưu dữ liệu hoặc mount configuration.</p>
+</section>
+<section class="lesson" id="s19"><h2>19. Case study Embedded Linux — BLDC motor controller</h2><p>Ứng dụng cần mở UART, ghi trạng thái và phát log, nhưng không cần root toàn cục.</p>
+<pre><code class="language-bash">sudo useradd --system --home-dir /var/lib/motor-controller --shell /usr/sbin/nologin motorapp
+sudo usermod -aG dialout motorapp
+</code></pre>
+<p>Ví dụ unit file (cần điều chỉnh cho distribution và group thực tế):</p>
+<pre><code class="language-ini">[Unit]
+Description=BLDC Motor Controller
+After=network.target
+
+[Service]
+Type=simple
+User=motorapp
+Group=motorapp
+SupplementaryGroups=dialout
+ExecStart=/usr/local/bin/motor-controller
+StateDirectory=motor-controller
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p><code>StateDirectory=</code> quản lý directory dữ liệu. Với log, có thể sử dụng stdout/stderr và journald để giảm quản lý file riêng. Trên thiết bị nhúng, cân nhắc dung lượng flash và tần suất ghi log.</p>
+<p>Không nên bật <code>PrivateDevices=yes</code> khi chương trình cần trực tiếp thấy <code>/dev/ttyUSB0</code> nếu chưa có thiết kế cấp thiết bị phù hợp. Thiết bị USB có thể đổi tên sau khi cắm lại; nên xem xét udev stable symlink.</p>
+<p><strong>Bảo mật phần cứng:</strong> quyền truy cập motor controller có thể gây tác động vật lý, vì vậy group <code>dialout</code> cũng là một quyền đáng cân nhắc.</p>
+</section>
+<section class="lesson" id="s20"><h2>20. Các chủ đề liên quan</h2><p><strong>Container:</strong> UID/GID số và user namespace mapping quyết định quyền bind mount; username giống nhau không đảm bảo UID giống nhau.</p>
+<p><strong>NFS:</strong> ánh xạ danh tính, export policy và root squash ảnh hưởng quyền thực tế.</p>
+<p><strong>Immutable attribute:</strong> <code>lsattr file.txt</code> có thể cho biết thuộc tính làm hạn chế sửa/xóa, dù mode bits cho phép.</p>
+<p><strong>TOCTOU:</strong> kiểm tra <code>access()</code> rồi mới <code>open()</code> có thể tạo race nếu pathname thay đổi; cần ưu tiên thao tác an toàn trên file descriptor và các API phù hợp.</p>
+</section>
+<section class="lesson" id="s21"><h2>21. Tự kiểm tra kiến thức</h2><ol>
+<li>File <code>0666</code> nhưng không ghi được — tại sao? Có thể do directory cha, read-only mount, MAC, sandbox hoặc immutable attribute.</li>
+<li>User vừa được thêm group nhưng shell cũ vẫn bị từ chối — vì sao? Credentials của tiến trình cũ chưa đổi.</li>
+<li>Setgid directory có đảm bảo group-writable không? Không; còn requested mode, umask và default ACL.</li>
+<li><code>chmod g-w</code> làm named ACL user mất quyền ghi — tại sao? ACL mask có thể thay đổi.</li>
+<li>Root có ghi được vào read-only filesystem không? Không tự động.</li>
+<li>Vì sao <code>strace</code> hữu ích? Vì nó cho biết syscall, pathname, flags và errno thực tế.</li>
+</ol>
+</section>
+<section class="lesson" id="s22"><h2>22. Checklist production</h2><ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Service chạy bằng UID/GID đúng.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Supplementary groups đã áp dụng cho tiến trình mới.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Owner/group/mode của file đúng.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Từng directory cha cho phép search.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>ACL và ACL mask đúng.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Filesystem và mount namespace cho phép thao tác.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>SELinux/AppArmor không từ chối ngoài dự kiến.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>systemd sandbox có ngoại lệ ghi cần thiết.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>File không có immutable attribute gây cản trở.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Đã xác định syscall và errno.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Không sử dụng <code>chmod -R 777</code> để chữa triệu chứng.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Có phương án rollback khi thay đổi ownership hoặc ACL.</li>
+</ul>
+</section>
+<section class="lesson" id="s23"><h2>23. Tổng kết và tài liệu tham khảo</h2><p>Mô hình tư duy:</p>
+<pre><code class="language-text">Access decision
+  ├── Process credentials (UID/GID/groups)
+  ├── Path traversal + file type + mode
+  ├── ACL / capabilities
+  ├── Mount / filesystem properties
+  ├── MAC / sandbox / namespace
+  └── Syscall semantics → Allow / Deny / Error
+</code></pre>
+<p>Đây là mô hình chẩn đoán, không phải thứ tự kiểm tra nội bộ cố định của kernel.</p>
+<pre><code class="language-bash">man 7 credentials
+man 7 path_resolution
+man 5 acl
+man 7 capabilities
+man 2 open
+man 2 umask
+man 5 systemd.exec
+</code></pre>
+<p><strong>Nguyên tắc kết thúc:</strong> Đừng hỏi “chmod bao nhiêu để chạy được?”; hãy hỏi “syscall nào thất bại, trên đối tượng nào, với credentials nào, và tầng nào đã từ chối?”.</p>
+</section>
+
+<section class="lesson" id="simulations"><h2>Phòng thí nghiệm tương tác — mô phỏng bằng JavaScript</h2>
+<p>Các mô phỏng sau chạy hoàn toàn trong trình duyệt, không thay đổi quyền trên máy tính của bạn.</p>
+<div class="sim-grid">
+<div class="sim"><h3>1. Quyền owner / group / other</h3><p>Thay đổi danh tính và quyền file để xem kết quả truy cập theo DAC truyền thống (không có ACL).</p>
+<label>Tiến trình thuộc lớp nào? <select id="identity"><option value="u">Owner</option><option value="g">Owning group</option><option value="o">Other</option></select></label>
+<div id="permBoxes"></div><div class="out" id="permissionResult"></div></div>
+<div class="sim"><h3>2. Quyền directory</h3><p>Chọn quyền trên directory và thử thao tác. Mô phỏng giả định không có sticky bit, ACL hay MAC.</p><div id="dirBoxes"></div><label>Thao tác <select id="dirOp"><option value="list">Liệt kê tên (ls)</option><option value="traverse">Đi xuyên đường dẫn</option><option value="create">Tạo entry mới</option><option value="delete">Xóa entry</option></select></label><div class="out" id="dirResult"></div></div>
+<div class="sim"><h3>3. umask</h3><p>Requested mode giả định: file 0666, directory 0777; không có default ACL.</p><label>Umask (octal) <input id="umaskInput" value="0022" maxlength="4" inputmode="numeric"></label><div class="out" id="umaskResult"></div></div>
+<div class="sim"><h3>4. ACL mask</h3><p>Mask giới hạn quyền của named user entry (không phải owner entry).</p><div id="aclBoxes"></div><div class="out" id="aclResult"></div></div>
+<div class="sim"><h3>5. Setgid directory</h3><p>So sánh owner/group khi Alice và Bob tạo file.</p><label><input id="setgid" type="checkbox" checked> Setgid directory bật</label><label>Primary group Alice <select id="aliceGroup"><option>staff</option><option>developers</option></select></label><label>Primary group Bob <select id="bobGroup"><option>users</option><option>developers</option></select></label><div class="out" id="setgidResult"></div></div>
+<div class="sim"><h3>6. Sticky bit</h3><p>Giả định directory có quyền write + search và không có override privilege.</p><label><input type="checkbox" id="sticky" checked> Sticky bit bật</label><label>Người xóa <select id="deleter"><option value="bob">Bob</option><option value="alice">Alice (owner file)</option><option value="admin">Owner directory</option></select></label><div class="out" id="stickyResult"></div></div>
+</div>
+<h3>Sơ đồ 1 — Các tầng chẩn đoán</h3>
+<svg viewBox="0 0 750 220" role="img" aria-label="Các tầng phân quyền Linux"><defs><marker id="arr" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#93a6b8"/></marker></defs>
+<g fill="#132b43" stroke="#42a5f5" stroke-width="2"><rect x="10" y="28" width="130" height="75" rx="12"/><rect x="160" y="28" width="130" height="75" rx="12"/><rect x="310" y="28" width="130" height="75" rx="12"/><rect x="460" y="28" width="130" height="75" rx="12"/><rect x="610" y="28" width="130" height="75" rx="12"/></g>
+<g fill="#e9f2fb" font-size="16" text-anchor="middle"><text x="75" y="58">Credentials</text><text x="75" y="80" font-size="12">UID / GID</text><text x="225" y="58">Path + DAC</text><text x="225" y="80" font-size="12">mode / ACL</text><text x="375" y="58">Mount</text><text x="375" y="80" font-size="12">ro / filesystem</text><text x="525" y="58">MAC</text><text x="525" y="80" font-size="12">SELinux / AA</text><text x="675" y="58">Sandbox</text><text x="675" y="80" font-size="12">systemd</text></g>
+<g stroke="#93a6b8" stroke-width="2" marker-end="url(#arr)"><path d="M140 66H158"/><path d="M290 66H308"/><path d="M440 66H458"/><path d="M590 66H608"/></g><text x="375" y="158" fill="#e9f2fb" font-size="16" text-anchor="middle">Syscall → errno: EACCES / EPERM / EROFS</text><text x="375" y="185" fill="#9eb3c8" font-size="13" text-anchor="middle">Sơ đồ tư duy debug, không phải thứ tự kernel cố định</text></svg>
+<h3>Sơ đồ 2 — Kế thừa group từ setgid directory</h3>
+<svg viewBox="0 0 700 245" role="img" aria-label="Setgid directory inheritance"><rect x="210" y="10" width="280" height="75" rx="13" fill="#123f54" stroke="#20bfa8" stroke-width="2"/><text x="350" y="36" text-anchor="middle" fill="white" font-size="19">/srv/project</text><text x="350" y="62" text-anchor="middle" fill="#bceee8" font-size="16">root : developers — 2770</text><path d="M350 85V116M175 116H525M175 116V143M525 116V143" stroke="#8daac0" stroke-width="3" fill="none"/><rect x="35" y="143" width="280" height="75" rx="12" fill="#19334a" stroke="#3d9be9"/><rect x="385" y="143" width="280" height="75" rx="12" fill="#19334a" stroke="#3d9be9"/><g fill="white" text-anchor="middle"><text x="175" y="173" font-size="18">main.c</text><text x="175" y="197" font-size="15">alice : developers</text><text x="525" y="173" font-size="18">test.c</text><text x="525" y="197" font-size="15">bob : developers</text></g></svg>
+<h3>Sơ đồ 3 — Đường dẫn và quyền search</h3>
+<svg viewBox="0 0 700 120" role="img" aria-label="Path traversal"><g fill="#183a4e" stroke="#2d9ca6" stroke-width="2"><rect x="10" y="18" width="100" height="68" rx="10"/><rect x="155" y="18" width="100" height="68" rx="10"/><rect x="300" y="18" width="100" height="68" rx="10"/><rect x="445" y="18" width="120" height="68" rx="10"/><rect x="610" y="18" width="80" height="68" rx="10"/></g><g fill="white" text-anchor="middle" font-size="17"><text x="60" y="57">/</text><text x="205" y="57">var</text><text x="350" y="57">lib</text><text x="505" y="57">myapp</text><text x="650" y="57">file</text></g><g fill="none" stroke="#9eb3c8" stroke-width="2"><path d="M110 52h45m-10 -5 10 5 -10 5"/><path d="M255 52h45m-10 -5 10 5 -10 5"/><path d="M400 52h45m-10 -5 10 5 -10 5"/><path d="M565 52h45m-10 -5 10 5 -10 5"/></g></svg>
+</section>
+<section class="lesson" id="quiz"><h2>Bài kiểm tra tương tác</h2><div id="quizRoot"></div><button id="showAll" class="btn">Hiện tất cả đáp án</button></section>
+
+</main></div><footer>Bài 10 · HTML độc lập · CSS, SVG, JavaScript nhúng trực tiếp · Không cần kết nối Internet</footer><script>
+const $=id=>document.getElementById(id);
+function box(id,labels,defaults){$(id).innerHTML=labels.map((x,i)=>`<label><input type="checkbox" data-bit="${i}" ${defaults[i]?'checked':''}> ${x}</label>`).join('');$(id).classList.add('checkrow');$(id).querySelectorAll('input').forEach(x=>x.addEventListener('change',updateAll));}
+function bits(id){return [...$(id).querySelectorAll('input')].map(x=>x.checked)}
+function fmt(b){return b.map((v,i)=>v?'rwx'[i]:'-').join('')}
+function updateAll(){
+ const p=bits('permBoxes'),cls=$('identity').value,need=p;const who={u:'Owner',g:'Owning group',o:'Other'}[cls];
+ $('permissionResult').textContent=`Đang xét lớp ${who}. Quyền: ${fmt(need)}\nĐọc: ${need[0]?'ALLOW':'DENY'} | Ghi: ${need[1]?'ALLOW':'DENY'} | Thực thi: ${need[2]?'ALLOW':'DENY'}\nGiả định các lớp quyền còn lại không áp dụng và không có ACL/MAC.`;
+ const d=bits('dirBoxes'),op=$('dirOp').value,ok=op==='list'?d[0]:op==='traverse'?d[2]:d[1]&&d[2];
+ $('dirResult').textContent=`Directory mode: ${fmt(d)}\n${op.toUpperCase()}: ${ok?'ALLOW':'DENY'}\n${op==='list'?'Liệt kê tên cần read; xem metadata từng entry thường còn cần search.':op==='traverse'?'Tra cứu tên cần search (x).':'Tạo/xóa entry thường cần write + search (w+x), chưa xét sticky bit.'}`;
+ const m=$('umaskInput').value;
+ if(!/^[0-7]{1,4}$/.test(m)) $('umaskResult').textContent='Umask không hợp lệ: dùng chữ số octal 0–7.';
+ else {let n=parseInt(m,8),f=(0o666&~n),dir=(0o777&~n);$('umaskResult').textContent=`umask ${m.padStart(4,'0')}\nFile:      0666 & ~${m.padStart(4,'0')} = ${f.toString(8).padStart(4,'0')}\nDirectory: 0777 & ~${m.padStart(4,'0')} = ${dir.toString(8).padStart(4,'0')}`;}
+ const a=bits('aclBoxes').slice(0,3),mask=bits('aclBoxes').slice(3);$('aclResult').textContent=`Named user entry: ${fmt(a)}\nMask:             ${fmt(mask)}\nEffective:        ${fmt(a.map((v,i)=>v&&mask[i]))}`;
+ let sg=$('setgid').checked; $('setgidResult').textContent=`Directory: root:developers (mode ${sg?'2770':'0770'})\nAlice file: alice:${sg?'developers':$('aliceGroup').value}\nBob file:   bob:${sg?'developers':$('bobGroup').value}\nSetgid chỉ quyết định group inheritance trong mô phỏng này, không tự cấp write.`;
+ let sticky=$('sticky').checked,del=$('deleter').value,allowed=!sticky||del!=='bob';$('stickyResult').textContent=`File owner: Alice | Directory owner: Admin\nBob thử unlink: ${del==='bob'?(allowed?'ALLOW':'DENY'):''}\nNgười đang thao tác: ${del}\nKết quả: ${allowed?'ALLOW':'DENY'}\nGiả định DAC directory w+x đã cho phép.`;
+}
+box('permBoxes',['Read','Write','Execute'],[true,true,false]);
+box('dirBoxes',['Read','Write','Search (x)'],[true,false,true]);
+box('aclBoxes',['Entry r','Entry w','Entry x','Mask r','Mask w','Mask x'],[true,true,true,true,false,false]);
+['identity','dirOp','umaskInput','setgid','aliceGroup','bobGroup','sticky','deleter'].forEach(id=>$(id).addEventListener('input',updateAll));updateAll();
+const qs=[
+['File có mode 0666 nhưng không ghi được?','Có thể thiếu search trên directory cha, mount read-only, MAC/sandbox hoặc thuộc tính filesystem khác.'],
+['Vừa thêm group nhưng service vẫn bị từ chối?','Credentials của tiến trình cũ chưa tự thay đổi; restart service sau khi cấu hình group.'],
+['Setgid directory có đảm bảo file mới group-writable?','Không. Group ownership kế thừa khác với mode; requested mode, umask và default ACL vẫn quan trọng.'],
+['Tại sao chmod g-w ảnh hưởng named ACL user?','Trên ACL mở rộng, group mode bits thường phản ánh ACL mask, làm thay đổi quyền hiệu lực.'],
+['Root luôn ghi được file trên read-only mount?','Không. Root không tự động vượt qua read-only mount.'],
+['Lợi ích của strace trong Permission denied?','Cho biết syscall, pathname, flags và errno thực sự thất bại.'],
+['Khác biệt quyền x trên file và directory?','Trên file: thực thi khi các điều kiện khác cho phép; trên directory: search/traverse.'],
+['Vì sao chmod -R 777 không nên dùng?','Mở quyền quá mức, phá thiết kế least privilege và không sửa nhiều tầng từ chối khác.'],
+['Tại sao tên user giống nhau giữa host và container vẫn lỗi?','Kernel xét UID/GID số và ánh xạ namespace, không chỉ tên hiển thị.'],
+['Default ACL có tự cấp x cho regular file tạo với mode 0666?','Không; requested mode của ứng dụng vẫn giới hạn quyền.']
+];
+$('quizRoot').innerHTML=qs.map(([q,a],i)=>`<div class="quizitem"><button class="btn" aria-expanded="false" onclick="let e=this.parentNode;e.classList.toggle('open');this.setAttribute('aria-expanded',e.classList.contains('open'))">${i+1}. ${q} ▾</button><div class="answer">${a}</div></div>`).join('');
+$('showAll').onclick=()=>{let items=[...document.querySelectorAll('.quizitem')],show=items.some(x=>!x.classList.contains('open'));items.forEach(x=>{x.classList.toggle('open',show);x.querySelector('button').setAttribute('aria-expanded',show)});$('showAll').textContent=show?'Ẩn tất cả đáp án':'Hiện tất cả đáp án'};
+$('theme').onclick=()=>{document.body.classList.toggle('light');$('theme').textContent=document.body.classList.contains('light')?'Chế độ tối':'Chế độ sáng'};
+$('print').onclick=()=>window.print();
+$('expand').onclick=()=>{document.querySelectorAll('nav a').forEach(x=>x.style.display='block')};
+document.querySelectorAll('pre').forEach(p=>{let b=document.createElement('button');b.className='copy';b.textContent='Sao chép';b.onclick=async()=>{try{await navigator.clipboard.writeText(p.innerText.replace(/^Sao chép/,'').trim());b.textContent='Đã sao chép';setTimeout(()=>b.textContent='Sao chép',1300)}catch(e){b.textContent='Không thể sao chép'}};p.appendChild(b)});
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

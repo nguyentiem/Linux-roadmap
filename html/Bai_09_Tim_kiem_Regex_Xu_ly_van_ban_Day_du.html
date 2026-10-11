@@ -1,0 +1,504 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 09 — Tìm kiếm, regex và xử lý văn bản | Linux</title><style>
+:root{--bg:#0b1020;--panel:#151e32;--panel2:#1e2a40;--text:#e8edf6;--muted:#a9b8cc;--accent:#53d5d0;--line:#35435a;--code:#0b1425;--good:#5be3a1;--bad:#ff8a93}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 system-ui,-apple-system,'Segoe UI',sans-serif}header{padding:64px 30px 44px;background:linear-gradient(130deg,#0f3551,#111629 65%);border-bottom:1px solid var(--line)}header .inner{max-width:1050px;margin:auto}h1{font-size:clamp(2rem,4vw,3.3rem);line-height:1.2;margin:0 0 14px}header p{color:#bcd3e4;max-width:850px}main{display:grid;grid-template-columns:270px minmax(0,1fr);gap:32px;max-width:1440px;margin:auto;padding:30px}aside{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}aside h3{margin:0 0 12px}aside a{display:block;padding:6px 8px;color:var(--muted);text-decoration:none;border-radius:6px;font-size:13px;line-height:1.4}aside a:hover{color:var(--accent);background:var(--panel2)}article{min-width:0}.lesson{padding:26px 30px;background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-bottom:22px;scroll-margin-top:15px}h2{font-size:1.65rem;color:#d6fff7;line-height:1.3;margin:0 0 22px}h3{font-size:1.2rem;color:#94e7ef;margin:30px 0 12px}p{margin:13px 0}strong{color:#fff}pre{position:relative;overflow:auto;background:var(--code);border:1px solid #29364e;border-radius:10px;padding:18px;line-height:1.55;font-size:13px;tab-size:4}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}p code,li code,td code{background:var(--code);padding:2px 5px;border-radius:4px;color:#93e8dc}pre code{color:#d5e4f5}table{border-collapse:collapse;width:100%;display:block;overflow:auto;margin:20px 0}th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}th{background:#22324b}blockquote{border-left:3px solid var(--accent);margin:20px 0;padding:5px 20px;background:#1b3041;color:#d0e4f0}button{cursor:pointer;background:#21475b;color:white;border:1px solid #43818b;border-radius:8px;padding:9px 14px;font-weight:600}button:hover{background:#28647a}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.interactive{padding:22px;border:1px solid #43818b;border-radius:14px;background:#102c3b;margin:24px 0}.interactive h3{margin-top:0}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}.controls button.active{background:#177c85}.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}.mini{background:#0d1929;padding:14px;border-radius:10px}.number{display:block;padding:4px 12px;margin:5px 0;background:#20364a;border-radius:5px;text-align:center}.number.out{background:#14585b}.muted{color:var(--muted)}.diagram{width:100%;height:auto;display:block;background:#101e32;border-radius:12px;border:1px solid var(--line)}.quiz-question{padding:15px 0;border-bottom:1px solid var(--line)}.quiz-question label{display:block;margin:7px 0;cursor:pointer}.quiz-question input{margin-right:8px}.answer{padding:10px;margin-top:8px;background:#183e41;border-radius:8px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.chip{display:inline-block;background:#14485c;color:#adf3f1;border-radius:20px;padding:3px 12px;font-size:13px}footer{padding:25px;text-align:center;color:var(--muted)}@media(max-width:900px){main{display:block;padding:14px}aside{position:static;max-height:250px;margin-bottom:18px}.lesson{padding:20px 16px}.columns{grid-template-columns:1fr}}@media print{body{background:white;color:#111}header{background:white;color:#111;padding:20px}header p{color:#333}main{display:block;padding:0}aside,.toolbar,.controls button,.copy{display:none!important}.lesson{break-inside:avoid;border:0;border-bottom:1px solid #ccc;background:white;padding:12px 0}h2,h3,strong{color:#111}pre{background:#eee;color:#111;white-space:pre-wrap}pre code{color:#111}.interactive{background:#f4f4f4;color:#111}.mini{background:#eee}.number{color:#111;background:#ddd}.number.out{background:#bbb}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="09"><header><div class="inner"><span class="chip">Linux • Bài 09 • Tài liệu học độc lập</span><h1>Tìm kiếm, Regex và xử lý văn bản</h1><p>Giải thích từ nền tảng đến production: grep, rg, regex, sort, uniq, cut, tr, sed, awk, jq, validation, pipeline, log và Embedded Linux.</p><div class="toolbar"><button id="print">In / Lưu PDF</button><a style="color:#b2fbf4" href="#interactive">Đi đến mô phỏng tương tác ↓</a></div></div></header><main><aside><h3>Mục lục</h3><a href="#s1">1. Đặt vấn đề: Vì sao cần pipeline xử lý văn bản?</a><a href="#s2">2. Nền tảng Unix: stdin, stdout, stderr và pipe</a><a href="#s3">3. Chọn công cụ theo phép biến đổi</a><a href="#s4">4. grep: lọc dòng và hiểu exit status</a><a href="#s5">5. Regex: ngôn ngữ mô tả mẫu</a><a href="#s6">6. ripgrep (rg) và tìm kiếm dự án</a><a href="#s7">7. Thiết kế fixture và hiểu schema log</a><a href="#s8">8. Phân tích HTTP status bằng pipeline</a><a href="#s9">9. Đo latency: trung bình và giới hạn</a><a href="#s10">10. Mối liên hệ giữa sắp xếp và thống kê</a><a href="#s11">11. sort: quy tắc so sánh, locale và numeric sort</a><a href="#s12">12. uniq: vì sao chỉ gộp dòng trùng liền nhau?</a><a href="#s13">13. cut: chọn trường đơn giản</a><a href="#s14">14. tr: chuyển, xóa và gộp ký tự</a><a href="#s15">15. sed: stream editor</a><a href="#s16">16. awk: record, field, điều kiện, tổng hợp</a><a href="#s17">17. Lab hoàn chỉnh: phân tích access.log</a><a href="#s18">18. Malformed log: lỗi nguy hiểm vì trông hợp lý</a><a href="#s19">19. JSON Lines và jq: parser thay vì cắt chuỗi</a><a href="#s20">20. Production: lỗi pipeline, hiệu năng, log rotation</a><a href="#s21">21. Debug pipeline theo từng giai đoạn</a><a href="#s22">22. Bài tập cuối bài và câu hỏi phản biện</a><a href="#s23">23. Tổng kết và tư duy thiết kế hệ thống</a><a href="#interactive">Mô phỏng và trắc nghiệm</a></aside><article><div class="lesson"><h2>Sơ đồ tư duy tổng quát</h2><svg class="diagram" viewBox="0 0 860 175" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Luồng xử lý log từ dữ liệu thô đến kết quả kiểm chứng"><defs><marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6" fill="none" stroke="#67d9da" stroke-width="2"/></marker></defs><g font-family="system-ui" text-anchor="middle" font-size="17" fill="#eaf5ff"><rect x="14" y="42" width="155" height="90" rx="12" fill="#25415d"/><text x="91" y="80">Log thô</text><text x="91" y="106" font-size="12">stdin / file</text><rect x="229" y="42" width="155" height="90" rx="12" fill="#25415d"/><text x="306" y="80">Lọc</text><text x="306" y="106" font-size="12">grep / cut / sed</text><rect x="444" y="42" width="155" height="90" rx="12" fill="#25415d"/><text x="521" y="80">Tổng hợp</text><text x="521" y="106" font-size="12">sort / uniq / awk</text><rect x="659" y="42" width="185" height="90" rx="12" fill="#17665f"/><text x="751" y="80">Kiểm chứng</text><text x="751" y="106" font-size="12">schema / validation</text></g><g stroke="#67d9da" stroke-width="2.5" marker-end="url(#arr)"><path d="M174 87H220"/><path d="M389 87H435"/><path d="M604 87H650"/></g></svg><p>Mỗi công cụ giải quyết một phép biến đổi; validation bảo đảm số liệu cuối cùng có ý nghĩa.</p></div><section class="lesson" id="s1"><h2>1. Đặt vấn đề: Vì sao cần pipeline xử lý văn bản?</h2><p>Một thiết bị Embedded Linux, một server web hoặc một CAN gateway có thể tạo hàng triệu dòng log. Đọc bằng mắt không thể trả lời nhanh: có bao nhiêu lỗi 5xx, endpoint nào chậm nhất, bao nhiêu bản ghi bị hỏng, và kết quả có đáng tin hay không?</p>
+<p><strong>Tư duy senior:</strong> Trước khi chọn lệnh, xác định <em>schema đầu vào</em>, <em>phép biến đổi</em>, <em>định dạng đầu ra</em>, <em>cách xử lý lỗi</em>, <em>độ lớn dữ liệu</em>. Một pipeline chạy thành công không đồng nghĩa kết quả đúng.</p>
+<p>Ví dụ đời sống: nhà máy có băng chuyền phân loại hàng. <code>grep</code> là người giữ món hàng đúng điều kiện, <code>cut</code> lấy một nhãn, <code>sort</code> sắp thứ tự, <code>uniq</code> gom các nhãn đứng cạnh nhau, <code>awk</code> là người thống kê, còn <code>jq</code> đọc đúng cấu trúc phiếu hàng JSON.</p>
+<p><strong>Câu hỏi ngược:</strong> Nếu một món hàng thiếu nhãn trọng lượng, có nên âm thầm coi trọng lượng bằng 0? Chính là vấn đề malformed log.</p>
+</section><section class="lesson" id="s2"><h2>2. Nền tảng Unix: stdin, stdout, stderr và pipe</h2><p>Một process thường có ba file descriptor: <code>0</code> = stdin, <code>1</code> = stdout, <code>2</code> = stderr. Dấu <code>|</code> nối stdout của tiến trình trái vào stdin của tiến trình phải. Kernel cung cấp cơ chế pipe, shell tổ chức việc khởi tạo process và nối descriptor.</p>
+<pre><code class="language-bash">cat access.log | grep ' 500 ' | wc -l
+# Có thể viết gọn, tránh cat không cần thiết:
+grep ' 500 ' access.log | wc -l
+</code></pre>
+<p><code>&gt;</code> ghi stdout ra file; <code>2&gt;</code> ghi stderr; <code>&lt;</code> đọc stdin từ file; <code>&gt;&gt;</code> nối thêm. Một chương trình có thể ghi lỗi ra stderr trong khi stdout vẫn được pipeline tiêu thụ.</p>
+<p><strong>Streaming và blocking:</strong> <code>grep</code>, <code>cut</code>, <code>tr</code>, nhiều chương trình <code>awk</code> có thể xử lý tuần tự. <code>sort</code> thường phải nhìn toàn bộ tập đầu vào để bảo đảm thứ tự, nên có thể dùng RAM và file tạm. Đừng nhầm việc có pipe với việc toàn pipeline có độ trễ thấp.</p>
+<pre><code class="language-bash">producer | grep ERROR | awk '{print $1}'
+producer | sort | uniq -c
+</code></pre>
+<p><strong>Phản biện:</strong> Tại sao <code>wc -l</code> cuối pipeline vẫn trả <code>0</code> khi <code>grep</code> báo không mở được file? Vì exit status mặc định của pipeline trong Bash thường là status của lệnh cuối. Ta sẽ xử lý bằng <code>pipefail</code>.</p>
+</section><section class="lesson" id="s3"><h2>3. Chọn công cụ theo phép biến đổi</h2><table>
+<thead>
+<tr>
+  <th>Công cụ</th>
+  <th>Vai trò chính</th>
+  <th>Không nên dùng khi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>grep</code></td>
+  <td>Lọc dòng theo pattern</td>
+  <td>Cần parse JSON lồng nhau</td>
+</tr>
+<tr>
+  <td><code>rg</code></td>
+  <td>Tìm kiếm mã nguồn/log nhanh, hỗ trợ regex</td>
+  <td>Cần thống kê phức tạp</td>
+</tr>
+<tr>
+  <td><code>cut</code></td>
+  <td>Lấy cột theo dấu phân cách</td>
+  <td>CSV có dấu quote/escape</td>
+</tr>
+<tr>
+  <td><code>tr</code></td>
+  <td>Chuyển/xóa/gộp ký tự</td>
+  <td>Thay chuỗi nhiều ký tự theo ngữ cảnh</td>
+</tr>
+<tr>
+  <td><code>sed</code></td>
+  <td>Chỉnh sửa theo luồng</td>
+  <td>Phân tích nhiều trường và tính toán phức tạp</td>
+</tr>
+<tr>
+  <td><code>sort</code></td>
+  <td>Sắp xếp</td>
+  <td>Chỉ cần đếm tuyến tính</td>
+</tr>
+<tr>
+  <td><code>uniq</code></td>
+  <td>Gộp dòng giống nhau liền kề</td>
+  <td>Cần loại trùng không sắp xếp mà dữ liệu rất lớn</td>
+</tr>
+<tr>
+  <td><code>awk</code></td>
+  <td>Lọc, tính toán, tổng hợp theo record/field</td>
+  <td>Dữ liệu có cấu trúc lồng nhau phức tạp</td>
+</tr>
+<tr>
+  <td><code>jq</code></td>
+  <td>Parse và truy vấn JSON</td>
+  <td>File không phải JSON</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quy tắc:</strong> Không phải lệnh nào ngắn nhất cũng đúng nhất. Đặc biệt, regex không thay thế được parser cho dữ liệu có cú pháp phức tạp.</p>
+</section><section class="lesson" id="s4"><h2>4. grep: lọc dòng và hiểu exit status</h2><pre><code class="language-bash">grep ERROR app.log
+grep -n ERROR app.log             # Số dòng
+grep -i error app.log             # Không phân biệt hoa/thường
+grep -v DEBUG app.log             # Dòng không khớp
+grep -c ERROR app.log             # Đếm dòng khớp
+grep -F 'a.b' app.log             # Tìm chuỗi cố định
+grep -E 'ERROR|WARN' app.log      # Extended regex
+grep -w 'ERROR' app.log           # Word match
+grep -R -n 'TODO' ./src           # Tìm đệ quy
+grep -- '-danger' app.log         # Pattern bắt đầu bằng dấu -
+</code></pre>
+<p><code>grep</code> thường trả <strong>0</strong> nếu có dòng khớp, <strong>1</strong> nếu không có dòng khớp, <strong>2</strong> nếu có lỗi (một số biến thể có khác biệt). Trong script, <code>1</code> có thể là tình huống bình thường, không nên luôn coi là sự cố.</p>
+<pre><code class="language-bash">if grep -q 'ERROR' app.log; then
+  echo 'Có lỗi'
+else
+  echo 'Không tìm thấy hoặc có lỗi; cần phân biệt nếu quan trọng'
+fi
+</code></pre>
+<p><strong>Câu hỏi:</strong> Tại sao <code>grep '500'</code> chưa chắc tìm đúng HTTP 500? Vì nó có thể khớp IP, URL, latency hoặc một số khác. Nếu biết status ở trường 4, hãy dùng <code>awk '$4 == 500'</code>.</p>
+</section><section class="lesson" id="s5"><h2>5. Regex: ngôn ngữ mô tả mẫu</h2><p>Regex là cách mô tả <em>hình dạng chuỗi</em> thay vì liệt kê mọi chuỗi cụ thể.</p>
+<p>| Ký hiệu | Ý nghĩa | Ví dụ |
+|---|---|---|
+| <code>^</code> | Đầu dòng | <code>^ERROR</code> |
+| <code>$</code> | Cuối dòng | <code>done$</code> |
+| <code>.</code> | Một ký tự bất kỳ (trừ newline theo cách dùng thường gặp) | <code>a.c</code> |
+| <code>*</code> | 0 hoặc nhiều lần | <code>ab*c</code> |
+| <code>+</code> | 1 hoặc nhiều lần trong ERE | <code>ab+c</code> |
+| <code>?</code> | 0 hoặc 1 lần trong ERE | <code>colou?r</code> |
+| <code>[0-9]</code> | Một chữ số | <code>[0-9]+</code> |
+| <code>[^,]</code> | Ký tự không phải dấu phẩy | <code>[^,]+</code> |
+| <code>(A|B)</code> | Chọn A hoặc B trong ERE | <code>(GET|POST)</code> |
+| <code>{3}</code> | Đúng 3 lần trong ERE | <code>[0-9]{3}</code> |</p>
+<pre><code class="language-bash">printf '%s\n' 'ERROR 500' 'WARN 404' 'INFO 200' | grep -E '^(ERROR|WARN) [0-9]{3}$'
+</code></pre>
+<p><strong>BRE/ERE/PCRE:</strong> <code>grep</code> cơ bản dùng BRE; <code>grep -E</code> dùng ERE; <code>grep -P</code> (nếu bản build hỗ trợ) dùng PCRE. Không giả định mọi regex engine có cùng tính năng.</p>
+<p><strong>Shell quoting:</strong> <code>grep -E '^[0-9]+$'</code> đặt pattern trong dấu nháy đơn để shell không diễn giải các ký tự đặc biệt trước khi truyền cho grep. Glob như <code>*.log</code> là cơ chế mở rộng tên file của shell, không phải regex.</p>
+<p><strong>Câu hỏi phản biện:</strong> Regex <code>[0-9]{3}</code> có đủ để xác minh HTTP status hợp lệ? Không: <code>999</code> vẫn khớp; cần kiểm tra cả khoảng giá trị và schema.</p>
+</section><section class="lesson" id="s6"><h2>6. ripgrep (rg) và tìm kiếm dự án</h2><p><code>rg</code> thường rất hữu ích khi tìm trong cây mã nguồn; mặc định nó tôn trọng nhiều quy tắc ignore như <code>.gitignore</code>, khác với <code>grep -R</code>.</p>
+<pre><code class="language-bash">rg -n 'TODO|FIXME' src/
+rg -l 'can_frame' .
+rg -F 'struct can_frame' .
+rg --hidden 'config' .
+</code></pre>
+<p>Đừng suy ra không có kết quả nghĩa là chuỗi không tồn tại: file bị ignore, file ẩn hoặc binary có thể không được quét theo mặc định. Khi điều tra incident, phải hiểu phạm vi tìm kiếm thực tế.</p>
+</section><section class="lesson" id="s7"><h2>7. Thiết kế fixture và hiểu schema log</h2><p>Tạo dữ liệu dùng chung:</p>
+<pre><code class="language-bash">mkdir -p &quot;$HOME/linux-lab/text&quot;
+cd &quot;$HOME/linux-lab/text&quot;
+cat &gt; access.log &lt;&lt;'EOF'
+10.0.0.1 GET / 200 12
+10.0.0.2 GET /health 200 2
+10.0.0.1 POST /orders 500 93
+10.0.0.3 GET /missing 404 4
+10.0.0.2 GET /orders 503 110
+EOF
+</code></pre>
+<p>Schema: <code>IP METHOD PATH STATUS LATENCY_MS</code> (5 trường, phân cách bằng khoảng trắng). Đây là <strong>fixture đơn giản</strong> để học; access log thực tế có thể dùng quoted fields, timestamp, user agent và nhiều biến thể khác.</p>
+<table>
+<thead>
+<tr>
+  <th>Trường</th>
+  <th>Giá trị ví dụ</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>$1</code></td>
+  <td><code>10.0.0.1</code></td>
+  <td>IP</td>
+</tr>
+<tr>
+  <td><code>$2</code></td>
+  <td><code>POST</code></td>
+  <td>HTTP method</td>
+</tr>
+<tr>
+  <td><code>$3</code></td>
+  <td><code>/orders</code></td>
+  <td>Endpoint</td>
+</tr>
+<tr>
+  <td><code>$4</code></td>
+  <td><code>500</code></td>
+  <td>HTTP status</td>
+</tr>
+<tr>
+  <td><code>$5</code></td>
+  <td><code>93</code></td>
+  <td>Latency (ms)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kiểm tra trước:</strong> <code>awk '{print NR, NF, $0}' access.log</code> để nhìn số trường từng dòng.</p>
+</section><section class="lesson" id="s8"><h2>8. Phân tích HTTP status bằng pipeline</h2><pre><code class="language-bash">awk '{print $4}' access.log | sort -n | uniq -c
+</code></pre>
+<p>Kết quả:</p>
+<pre><code class="language-text">      2 200
+      1 404
+      1 500
+      1 503
+</code></pre>
+<p>Đếm 5xx:</p>
+<pre><code class="language-bash">awk '$4 &gt;= 500 &amp;&amp; $4 &lt;= 599 {n++} END {print n+0}' access.log
+# 2
+</code></pre>
+<p>Tỷ lệ lỗi:</p>
+<pre><code class="language-bash">awk '{total++; if ($4 &gt;= 500 &amp;&amp; $4 &lt;= 599) err++}
+END {if(total) printf &quot;%.2f%%\n&quot;, 100*err/total}' access.log
+# 40.00%
+</code></pre>
+<p><strong>Cảnh báo:</strong> 40% là trên fixture chỉ có 5 request; không thể tự suy ra SLO production từ mẫu nhỏ này. Nếu log có bản ghi hỏng, mẫu số có thể bị lệch.</p>
+</section><section class="lesson" id="s9"><h2>9. Đo latency: trung bình và giới hạn</h2><pre><code class="language-bash">awk '{sum+=$5; n++} END {if(n) printf &quot;%.1f ms\n&quot;, sum/n}' access.log
+# 44.2 ms
+</code></pre>
+<p>Tổng latency = <code>12+2+93+4+110 = 221 ms</code>, số request = 5, trung bình = <code>44.2 ms</code>.</p>
+<p>Theo endpoint:</p>
+<pre><code class="language-bash">awk '{count[$3]++; total[$3]+=$5; if($4&gt;=500 &amp;&amp; $4&lt;=599) bad[$3]++}
+END {for(p in count) printf &quot;%s count=%d mean=%.1fms 5xx=%.1f%%\n&quot;, p,count[p],total[p]/count[p],100*bad[p]/count[p]}' access.log
+</code></pre>
+<p>Với <code>/orders</code>: 2 request, latency <code>93</code> và <code>110</code>, trung bình <strong>101.5 ms</strong>, tỷ lệ 5xx <strong>100%</strong>.</p>
+<p><strong>Phản biện:</strong> Trung bình có nói được p95/p99 không? Không. Tail latency có thể rất cao trong khi trung bình vẫn thấp. Percentile cần phương pháp và dữ liệu phù hợp; không nhầm <code>sort -n | tail</code> với percentile có định nghĩa rõ.</p>
+</section><section class="lesson" id="s10"><h2>10. Mối liên hệ giữa sắp xếp và thống kê</h2><p>Để đếm tần suất, pipeline phổ biến là <code>extract | sort | uniq -c | sort -nr</code>. Mỗi bước có một bất biến:</p>
+<ol>
+<li><code>extract</code> tạo đúng một khóa trên mỗi bản ghi hợp lệ.</li>
+<li><code>sort</code> đưa khóa giống nhau đứng cạnh nhau.</li>
+<li><code>uniq -c</code> đếm nhóm liên tiếp.</li>
+<li><code>sort -nr</code> xếp nhóm theo tần suất giảm dần.</li>
+</ol>
+<pre><code class="language-bash">awk '{print $1}' access.log | sort | uniq -c | sort -nr
+</code></pre>
+<p><strong>Vấn đề tương tự:</strong> Đây là dạng group-by đơn giản, gần với <code>SELECT ip, COUNT(*) FROM logs GROUP BY ip ORDER BY COUNT(*) DESC</code> trong SQL. Với dữ liệu có cấu trúc và khối lượng lớn, database hoặc công cụ chuyên dụng có thể thích hợp hơn.</p>
+</section><section class="lesson" id="s11"><h2>11. sort: quy tắc so sánh, locale và numeric sort</h2><h3>11.1. Sắp xếp số khác sắp xếp chuỗi</h3>
+<p>Giả sử file <code>numbers.txt</code>:</p>
+<pre><code class="language-text">2
+10
+100
+20
+3
+</code></pre>
+<p><code>sort numbers.txt</code> so sánh theo văn bản, có thể cho thứ tự <code>10, 100, 2, 20, 3</code> trong <code>LC_ALL=C</code>. Vì ký tự <code>'1'</code> đứng trước <code>'2'</code>, chuỗi <code>&quot;10&quot;</code> đứng trước <code>&quot;2&quot;</code>. Nhưng giá trị số thì <code>10 &gt; 2</code>.</p>
+<pre><code class="language-bash">sort -n numbers.txt
+# 2 3 10 20 100 (mỗi giá trị một dòng)
+sort -nr numbers.txt   # giảm dần
+</code></pre>
+<p>Tại sao không luôn dùng <code>-n</code>? Vì <code>001</code>, <code>01</code>, <code>1</code> có thể là ba mã định danh khác nhau nhưng cùng giá trị số. Không được suy diễn kiểu dữ liệu từ hình thức.</p>
+<h3>11.2. Sắp xếp theo cột với <code>sort -k</code></h3>
+<pre><code class="language-text">alice 90
+bob 70
+charlie 100
+david 85
+</code></pre>
+<pre><code class="language-bash">sort -k2,2n scores.txt
+sort -k2,2nr -k1,1 students.txt  # điểm giảm dần, tên tăng dần
+</code></pre>
+<p><code>-k2</code> dùng khóa từ trường 2 đến cuối dòng; <code>-k2,2</code> giới hạn ở trường 2. Nếu bằng khóa, GNU sort có thể dùng so sánh toàn dòng để phân định trừ khi thay đổi chế độ như <code>-s</code>; hãy hiểu điều này nếu cần ổn định theo input.</p>
+<h3>11.3. Các chế độ thường gặp</h3>
+<table>
+<thead>
+<tr>
+  <th>Tùy chọn</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>sort</code></td>
+  <td>Văn bản theo locale</td>
+</tr>
+<tr>
+  <td><code>sort -n</code></td>
+  <td>Số</td>
+</tr>
+<tr>
+  <td><code>sort -r</code></td>
+  <td>Đảo thứ tự</td>
+</tr>
+<tr>
+  <td><code>sort -nr</code></td>
+  <td>Số giảm dần</td>
+</tr>
+<tr>
+  <td><code>sort -h</code></td>
+  <td>Hậu tố dung lượng kiểu 10K, 2M, 1G (GNU)</td>
+</tr>
+<tr>
+  <td><code>sort -V</code></td>
+  <td>Version sort (GNU)</td>
+</tr>
+<tr>
+  <td><code>sort -u</code></td>
+  <td>Loại trùng theo khóa so sánh</td>
+</tr>
+<tr>
+  <td><code>sort -k2,2n</code></td>
+  <td>Trường 2 là số</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">printf '%s\n' 10K 2M 500K 1G | sort -h
+printf '%s\n' version1 version10 version2 | sort -V
+sort -k5,5nr access.log  # latency giảm dần
+LC_ALL=C sort file.txt   # thứ tự byte ổn định
+</code></pre>
+<p><strong>Câu hỏi:</strong> <code>LC_ALL=C</code> có phải cách sắp xếp tên tiếng Việt đúng chuẩn ngôn ngữ? Không; đó là thứ tự byte, hữu ích cho tính tái lập, không phải collation tiếng Việt.</p>
+</section><section class="lesson" id="s12"><h2>12. uniq: vì sao chỉ gộp dòng trùng liền nhau?</h2><p>Dữ liệu:</p>
+<pre><code class="language-text">apple
+banana
+apple
+orange
+banana
+apple
+</code></pre>
+<p><code>uniq fruits.txt</code> <strong>không</strong> loại hết các dòng <code>apple</code> rời nhau. Nó chỉ so sánh với dòng ngay trước. Điều này cho phép thuật toán chỉ giữ một dòng gần nhất trong bộ nhớ.</p>
+<pre><code class="language-bash">sort fruits.txt | uniq -c
+sort fruits.txt | uniq -c | sort -nr
+</code></pre>
+<p>Kết quả đếm: <code>apple=3</code>, <code>banana=2</code>, <code>orange=1</code>.</p>
+<p>Nếu muốn giữ thứ tự xuất hiện đầu tiên:</p>
+<pre><code class="language-bash">awk '!seen[$0]++' fruits.txt
+</code></pre>
+<p>Cách <code>awk</code> giữ một associative array theo giá trị duy nhất nên có thể tiêu tốn RAM nếu cardinality rất cao. <code>sort | uniq</code> cũng có chi phí riêng: sắp xếp toàn bộ dữ liệu.</p>
+</section><section class="lesson" id="s13"><h2>13. cut: chọn trường đơn giản</h2><pre><code class="language-text">alice:1000:developer
+bob:1001:tester
+charlie:1002:admin
+</code></pre>
+<pre><code class="language-bash">cut -d: -f1 users.txt
+cut -d: -f2 users.txt
+cut -d: -f1,3 users.txt
+awk -F: '$2 &gt;= 1001 {print $1}' users.txt
+</code></pre>
+<p><code>cut</code> không hiểu CSV quoted fields:</p>
+<pre><code class="language-csv">name,address,age
+Alice,&quot;Hanoi, Vietnam&quot;,25
+</code></pre>
+<p><code>cut -d, -f2 people.csv</code> trả <code>&quot;Hanoi</code> chứ không phải toàn bộ địa chỉ. Với CSV chuẩn, hãy dùng parser CSV (ví dụ module <code>csv</code> của Python).</p>
+</section><section class="lesson" id="s14"><h2>14. tr: chuyển, xóa và gộp ký tự</h2><pre><code class="language-bash">echo 'hello linux' | tr 'a-z' 'A-Z'
+# HELLO LINUX
+echo 'abc123xyz' | tr -d '0-9'
+# abcxyz
+echo 'hello    linux' | tr -s ' '
+# hello linux
+tr 'a-z' 'A-Z' &lt; input.txt &gt; output.txt
+</code></pre>
+<p><code>tr</code> xử lý tập ký tự, không phải trình thay thế substring nhiều ký tự theo ngữ cảnh. Việc biến đổi Unicode có thể phụ thuộc locale và bản triển khai; đừng mặc định <code>tr 'a-z' 'A-Z'</code> là chuyển chữ hoa hoàn chỉnh cho tiếng Việt.</p>
+</section><section class="lesson" id="s15"><h2>15. sed: stream editor</h2><pre><code class="language-text">INFO server started
+DEBUG request received
+ERROR database timeout
+</code></pre>
+<pre><code class="language-bash">sed 's/DEBUG/TRACE/' app.log     # thay lần đầu mỗi dòng
+sed 's/DEBUG/TRACE/g' app.log    # thay mọi lần
+sed -n '/ERROR/p' app.log        # chỉ in dòng chứa ERROR
+sed -i.bak 's/DEBUG/TRACE/g' app.log  # GNU sed, backup .bak
+</code></pre>
+<p>Mặc định <code>sed</code> không sửa file gốc; <code>-i</code> là tùy chọn sửa file. Khi service đang ghi log, sửa tại chỗ có thể gây rắc rối do inode và file descriptor; thường nên xử lý bản sao hoặc output riêng.</p>
+<p><strong>CRLF:</strong> Nếu dữ liệu có <code>\r</code> cuối dòng, việc match <code>$</code> và so sánh trường có thể bất ngờ. Quan sát bằng <code>sed -n '1,10l' file</code> và chuyển định dạng khi có lý do chính đáng.</p>
+</section><section class="lesson" id="s16"><h2>16. awk: record, field, điều kiện, tổng hợp</h2><pre><code class="language-bash">awk '$2 &gt;= 80 {print $1}' scores.txt
+awk '{print NR, NF, $0}' scores.txt
+awk -F: '$2 &gt;= 1001 {print $1}' users.txt
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Biến</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>$0</code></td>
+  <td>Toàn bộ record</td>
+</tr>
+<tr>
+  <td><code>$1</code>, <code>$2</code></td>
+  <td>Trường thứ nhất, thứ hai</td>
+</tr>
+<tr>
+  <td><code>NF</code></td>
+  <td>Số trường hiện tại</td>
+</tr>
+<tr>
+  <td><code>NR</code></td>
+  <td>Tổng số record đã đọc</td>
+</tr>
+<tr>
+  <td><code>FS</code></td>
+  <td>Dấu phân cách input</td>
+</tr>
+<tr>
+  <td><code>OFS</code></td>
+  <td>Dấu phân cách output</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">awk '{sum+=$2; count++} END {if(count) print sum/count}' scores.txt
+awk '{count[$4]++} END {for (status in count) print status, count[status]}' access.log
+</code></pre>
+<p>Associative array của awk tương tự dictionary trong Python hoặc hash map trong C++. Thứ tự duyệt <code>for (key in arr)</code> không phải thứ tự được bảo đảm; nếu cần thứ tự, hãy sort output hoặc dùng giải pháp khác.</p>
+<p><strong>Đặt câu hỏi:</strong> Tại sao <code>awk '$4 == 500'</code> đáng tin hơn <code>grep 500</code> trong fixture này? Vì ta dùng thông tin schema: trường 4 là status.</p>
+</section><section class="lesson" id="s17"><h2>17. Lab hoàn chỉnh: phân tích access.log</h2><pre><code class="language-bash"># 17.1. Lọc 5xx
+awk '$4 &gt;= 500 &amp;&amp; $4 &lt;= 599' access.log
+# 10.0.0.1 POST /orders 500 93
+# 10.0.0.2 GET /orders 503 110
+
+# 17.2. Đếm status
+awk '{print $4}' access.log | sort -n | uniq -c
+
+# 17.3. Đếm request theo IP
+awk '{print $1}' access.log | sort | uniq -c | sort -nr
+
+# 17.4. Trung bình latency
+awk '{sum+=$5; n++} END {if(n) print sum/n}' access.log
+# 44.2
+
+# 17.5. Tỷ lệ lỗi
+awk '{total++; if($4&gt;=500 &amp;&amp; $4&lt;=599) errors++}
+END {if(total) printf &quot;%.2f%%\n&quot;, 100*errors/total}' access.log
+# 40.00%
+</code></pre>
+<p><strong>Kiểm tra tay:</strong> Có 5 request, 2 request 5xx, latency tổng 221 ms. Những số liệu này là oracle nhỏ để đối chiếu với script.</p>
+</section><section class="lesson" id="s18"><h2>18. Malformed log: lỗi nguy hiểm vì trông hợp lý</h2><pre><code class="language-bash">echo '10.0.0.4 POST /orders 500' &gt;&gt; access.log
+</code></pre>
+<p>Dòng 6 thiếu latency. Nếu <code>awk</code> cộng <code>$5</code> như số, trường thiếu có thể bị chuyển thành 0; tổng vẫn 221 nhưng mẫu số tăng thành 6, cho <strong>36.83 ms</strong> thay vì <strong>44.2 ms</strong>.</p>
+<pre><code class="language-bash">awk 'NF != 5 {print NR, $0}' access.log
+# 6 10.0.0.4 POST /orders 500
+</code></pre>
+<p>Validation tối thiểu:</p>
+<pre><code class="language-bash">awk '
+NF == 5 &amp;&amp;
+$4 ~ /^[0-9][0-9][0-9]$/ &amp;&amp;
+$4 &gt;= 100 &amp;&amp; $4 &lt;= 599 &amp;&amp;
+$5 ~ /^[0-9]+$/ {
+    sum += $5
+    count++
+}
+END {if(count) print sum/count}
+' access.log
+# 44.2
+</code></pre>
+<p>Validation tốt hơn còn phải xem method, path, IP, giới hạn latency, quy tắc dấu phân cách và cách xử lý dòng lỗi. <strong>Đừng chỉ bỏ qua malformed record rồi báo cáo như dữ liệu hoàn chỉnh</strong>; hãy đếm và cảnh báo tỷ lệ malformed.</p>
+</section><section class="lesson" id="s19"><h2>19. JSON Lines và jq: parser thay vì cắt chuỗi</h2><pre><code class="language-bash">cat &gt; access.jsonl &lt;&lt;'EOF'
+{&quot;ip&quot;:&quot;10.0.0.1&quot;,&quot;status&quot;:200,&quot;latency_ms&quot;:12}
+{&quot;ip&quot;:&quot;10.0.0.2&quot;,&quot;status&quot;:500,&quot;latency_ms&quot;:93}
+EOF
+jq '.status' access.jsonl
+jq 'select(.status &gt;= 500 and .status &lt;= 599)' access.jsonl
+</code></pre>
+<p>Đếm theo stream:</p>
+<pre><code class="language-bash">jq -n '
+reduce inputs as $r (
+  {total: 0, errors: 0};
+  .total += 1
+  | if $r.status &gt;= 500 and $r.status &lt;= 599
+    then .errors += 1
+    else .
+    end
+)
+' access.jsonl
+</code></pre>
+<p>Kết quả <code>{&quot;total&quot;:2,&quot;errors&quot;:1}</code>. <code>jq -s</code> gom toàn bộ input vào một array, có thể dùng nhiều RAM với file lớn; <code>reduce inputs</code> giúp tổng hợp theo stream. Trong production, phải xác thực kiểu <code>.status</code>, <code>.latency_ms</code>, phân biệt <code>null</code>, thiếu field và dữ liệu sai cú pháp.</p>
+<p><strong>Vì sao không regex JSON?</strong> Vì dấu ngoặc, escaping, chuỗi chứa ký tự đặc biệt và nesting có quy tắc ngữ pháp; parser mới hiểu được cấu trúc.</p>
+</section><section class="lesson" id="s20"><h2>20. Production: lỗi pipeline, hiệu năng, log rotation</h2><h3>20.1. pipefail và exit status</h3>
+<pre><code class="language-bash">set -o pipefail
+grep ERROR missing.log | wc -l
+printf 'PIPESTATUS: %s\n' &quot;${PIPESTATUS[*]}&quot;  # kiểm tra ngay sau pipeline nếu cần
+</code></pre>
+<p><code>pipefail</code> khiến status pipeline phản ánh một lệnh lỗi bên trong thay vì chỉ lệnh cuối. Tuy nhiên <code>grep</code> status 1 là không khớp, nên phải phân biệt <em>không có dữ liệu</em> và <em>không đọc được dữ liệu</em>.</p>
+<h3>20.2. SIGPIPE</h3>
+<pre><code class="language-bash">set -o pipefail
+producer | head -n 10
+</code></pre>
+<p><code>head</code> dừng sau 10 dòng và đóng đầu đọc; producer có thể nhận SIGPIPE. Với <code>pipefail</code>, điều này có thể khiến pipeline báo non-zero dù 10 dòng đầu đã được lấy thành công. Đừng gắn nhãn mọi SIGPIPE là lỗi logic.</p>
+<h3>20.3. sort và dung lượng</h3>
+<p><code>sort</code> có thể spill sang file tạm. Khi chỉ cần đếm 5xx, không nên sort file nhiều GB:</p>
+<pre><code class="language-bash">awk '$4 &gt;= 500 &amp;&amp; $4 &lt;= 599 {n++} END {print n+0}' huge.log
+</code></pre>
+<h3>20.4. tail, buffering, rotation</h3>
+<pre><code class="language-bash">tail -F app.log | grep --line-buffered ERROR
+</code></pre>
+<p><code>tail -F</code> phù hợp hơn <code>tail -f</code> trong một số trường hợp log bị rename/rotate, nhưng vẫn phải hiểu thời điểm mất/đọc lặp dữ liệu. Với dữ liệu đang ghi, việc đọc không bảo đảm snapshot nhất quán.</p>
+<h3>20.5. Filename chứa khoảng trắng/newline</h3>
+<pre><code class="language-bash">find . -type f -name '*.log' -print0 | xargs -0 grep -H ERROR
+</code></pre>
+<p>NUL-delimited tránh tách sai tên file. Dùng <code>--</code> khi tên file/pattern có thể bắt đầu bằng <code>-</code>. Tránh đưa trực tiếp dữ liệu log vào <code>eval</code> hoặc câu lệnh shell; đây là đường dẫn tới command injection.</p>
+</section><section class="lesson" id="s21"><h2>21. Debug pipeline theo từng giai đoạn</h2><p>Khi thống kê sai, đừng sửa cả pipeline một lúc. Tách và quan sát các bước:</p>
+<pre><code class="language-bash">sed -n '1,20l' access.log
+awk '{print NR, NF, $0}' access.log
+awk '{print NR, $4}' access.log
+awk '$4 !~ /^[0-9][0-9][0-9]$/ {print NR, $0}' access.log
+</code></pre>
+<p>Phương pháp senior:</p>
+<ol>
+<li>Tạo fixture nhỏ và kết quả kỳ vọng tính tay.</li>
+<li>Kiểm tra input có đúng schema không.</li>
+<li>Quan sát output trung gian của từng stage.</li>
+<li>Phân biệt bản ghi hợp lệ, bản ghi bị loại, bản ghi malformed.</li>
+<li>Đo hiệu năng với dữ liệu thật; tránh tối ưu trước khi biết bottleneck.</li>
+<li>Viết test cho trường hợp file rỗng, thiếu cột, ký tự lạ, nhiều dữ liệu và lỗi I/O.</li>
+</ol>
+<p><strong>Liên hệ Embedded Linux/SocketCAN:</strong> <code>ip -details -statistics link show can0</code> xem thống kê giao diện CAN, <code>candump can0</code> xem frame. <code>candump -L can0</code> tạo log có timestamp; cần hiểu định dạng thực tế trước khi <code>awk</code> tách trường. Đừng mặc định log CAN có schema giống HTTP.</p>
+</section><section class="lesson" id="s22"><h2>22. Bài tập cuối bài và câu hỏi phản biện</h2><p><strong>Bài tập 1:</strong> Sắp xếp <code>2, 10, 100</code> theo số; giải thích vì sao <code>sort</code> khác <code>sort -n</code>.</p>
+<p><strong>Bài tập 2:</strong> Đếm số request theo HTTP status và sắp xếp giảm dần theo số lần xuất hiện.</p>
+<p><strong>Bài tập 3:</strong> Tìm hai request chậm nhất; kiểm tra liệu dòng malformed có làm sai thứ tự hay không.</p>
+<p><strong>Bài tập 4:</strong> Tính tỷ lệ 5xx chỉ trên record hợp lệ, đồng thời in riêng số record malformed.</p>
+<p><strong>Bài tập 5:</strong> Viết parser JSONL kiểm tra <code>.status</code> là số và <code>.latency_ms</code> không âm.</p>
+<p><strong>Bài tập 6:</strong> Giải thích vì sao <code>grep '500'</code> không tương đương <code>awk '$4 == 500'</code>.</p>
+<p><strong>Bài tập 7:</strong> So sánh bộ nhớ và I/O của <code>sort | uniq -c</code> với associative array <code>awk</code>.</p>
+<p><strong>Bài tập 8:</strong> Thử <code>set -o pipefail</code> với pipeline có <code>grep</code> không khớp và với <code>head</code> đóng pipe sớm.</p>
+<p><strong>Tự kiểm tra:</strong> Phần tương tác cuối tài liệu có 5 câu trắc nghiệm kèm giải thích.</p>
+</section><section class="lesson" id="s23"><h2>23. Tổng kết và tư duy thiết kế hệ thống</h2><p>Chuỗi xử lý tổng quát:</p>
+<p><strong>Dữ liệu thô</strong> → <strong>Lọc và biến đổi</strong> → <strong>Sắp xếp/tổng hợp</strong> → <strong>Parser cho dữ liệu cấu trúc</strong> → <strong>Validation và kết quả đáng tin cậy</strong>.</p>
+<ul>
+<li><code>grep</code> lọc theo mẫu; <code>rg</code> tìm kiếm hiệu quả trong dự án.</li>
+<li>Regex mô tả hình dạng chuỗi, không phải parser vạn năng.</li>
+<li><code>cut</code>, <code>tr</code>, <code>sed</code> xử lý những phép biến đổi đơn giản và rõ ràng.</li>
+<li><code>sort</code> phải dùng đúng kiểu so sánh; <code>uniq</code> chỉ gộp dòng kề nhau.</li>
+<li><code>awk</code> phù hợp thống kê trên schema phẳng; <code>jq</code> hiểu JSON.</li>
+<li>Production đòi hỏi kiểm tra schema, xử lý malformed input, lỗi pipeline, giới hạn RAM/I/O, buffering và tính nhất quán.</li>
+</ul>
+<p><strong>Kết luận quan trọng nhất:</strong> Pipeline tốt không chỉ chạy được. Nó phải có hợp đồng dữ liệu rõ ràng, phát hiện lỗi, cho kết quả có thể kiểm chứng và phù hợp quy mô thực tế. Đây là khác biệt giữa một câu lệnh thử nghiệm và một công cụ chẩn đoán đáng tin cậy.</p>
+</section><section class="lesson" id="interactive"><h2>Thực hành tương tác — Mô phỏng và trắc nghiệm</h2><p>Các mô phỏng chạy hoàn toàn trong trình duyệt bằng JavaScript, không cần mạng hoặc thư viện ngoài.</p><div class="interactive"><h3>Mô phỏng 1: Sắp xếp chuỗi và số</h3><div class="controls"><button data-sort="text" class="active">Sắp xếp chuỗi</button><button data-sort="number">Sắp xếp số</button></div><div class="columns"><div class="mini"><strong>Đầu vào</strong><div id="sort-in"></div></div><div class="mini"><strong>Kết quả</strong><div id="sort-out"></div></div></div><p id="sort-note" class="muted"></p></div><div class="interactive"><h3>Mô phỏng 2: Trung bình latency thay đổi theo số bản ghi</h3><p>Fixture có các latency: <code>12, 2, 93, 4, 110</code> ms.</p><label for="latency-count">Chọn số bản ghi: <strong id="latency-label"></strong></label><input id="latency-count" type="range" min="1" max="5" value="5" style="width:100%"><p id="latency-values"></p><p><strong id="latency-result"></strong></p><p class="muted">Nếu thêm bản ghi thứ sáu thiếu latency rồi tính như 0, trung bình sẽ bị giảm sai còn 36.83 ms.</p></div><div class="interactive"><h3>Mô phỏng 3: Tỷ lệ HTTP 5xx</h3><label>Tổng request: <strong id="total-value"></strong><input id="request-total" type="range" min="0" max="20" value="5" style="width:100%"></label><label>Request lỗi: <strong id="error-value"></strong><input id="request-errors" type="range" min="0" max="20" value="2" style="width:100%"></label><p>Tỷ lệ lỗi: <strong id="rate-value"></strong></p></div><div class="interactive"><h3>Trắc nghiệm cuối bài</h3><div id="quiz-items"></div><div class="toolbar"><button id="grade">Chấm điểm</button><button id="reset-quiz">Làm lại</button></div><p id="quiz-score" aria-live="polite"></p></div></section></article></main><footer>Tài liệu HTML độc lập • CSS, SVG và JavaScript nhúng trực tiếp • Hoạt động offline</footer><script>
+const original=['2','10','100','20','3','001','-5'];let sortMode='text';
+function renderSort(){let arr=[...original].sort(sortMode==='text'?(a,b)=>a<b?-1:a>b?1:0:(a,b)=>Number(a)-Number(b));document.getElementById('sort-in').innerHTML=original.map(x=>`<span class="number">${x}</span>`).join('');document.getElementById('sort-out').innerHTML=arr.map(x=>`<span class="number out">${x}</span>`).join('');document.getElementById('sort-note').textContent=sortMode==='text'?'So sánh chuỗi: ký tự đầu tiên quyết định trước; mô phỏng theo thứ tự mã.':'So sánh số: 001 có giá trị 1, -5 là số âm.';document.querySelectorAll('[data-sort]').forEach(b=>b.classList.toggle('active',b.dataset.sort===sortMode));}
+document.querySelectorAll('[data-sort]').forEach(b=>b.addEventListener('click',()=>{sortMode=b.dataset.sort;renderSort()}));renderSort();
+const latency=[12,2,93,4,110];function renderLatency(){let n=Number(document.getElementById('latency-count').value),xs=latency.slice(0,n),sum=xs.reduce((a,b)=>a+b,0);document.getElementById('latency-label').textContent=n+' request đầu';document.getElementById('latency-result').textContent=`Tổng ${sum} ms / ${n} = ${(sum/n).toFixed(2)} ms`;document.getElementById('latency-values').textContent=xs.join(' + ');}document.getElementById('latency-count').addEventListener('input',renderLatency);renderLatency();
+const qs=[['Muốn sắp xếp các số 2, 10, 100 theo giá trị số, dùng lệnh nào?',['sort','sort -n','sort -u'],1,'sort -n so sánh theo giá trị số thay vì chuỗi.'],['Vì sao cần sort trước uniq khi đếm tất cả giá trị trùng?',['Vì uniq chỉ gộp các dòng trùng liền nhau','Vì uniq không đọc file chưa sort','Vì sort chuyển text thành số'],0,'sort đưa các dòng giống nhau về cạnh nhau.'],['Dòng log thiếu latency có thể gây lỗi gì?',['Luôn làm awk crash','Có thể làm trung bình sai mà không báo lỗi','Không ảnh hưởng'],1,'Trường thiếu có thể được chuyển thành 0 trong phép tính số.'],['Khi dữ liệu là JSON có nesting và escaping, nên chọn gì?',['cut','grep đơn thuần','jq'],2,'jq là parser hiểu cấu trúc JSON.'],['Tại sao không nên sort 20 GB log chỉ để đếm request 5xx?',['Vì sort có thể tốn RAM và I/O không cần thiết','Vì sort không đọc được file lớn','Vì awk bắt buộc phải chạy sau sort'],0,'awk có thể đếm trực tiếp theo stream.']];
+function quizRender(){document.getElementById('quiz-items').innerHTML=qs.map((q,i)=>`<div class="quiz-question"><strong>${i+1}. ${q[0]}</strong>${q[1].map((v,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${v}</label>`).join('')}<div class="answer" id="explain-${i}" hidden></div></div>`).join('');document.getElementById('quiz-score').textContent='';}function gradeQuiz(){let score=0,missing=0;qs.forEach((q,i)=>{let x=document.querySelector(`input[name="q${i}"]:checked`),e=document.getElementById('explain-'+i);if(!x){missing++;e.hidden=true;return}let ok=Number(x.value)===q[2];score+=ok;e.textContent=(ok?'✓ Đúng. ':'✗ Chưa đúng. ')+q[3];e.hidden=false;});document.getElementById('quiz-score').textContent=missing?`Bạn chưa chọn ${missing} câu. Hiện đúng ${score}/${qs.length}.`:`Kết quả: ${score}/${qs.length} câu đúng.`;}document.getElementById('grade').addEventListener('click',gradeQuiz);document.getElementById('reset-quiz').addEventListener('click',quizRender);quizRender();
+function renderRate(){let total=Number(document.getElementById('request-total').value),errors=Number(document.getElementById('request-errors').value);if(errors>total){errors=total;document.getElementById('request-errors').value=errors}document.getElementById('total-value').textContent=total;document.getElementById('error-value').textContent=errors;document.getElementById('rate-value').textContent=total?((errors/total)*100).toFixed(2)+'%':'Không xác định (0 request)';}['request-total','request-errors'].forEach(id=>document.getElementById(id).addEventListener('input',renderRate));renderRate();
+document.querySelectorAll('pre').forEach(pre=>{const btn=document.createElement('button');btn.className='copy';btn.textContent='Sao chép';btn.style.cssText='position:absolute;right:8px;top:8px;padding:4px 8px;font-size:11px;opacity:.8';btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(pre.querySelector('code')?.innerText||pre.innerText);btn.textContent='Đã sao chép';setTimeout(()=>btn.textContent='Sao chép',1500)}catch{btn.textContent='Hãy chọn và sao chép thủ công'}});pre.appendChild(btn)});
+document.getElementById('print').addEventListener('click',()=>window.print());
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

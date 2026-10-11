@@ -1,0 +1,1000 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Bài 30 — Backup, Recovery và Quản lý thay đổi</title><style>
+:root{--bg:#f6f8fc;--paper:#fff;--text:#172338;--muted:#64748b;--line:#dbe3ee;--primary:#2563eb;--soft:#eaf2ff;--green:#16a34a;--red:#dc2626}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.75;font-size:16px}.layout{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1510px;margin:auto}.sidebar{height:100vh;position:sticky;top:0;overflow:auto;padding:22px 16px;background:#eef3fb;border-right:1px solid var(--line)}.brand{font-size:15px;font-weight:800;margin:0 8px 15px;color:#1e40af}.sidebar a{display:block;padding:8px 10px;margin:3px 0;border-radius:8px;font-size:12px;line-height:1.45;color:#34435b;text-decoration:none}.sidebar a:hover,.sidebar a.active{background:#dce9ff;color:#1d4ed8}.main{padding:24px clamp(20px,5vw,82px) 100px;max-width:1150px;min-width:0}.top{display:flex;gap:10px;align-items:center;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:24px}.pill{padding:5px 12px;border-radius:99px;background:#dbeafe;color:#1d4ed8;font-weight:700}article{background:var(--paper);padding:clamp(20px,4vw,58px);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 40px #17233808}h1{font-size:clamp(23px,2.6vw,32px);line-height:1.3;letter-spacing:-.5px;margin:64px 0 22px;padding-top:8px;color:#10254c;border-top:2px solid #e6edfa}h1:first-child{font-size:clamp(30px,4vw,42px);border:0;margin-top:0}h2{font-size:clamp(19px,2vw,25px);line-height:1.4;margin:34px 0 13px;color:#17376e}h3{font-size:18px;margin:25px 0 10px;color:#264778}p{margin:13px 0}strong{font-weight:750}ul,ol{padding-left:26px}li{margin:7px 0}blockquote{border-left:4px solid var(--primary);margin:20px 0;padding:9px 18px;background:var(--soft);border-radius:0 9px 9px 0}blockquote p{margin:0}hr{border:0;border-top:1px solid var(--line);margin:36px 0}pre{position:relative;background:#111c2d;color:#e2e8f0;border-radius:11px;padding:19px;overflow-x:auto;line-height:1.55;font-size:13px;margin:18px 0}code{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}p code,li code,td code{background:#edf2f9;padding:2px 5px;border-radius:4px;color:#a12c5b;font-size:.9em}pre code{background:none;color:inherit}.copy{position:absolute;top:9px;right:9px;background:#304158;color:#fff;border:1px solid #52647c;padding:5px 9px;border-radius:6px;font-size:11px;cursor:pointer}table{border-collapse:collapse;width:100%;margin:20px 0;font-size:14px;display:block;overflow-x:auto}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}th{background:#eaf1fd;color:#244577}tr:nth-child(even) td{background:#f9fbfe}a{color:#1d4ed8}.diagram{margin:23px 0;padding:22px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#f8fbff,#eef5ff);overflow:auto}.flow{display:flex;align-items:center;justify-content:center;gap:10px}.flow.vertical{flex-direction:column}.flow.horizontal{flex-direction:row;flex-wrap:wrap}.flow-node{min-width:150px;max-width:280px;text-align:center;border:1.5px solid #72a3f6;border-radius:10px;background:#e1eeff;padding:12px 17px}.flow-node.green{background:#dcfce7;border-color:#86d8a0}.flow-node b{display:block;color:#19447b}.flow-node small{display:block;font-size:12px;color:#48607a;margin-top:2px}.arrow{font-size:23px;color:#4c7ec6;line-height:1}.timeline{display:flex;justify-content:space-between;gap:8px;position:relative;padding:18px 10px}.timeline:before{content:"";height:7px;background:linear-gradient(90deg,#16a34a,#22c55e 55%,#ef4444);position:absolute;left:10%;right:10%;top:24px;border-radius:9px}.time-point{position:relative;text-align:center;z-index:1;flex:1;min-width:65px}.dot{width:19px;height:19px;background:#2563eb;border:4px solid white;border-radius:50%;margin:0 auto 15px;box-shadow:0 0 0 1px #8bb5ec}.danger .dot{background:#dc2626}.time-point b,.time-point small{display:block}.time-point small{color:var(--muted);font-size:11px}.loss,.warning{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;border-radius:8px;padding:10px 13px;text-align:center;font-weight:650;font-size:13px}.hint{color:var(--muted);font-size:12px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.tile{padding:13px;background:white;border:1px solid #cbdcf2;border-radius:9px}.tile h4{margin:0;color:#1e40af}.tile p{font-size:13px;margin:5px 0}.bars>div{display:flex;align-items:center;gap:12px;margin:12px 0}.bars span{width:39%;font-size:12px}.bars strong{font-size:12px;white-space:nowrap}.track{height:11px;flex:1;border-radius:10px;background:#d9e3f1;overflow:hidden}.track div{height:100%;background:#2563eb;border-radius:10px}.widget{border:1px solid #bfdbfe;border-radius:13px;background:#f5f9ff;padding:22px;margin:25px 0}.widget-title{font-weight:800;color:#1d4ed8;margin-bottom:16px}.widget label{display:block;font-weight:600;font-size:14px;margin:17px 0}.widget output{float:right;color:#1d4ed8}.widget input[type=range]{display:block;width:100%;margin:12px 0;accent-color:#2563eb}.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.stats>div{background:white;border:1px solid #d7e3f4;border-radius:9px;padding:14px}.stats small,.stats strong,.stats span{display:block}.stats small,.stats span{font-size:12px;color:var(--muted)}.stats strong{font-size:26px;color:#1e40af}.traffic{display:flex;height:32px;border-radius:8px;overflow:hidden;background:#e2e8f0}.traffic .old{background:#2563eb;transition:width .35s}.traffic .new{background:#16a34a;transition:width .35s}.actions{display:flex;gap:10px;flex-wrap:wrap}button{border:1px solid #b7cce7;background:white;color:#1d4ed8;border-radius:8px;padding:9px 13px;font-weight:700;cursor:pointer}button:hover{background:#e5efff}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}.progress{height:9px;background:#dbeafe;border-radius:10px;overflow:hidden}.progress>div{height:100%;width:0;background:#16a34a;transition:width .2s}.checkrow{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #dce8f8;font-size:14px}.checkrow input{margin-top:7px;accent-color:#16a34a}.quiz-q{padding:18px 0;border-bottom:1px solid #dce8f8}.quiz-q h4{margin:0 0 9px}.quiz-q label{margin:4px 0;font-weight:400;display:flex;align-items:center;gap:8px}.quiz-q input{accent-color:#2563eb}.feedback{padding:10px;background:white;border-radius:7px;margin-top:10px;font-size:13px}.score{font-size:22px;font-weight:800;color:#1d4ed8;margin:14px 0}.math{display:block;text-align:center;font-family:Georgia,serif;font-size:20px;padding:14px;background:#f5f8fd;border-radius:9px;overflow:auto}.toolbar{display:flex;gap:8px}.toolbar button{font-size:12px}.mobile-menu{display:none}.footer{font-size:13px;color:var(--muted);text-align:center;margin-top:24px}@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;z-index:20;top:0;left:0;width:min(310px,90vw);box-shadow:10px 0 30px #0003}.sidebar.open{display:block}.mobile-menu{display:inline-block}.main{padding:14px}.three{grid-template-columns:1fr}article{padding:22px}.flow.horizontal{flex-direction:column}.flow.horizontal .arrow{transform:rotate(90deg)}.stats{grid-template-columns:1fr}}@media print{body{background:white}.layout{display:block}.sidebar,.top,.copy,.actions,.mobile-menu{display:none!important}.main{padding:0;max-width:none}article{border:0;box-shadow:none;padding:0}h1{break-before:page}h1:first-child{break-before:auto}pre,.diagram,.widget,table{break-inside:avoid}a{color:inherit}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="30"><div class="layout"><nav class="sidebar" id="sidebar"><div class="brand">LINUX · BÀI 30</div><a href="#part-1">Bài 30 — Backup, Recovery và Quản lý thay đổi trong Linux</a><a href="#part-2">PHẦN I — TƯ DUY NỀN TẢNG: TẠI SAO HỆ THỐNG CẦN BACKUP VÀ RECOVERY?</a><a href="#part-3">PHẦN II — RPO VÀ RTO: HAI CHỈ SỐ QUYẾT ĐỊNH CHIẾN LƯỢC PHỤC HỒI</a><a href="#part-4">PHẦN III — BACKUP CONSISTENCY: TẠI SAO COPY FILE CHƯA CHẮC LÀ BACKUP ĐÚNG?</a><a href="#part-5">PHẦN IV — FULL, INCREMENTAL VÀ DIFFERENTIAL BACKUP</a><a href="#part-6">PHẦN V — RETENTION, QUY TẮC 3-2-1 VÀ BACKUP OFFSITE</a><a href="#part-7">PHẦN VI — LAB 1: BACKUP VÀ RESTORE DỮ LIỆU TĨNH</a><a href="#part-8">PHẦN VII — LAB 2: MÔ PHỎNG MẤT DỮ LIỆU VÀ RPO</a><a href="#part-9">PHẦN VIII — DATABASE BACKUP: TẠI SAO POSTGRESQL CẦN CƠ CHẾ RIÊNG?</a><a href="#part-10">PHẦN IX — ĐO RTO THỰC TẾ</a><a href="#part-11">PHẦN X — QUẢN LÝ THAY ĐỔI: VÌ SAO BACKUP TỐT VẪN CHƯA ĐỦ?</a><a href="#part-12">PHẦN XI — CANARY DEPLOYMENT VÀ ROLLBACK</a><a href="#part-13">PHẦN XII — EXPAND/CONTRACT DATABASE MIGRATION</a><a href="#part-14">PHẦN XIII — THIẾT KẾ RUNBOOK ROLLBACK THỰC TẾ</a><a href="#part-15">PHẦN XIV — BACKUP VÀ ROLLBACK KHÔNG PHẢI MỘT</a><a href="#part-16">PHẦN XV — RESTORE DRILL: KIỂM TRA BACKUP THẬT SỰ</a><a href="#part-17">PHẦN XVI — CÁC TÌNH HUỐNG THỰC TẾ MÀ SENIOR PHẢI SUY NGHĨ</a><a href="#part-18">PHẦN XVII — KẾT NỐI VỚI NHỮNG BÀI LINUX ĐÃ HỌC</a><a href="#part-19">PHẦN XVIII — THIẾT KẾ KIẾN TRÚC BACKUP CHO PRODUCTION</a><a href="#part-20">PHẦN XIX — LAB TỔNG HỢP: TỰ ĐỘNG HÓA BACKUP CÓ KIỂM SOÁT LỖI</a><a href="#part-21">PHẦN XX — BÀI TẬP PHẢN BIỆN VÀ TÌNH HUỐNG PHỎNG VẤN</a><a href="#part-22">PHẦN XXI — NHỮNG NGUYÊN TẮC KINH NGHIỆM CẦN GHI NHỚ</a><a href="#part-23">PHẦN XXII — BÀI LAB CUỐI CÙNG: TỰ THIẾT KẾ PHƯƠNG ÁN PHỤC HỒI</a><a href="#part-24">PHẦN XXIII — TỔNG KẾT KIẾN TRÚC TƯ DUY</a></nav><main class="main"><div class="top"><span class="pill">Tài liệu học Linux · Bài 30</span><div class="toolbar"><button id="menuBtn" class="mobile-menu">☰ Mục lục</button><button id="printBtn">⎙ In / PDF</button></div></div><article><h1 id="part-1">Bài 30 — Backup, Recovery và Quản lý thay đổi trong Linux</h1>
+<p><em>Linux System Administration · Production Engineering · Disaster Recovery · Change Management</em></p>
+<p>Bài này là một trong những bài quan trọng nhất khi chuyển từ tư duy <strong>người biết sử dụng Linux</strong> sang tư duy <strong>kỹ sư chịu trách nhiệm vận hành hệ thống thực tế (Production Engineer/SRE)</strong>.</p>
+<p>Ở các bài trước, chúng ta đã học cách xây dựng dịch vụ với <code>systemd</code>, quản lý storage bằng LVM/RAID, tự động hóa với Ansible, và giám sát hệ thống bằng logs, metrics, alerts.</p>
+<p>Nhưng có một vấn đề mà tất cả những kiến thức đó chưa giải quyết hoàn toàn:</p>
+<p><strong>Điều gì xảy ra khi hệ thống đã được cấu hình đúng, đang chạy tốt, nhưng một ngày nào đó dữ liệu biến mất hoặc bản cập nhật khiến toàn bộ dịch vụ ngừng hoạt động?</strong></p>
+<p>Đó là lý do chúng ta cần bài 30.</p>
+<hr />
+<h1 id="part-2">PHẦN I — TƯ DUY NỀN TẢNG: TẠI SAO HỆ THỐNG CẦN BACKUP VÀ RECOVERY?</h1>
+<h2>1. Một tình huống thực tế</h2>
+<p>Giả sử bạn là kỹ sư phụ trách hệ thống quản lý đơn hàng của một công ty thương mại điện tử.</p>
+<p>Hệ thống có kiến trúc:</p>
+<figure class="diagram"><div class="flow vertical"><div class="flow-node "><b>Khách hàng</b><small>Browser / Mobile App</small></div><div class="arrow">↓</div><div class="flow-node "><b>Nginx Reverse Proxy</b><small>HTTPS · Load Balancing</small></div><div class="arrow">↓</div><div class="flow-node "><b>Backend Service</b><small>systemd · API · Business Logic</small></div><div class="arrow">↓</div><div class="flow-node green"><b>PostgreSQL Database</b><small>Orders · Users · Payments</small></div></div><p class="warning">Nếu dữ liệu bị mất hoặc schema thay đổi không tương thích thì sao?</p></figure><p>Hệ thống chạy ổn định suốt 6 tháng. Một ngày, bạn triển khai phiên bản mới. Phiên bản này chứa một migration SQL:</p>
+<pre><code class="language-sql">ALTER TABLE orders DROP COLUMN customer_id;
+</code></pre>
+<p>Nhưng phiên bản backend cũ vẫn cần trường <code>customer_id</code>.</p>
+<p>Kết quả:</p>
+<ul>
+<li>API bắt đầu trả về HTTP 500.</li>
+<li>Khách hàng không xem được đơn hàng.</li>
+<li>Một phần dữ liệu đã bị thay đổi.</li>
+<li>Bạn quyết định quay về phiên bản ứng dụng cũ.</li>
+<li>Nhưng phiên bản cũ cũng không chạy vì database đã thay đổi cấu trúc.</li>
+</ul>
+<p><strong>Câu hỏi phản biện:</strong> Tại sao chỉ cần quay về bản code cũ vẫn không giải quyết được vấn đề?</p>
+<p>Vì hệ thống không chỉ gồm code. Trạng thái của một hệ thống thực tế là tổng hợp của:</p>
+<p>[S = (A,C,D,I,E)]</p>
+<p>Trong đó:</p>
+<table>
+<thead>
+<tr>
+  <th>Thành phần</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A — Application</td>
+  <td>Phiên bản chương trình</td>
+</tr>
+<tr>
+  <td>C — Configuration</td>
+  <td>File cấu hình</td>
+</tr>
+<tr>
+  <td>D — Data</td>
+  <td>Dữ liệu nghiệp vụ</td>
+</tr>
+<tr>
+  <td>I — Infrastructure</td>
+  <td>Máy chủ, storage, network</td>
+</tr>
+<tr>
+  <td>E — External dependencies</td>
+  <td>Dịch vụ và hệ thống phụ thuộc</td>
+</tr>
+</tbody>
+</table>
+<p>Rollback chỉ thay đổi A chưa chắc đưa toàn bộ S trở về trạng thái hợp lệ. Đây chính là vấn đề cốt lõi của backup, recovery và quản lý thay đổi.</p>
+<h2>2. Phân biệt Backup, Restore, Recovery và Rollback</h2>
+<p>Bốn thuật ngữ này thường bị sử dụng lẫn lộn.</p>
+<table>
+<thead>
+<tr>
+  <th>Khái niệm</th>
+  <th>Định nghĩa đơn giản</th>
+  <th>Ví dụ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Backup</td>
+  <td>Tạo bản sao dữ liệu có thể dùng để phục hồi</td>
+  <td>Lưu database lúc 00:00</td>
+</tr>
+<tr>
+  <td>Restore</td>
+  <td>Đưa dữ liệu từ bản backup về một đích</td>
+  <td>Giải nén dữ liệu vào máy mới</td>
+</tr>
+<tr>
+  <td>Recovery</td>
+  <td>Khôi phục khả năng hoạt động đúng của hệ thống</td>
+  <td>Khôi phục DB, cấu hình và API</td>
+</tr>
+<tr>
+  <td>Rollback</td>
+  <td>Đảo ngược một thay đổi đã triển khai</td>
+  <td>Chuyển ứng dụng v2 về v1</td>
+</tr>
+</tbody>
+</table>
+<p>Hãy tưởng tượng một cửa hàng:</p>
+<ul>
+<li><strong>Backup:</strong> Chụp ảnh và lưu bản sao sổ kế toán.</li>
+<li><strong>Restore:</strong> Lấy sổ kế toán dự phòng ra.</li>
+<li><strong>Recovery:</strong> Khôi phục toàn bộ cửa hàng, máy tính tiền, hàng hóa và quy trình bán hàng.</li>
+<li><strong>Rollback:</strong> Thay phần mềm quản lý mới bằng phần mềm cũ.</li>
+</ul>
+<p>Một cửa hàng có sổ kế toán nhưng không có máy tính tiền, nhân viên hay điện thì chưa thể kinh doanh. Tương tự, database đã restore xong không có nghĩa là dịch vụ đã recovery xong.</p>
+<hr />
+<h1 id="part-3">PHẦN II — RPO VÀ RTO: HAI CHỈ SỐ QUYẾT ĐỊNH CHIẾN LƯỢC PHỤC HỒI</h1>
+<h2>3. RPO — Bạn chấp nhận mất bao nhiêu dữ liệu?</h2>
+<p>RPO là viết tắt của <strong>Recovery Point Objective</strong>.</p>
+<blockquote>
+<p>Khoảng thời gian mất dữ liệu tối đa mà doanh nghiệp chấp nhận được khi xảy ra sự cố.</p>
+</blockquote>
+<p>Ví dụ:</p>
+<ul>
+<li>Hệ thống tạo backup mỗi 6 giờ.</li>
+<li>Backup cuối cùng thành công lúc 12:00.</li>
+<li>Hệ thống hỏng lúc 17:00.</li>
+<li>Bạn chỉ có thể khôi phục dữ liệu đến 12:00.</li>
+</ul>
+<p>Như vậy dữ liệu từ 12:00 đến 17:00 có nguy cơ bị mất.</p>
+<figure class="diagram"><div class="timeline"><div class="time-point "><div class="dot"></div><b>00:00</b><small>Có backup</small></div><div class="time-point "><div class="dot"></div><b>12:00</b><small>Backup cuối</small></div><div class="time-point danger"><div class="dot"></div><b>17:00</b><small>Sự cố</small></div></div><div class="loss">Khoảng dữ liệu có thể mất: 5 giờ (12:00 → 17:00)</div></figure><p>Trong tình huống này, lượng dữ liệu mất thực tế tương ứng 5 giờ. Nếu mục tiêu RPO được đặt là 1 giờ, hệ thống đã không đáp ứng mục tiêu.</p>
+<p>Cần phân biệt:</p>
+<ul>
+<li><strong>RPO:</strong> Mục tiêu tối đa được chấp nhận.</li>
+<li><strong>Actual data loss:</strong> Khoảng mất dữ liệu thực tế.</li>
+<li><strong>Backup interval:</strong> Chu kỳ backup.</li>
+</ul>
+<p>Ba đại lượng này có liên quan nhưng không đồng nhất.</p>
+<h3>Câu hỏi: Nếu backup mỗi 1 giờ thì RPO chắc chắn là 1 giờ?</h3>
+<p>Không. Giả sử backup 12:00 thành công, 13:00 và 14:00 thất bại, máy chủ hỏng 14:30. Bạn có thể mất 2 giờ 30 phút dữ liệu. Vì vậy, chỉ lập lịch backup chưa đủ. Phải giám sát backup có thành công và có thể khôi phục hay không.</p>
+<h2>4. RTO — Bạn chấp nhận hệ thống ngừng hoạt động bao lâu?</h2>
+<p>RTO là <strong>Recovery Time Objective</strong>.</p>
+<blockquote>
+<p>Thời gian tối đa mục tiêu để khôi phục chức năng dịch vụ sau một sự cố.</p>
+</blockquote>
+<p>Ví dụ doanh nghiệp đặt (RTO = 30\text{ phút}). Nghĩa là quy trình phục hồi phải được thiết kế để dịch vụ hoạt động trở lại trong giới hạn này.</p>
+<figure class="diagram"><div class="bars"><div><span>Phát hiện và xác nhận</span><div class="track"><div style="width:12.5%"></div></div><strong>5 phút</strong></div><div><span>Chuẩn bị hạ tầng và khóa</span><div class="track"><div style="width:25%"></div></div><strong>10 phút</strong></div><div><span>Restore dữ liệu</span><div class="track"><div style="width:37.5%"></div></div><strong>15 phút</strong></div><div><span>Khởi động, kiểm tra nghiệp vụ</span><div class="track"><div style="width:25%"></div></div><strong>10 phút</strong></div></div><div class="loss">Tổng: 40 phút — Không đạt RTO mục tiêu 30 phút</div></figure><h3>Vì sao không được chỉ đo thời gian giải nén?</h3>
+<p>Vì ngoài dữ liệu, ứng dụng còn cần:</p>
+<ul>
+<li>Máy chủ và hệ điều hành.</li>
+<li>Các thư viện và runtime.</li>
+<li>File cấu hình.</li>
+<li>Secret và certificate.</li>
+<li>Kết nối network.</li>
+<li>DNS, firewall.</li>
+<li>Database schema.</li>
+<li>Kiểm tra dữ liệu nghiệp vụ.</li>
+</ul>
+<p>Một kỹ sư mới có thể báo cáo: “Tôi restore database trong 4 phút, vậy RTO là 4 phút.” Nhưng một senior sẽ hỏi: “Sau 4 phút đó, khách hàng đã đăng nhập và tạo đơn hàng được chưa?” Nếu chưa thì chưa thể xem đó là thời gian phục hồi toàn dịch vụ.</p>
+<h2>5. Bài tập tương tác: tính RPO và thời gian recovery</h2>
+<div class="widget" id="rpo-widget"><div class="widget-title">◉ Mô phỏng sự cố · Interactive Lab</div><label>Backup cuối cùng: <output id="backupV">12:00</output><input id="backup" type="range" min="0" max="20" value="12"></label><label>Thời điểm sự cố: <output id="failV">17:00</output><input id="fail" type="range" min="1" max="23" value="17"></label><label>Chuẩn bị hạ tầng: <output id="prepV">15 phút</output><input id="prep" type="range" min="0" max="90" step="5" value="15"></label><label>Restore và kiểm tra: <output id="restoreV">25 phút</output><input id="restore" type="range" min="5" max="120" step="5" value="25"></label><div class="stats"><div><small>Mất dữ liệu giả định</small><strong id="lossValue">5 giờ</strong><span id="lossStatus">Không đạt RPO 1 giờ</span></div><div><small>Recovery giả định</small><strong id="rtoValue">40 phút</strong><span id="rtoStatus">Không đạt RTO 30 phút</span></div></div><p class="hint">Mô hình giả định backup hợp lệ, không có điểm khôi phục mới hơn và các khoảng thời gian không chồng lấn.</p></div><h3>RPO và RTO liên quan thế nào?</h3>
+<p>Chúng là hai mục tiêu độc lập.</p>
+<ul>
+<li>RPO 5 phút, RTO 4 giờ: mất rất ít dữ liệu nhưng khởi động lại lâu.</li>
+<li>RPO 24 giờ, RTO 5 phút: khởi động lại nhanh nhưng có thể mất dữ liệu cả ngày.</li>
+</ul>
+<p>Ví dụ, một trang giới thiệu doanh nghiệp có thể chấp nhận mất dữ liệu một ngày. Nhưng hệ thống thanh toán cần chính sách dữ liệu nghiêm ngặt hơn nhiều.</p>
+<hr />
+<h1 id="part-4">PHẦN III — BACKUP CONSISTENCY: TẠI SAO COPY FILE CHƯA CHẮC LÀ BACKUP ĐÚNG?</h1>
+<h2>6. Trước hết phải hiểu thế nào là dữ liệu nhất quán</h2>
+<p>Giả sử bạn có hệ thống ngân hàng với hai tài khoản:</p>
+<table>
+<thead>
+<tr>
+  <th>Tài khoản</th>
+  <th style="text-align:right">Số dư</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td style="text-align:right">1.000.000đ</td>
+</tr>
+<tr>
+  <td>B</td>
+  <td style="text-align:right">500.000đ</td>
+</tr>
+<tr>
+  <td>Tổng</td>
+  <td style="text-align:right">1.500.000đ</td>
+</tr>
+</tbody>
+</table>
+<p>Khách hàng chuyển 200.000đ từ A sang B. Trạng thái hợp lệ sau giao dịch:</p>
+<table>
+<thead>
+<tr>
+  <th>Tài khoản</th>
+  <th style="text-align:right">Số dư</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td style="text-align:right">800.000đ</td>
+</tr>
+<tr>
+  <td>B</td>
+  <td style="text-align:right">700.000đ</td>
+</tr>
+<tr>
+  <td>Tổng</td>
+  <td style="text-align:right">1.500.000đ</td>
+</tr>
+</tbody>
+</table>
+<p>Nhưng giả sử ứng dụng đang cập nhật hai file riêng biệt:</p>
+<pre><code class="language-text">account_A.txt
+account_B.txt
+</code></pre>
+<p>Quá trình thực hiện:</p>
+<pre><code class="language-text">1. Đọc số dư A
+2. Trừ 200.000 khỏi A
+3. Ghi A xuống disk
+4. Cộng 200.000 vào B
+5. Ghi B xuống disk
+</code></pre>
+<p>Nếu bạn copy file A sau bước 3 và file B trước bước 4, backup có thể chứa:</p>
+<pre><code class="language-text">A = 800.000
+B = 500.000
+</code></pre>
+<p>Tổng còn 1.300.000đ. 200.000đ biến mất khỏi bản backup.</p>
+<p>Vấn đề không nằm ở <code>cp</code> hay <code>tar</code> hoạt động sai. Chúng đã copy đúng những byte được đọc tại từng thời điểm. Vấn đề là các byte đó không đại diện cho <strong>một trạng thái nghiệp vụ nhất quán</strong>.</p>
+<p>Trong database có transaction, các cơ chế ACID và recovery log giúp tránh những trạng thái trung gian như vậy. Nhưng copy trực tiếp file của database đang chạy không tự động sử dụng các cơ chế đó đúng cách.</p>
+<h2>7. Ba mức nhất quán thường gặp</h2>
+<figure class="diagram"><div class="three"><div class="tile"><h4>File-level copy</h4><p>Dữ liệu tĩnh hoặc ứng dụng đã ngừng ghi; không đảm bảo các file cùng thời điểm.</p></div><div class="tile"><h4>Crash-consistent snapshot</h4><p>Ảnh chụp storage như sau mất điện; ứng dụng có thể cần crash recovery.</p></div><div class="tile"><h4>Application-consistent backup</h4><p>Phối hợp với ứng dụng để tạo điểm khôi phục hợp lệ theo giao thức.</p></div></div></figure><h3>Crash-consistent có nghĩa là dữ liệu bị hỏng?</h3>
+<p>Không nhất thiết. Hãy nhớ lại bài Storage và Filesystem. Linux có page cache, filesystem journal, writeback, <code>fsync()</code>, block I/O và storage cache. Ứng dụng có thể đã cập nhật dữ liệu trong RAM nhưng chưa ghi hết xuống storage.</p>
+<p>Khi snapshot được tạo, trạng thái ghi có thể đang ở giữa một quy trình. Một database được thiết kế đúng có thể dùng WAL để recovery sau sự cố. Tuy nhiên, snapshot phải bao phủ đầy đủ các thành phần cần thiết, ví dụ data files và WAL. Snapshot các volume khác nhau ở những thời điểm không đồng bộ có thể làm mất tính nhất quán cần thiết.</p>
+<p><strong>Câu hỏi:</strong> Nếu filesystem là ext4 và có journal, có phải mọi ứng dụng trên đó đều được bảo đảm dữ liệu nhất quán?</p>
+<p>Không. Filesystem journal chủ yếu bảo vệ tính nhất quán của filesystem theo chế độ hoạt động của nó. Nó không thay thế transaction logic của ứng dụng.</p>
+<p>[\text{Filesystem Consistency} \neq \text{Application Consistency}]</p>
+<hr />
+<h1 id="part-5">PHẦN IV — FULL, INCREMENTAL VÀ DIFFERENTIAL BACKUP</h1>
+<h2>8. Tại sao không đơn giản backup toàn bộ mỗi ngày?</h2>
+<p>Giả sử database có dung lượng 1 TB. Mỗi ngày chỉ thay đổi 10 GB dữ liệu. Nếu backup toàn bộ: (7 \times 1\text{ TB} = 7\text{ TB}) cho một tuần, chưa tính nén, deduplication và các bản backup khác.</p>
+<p>Vấn đề là chi phí lưu trữ, băng thông, thời gian backup và thời gian phục hồi. Vì vậy có nhiều chiến lược.</p>
+<h2>9. Full backup</h2>
+<p>Full backup chứa toàn bộ dữ liệu thuộc phạm vi backup.</p>
+<pre><code class="language-text">Ngày 1: FULL [A B C D]
+Ngày 2: FULL [A B C D E]
+Ngày 3: FULL [A B C D E F]
+</code></pre>
+<p>Ưu điểm là quá trình restore thường đơn giản hơn vì không phải dựng lại một chuỗi backup dài. Nhược điểm là dung lượng và thời gian tạo backup có thể lớn.</p>
+<h2>10. Incremental backup</h2>
+<p>Incremental backup lưu thay đổi kể từ điểm backup trước đó trong chuỗi.</p>
+<figure class="diagram"><div class="flow horizontal"><div class="flow-node"><b>Full</b><small>Ngày 1</small></div><div class="arrow">→</div><div class="flow-node"><b>Inc 1</b><small>Ngày 2</small></div><div class="arrow">→</div><div class="flow-node"><b>Inc 2</b><small>Ngày 3</small></div><div class="arrow">→</div><div class="flow-node"><b>Inc 3</b><small>Ngày 4</small></div></div><p class="warning">Restore ngày 4 cần chuỗi hợp lệ: Full → Inc 1 → Inc 2 → Inc 3.</p></figure><p>Giả sử Inc 2 bị mất. Bạn có Full, Inc 1 và Inc 3. Có thể restore đến ngày 4 không?</p>
+<p>Với kiểu incremental phụ thuộc chuỗi thông thường: <strong>Không.</strong> Vì Inc 3 chỉ ghi lại thay đổi so với trạng thái tại Inc 2.</p>
+<p>Tuy nhiên, một số hệ thống backup hiện đại có cơ chế synthetic full, deduplication hoặc cấu trúc dependency khác. Phải hiểu chính xác công cụ đang sử dụng.</p>
+<h2>11. Differential backup</h2>
+<p>Differential backup lưu thay đổi kể từ bản Full gần nhất.</p>
+<pre><code class="language-text">Ngày 1: Full
+Ngày 2: Diff (thay đổi từ ngày 1)
+Ngày 3: Diff (thay đổi từ ngày 1)
+Ngày 4: Diff (thay đổi từ ngày 1)
+</code></pre>
+<p>Restore ngày 4 thường chỉ cần Full ngày 1 + Differential ngày 4.</p>
+<table>
+<thead>
+<tr>
+  <th>Tiêu chí</th>
+  <th>Full</th>
+  <th>Incremental</th>
+  <th>Differential</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Dung lượng mỗi lần</td>
+  <td>Lớn</td>
+  <td>Thường nhỏ</td>
+  <td>Tăng dần</td>
+</tr>
+<tr>
+  <td>Thời gian backup</td>
+  <td>Thường dài</td>
+  <td>Thường ngắn</td>
+  <td>Có thể tăng</td>
+</tr>
+<tr>
+  <td>Restore</td>
+  <td>Đơn giản</td>
+  <td>Phụ thuộc chuỗi</td>
+  <td>Thường ít bước hơn</td>
+</tr>
+<tr>
+  <td>Rủi ro mất mắt xích</td>
+  <td>Thấp hơn</td>
+  <td>Cao hơn</td>
+  <td>Thấp hơn incremental chuỗi</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Không thể chọn phương án backup chỉ dựa trên dung lượng.</strong> Nếu backup tiết kiệm 80% dung lượng nhưng mất 6 giờ để khôi phục, trong khi RTO là 30 phút, chiến lược đó không phù hợp.</p>
+<hr />
+<h1 id="part-6">PHẦN V — RETENTION, QUY TẮC 3-2-1 VÀ BACKUP OFFSITE</h1>
+<h2>12. Retention là gì?</h2>
+<p>Retention là chính sách xác định các bản backup được giữ bao lâu, theo những lớp thời gian nào và khi nào được xóa.</p>
+<pre><code class="language-text">Hourly backup: giữ 24 giờ
+Daily backup:  giữ 14 ngày
+Weekly backup: giữ 8 tuần
+Monthly backup: giữ 12 tháng
+</code></pre>
+<p>Tại sao cần nhiều lớp? Giả sử hôm nay là ngày 30, bạn mới phát hiện dữ liệu bị sai từ ngày 12. Nếu chỉ giữ backup 7 ngày thì mọi bản backup còn lại có thể đã chứa dữ liệu sai.</p>
+<p>Một chính sách retention tốt cần cân nhắc tốc độ tăng trưởng dữ liệu, khả năng phát hiện lỗi muộn, quy định lưu giữ, chi phí storage, khả năng khôi phục và vòng đời khóa mã hóa.</p>
+<p>Retention dài không tự động có nghĩa là an toàn: nếu các bản backup cùng bị hỏng, cùng bị xóa hoặc không có key, thời gian lưu dài không giúp ích.</p>
+<h2>13. Quy tắc 3-2-1</h2>
+<ul>
+<li><strong>3 bản dữ liệu:</strong> bản chính và ít nhất hai bản sao.</li>
+<li><strong>2 loại phương tiện hoặc hệ thống lưu trữ khác nhau.</strong></li>
+<li><strong>1 bản ở ngoài địa điểm hoặc miền lỗi chính.</strong></li>
+</ul>
+<figure class="diagram"><div class="flow vertical"><div class="flow-node "><b>Production</b><small>Dữ liệu gốc</small></div><div class="arrow">↓</div><div class="flow-node "><b>Local Backup</b><small>Storage độc lập</small></div><div class="arrow">↓</div><div class="flow-node green"><b>Offsite Backup</b><small>Site / vùng khác</small></div></div><p class="hint">Ba bản dữ liệu · Hai loại lưu trữ · Một bản offsite</p></figure><h3>Câu hỏi phản biện</h3>
+<p>Nếu tôi lưu backup ở <code>/data/production</code> và <code>/data/backup</code> trên cùng một ổ cứng, có được xem là hai bản độc lập an toàn không?</p>
+<p>Không. Nếu ổ cứng hỏng, cả hai cùng mất. Nếu ransomware có quyền ghi cả hai thư mục, cả hai có thể bị mã hóa. Nếu tài khoản root bị chiếm, kẻ tấn công có thể xóa cả hai.</p>
+<p><strong>Bản backup phải sống sót trước ít nhất một số loại sự cố có thể phá hủy hệ thống gốc.</strong> Trong production, nên cân nhắc thêm backup bất biến (immutable), bản offline, phân tách quyền quản trị và kiểm tra khả năng phục hồi.</p>
+<hr />
+<h1 id="part-7">PHẦN VI — LAB 1: BACKUP VÀ RESTORE DỮ LIỆU TĨNH</h1>
+<p>Bây giờ chúng ta chuyển từ lý thuyết sang thực hành. Lab này thực hiện trên Linux VM, không cần database.</p>
+<h2>14. Bước 1 — Chuẩn bị dữ liệu</h2>
+<pre><code class="language-bash">mkdir -p &quot;$HOME/linux-lab/recovery/source&quot;
+cd &quot;$HOME/linux-lab/recovery&quot;
+printf 'order-001\n' &gt; source/orders.txt
+printf 'release=1\n' &gt; source/config.txt
+</code></pre>
+<p>Cấu trúc:</p>
+<pre><code class="language-text">recovery/
+└── source/
+    ├── orders.txt
+    └── config.txt
+</code></pre>
+<p>Đọc nội dung:</p>
+<pre><code class="language-bash">cat source/orders.txt
+cat source/config.txt
+</code></pre>
+<p>Kết quả:</p>
+<pre><code class="language-text">order-001
+release=1
+</code></pre>
+<p>Ở đây dữ liệu được cố định trong suốt quá trình tạo manifest và backup. Nếu file thay đổi giữa lúc tính checksum và lúc archive được tạo, manifest có thể không còn khớp với bản backup.</p>
+<h2>15. Bước 2 — Tạo manifest checksum</h2>
+<pre><code class="language-bash">(
+    cd source
+    sha256sum config.txt orders.txt
+) &gt; manifest.sha256
+</code></pre>
+<h3><code>sha256sum</code> làm gì?</h3>
+<p>SHA-256 là hàm băm mật mã. Nó biến nội dung có độ dài bất kỳ thành một giá trị 256 bit.</p>
+<p>[H = SHA256(Data)]</p>
+<p>Ví dụ minh họa:</p>
+<pre><code class="language-text">Data A → 7f83b165...
+Data B → 8b1a9953...
+</code></pre>
+<p>Khi nội dung thay đổi, giá trị hash thường thay đổi rất lớn. Không nên hiểu SHA-256 là mã hóa: nó không cho phép giải mã để lấy lại dữ liệu gốc.</p>
+<p>Manifest có dạng:</p>
+<pre><code class="language-text">&lt;sha256-config&gt;  config.txt
+&lt;sha256-orders&gt;  orders.txt
+</code></pre>
+<p>Các giá trị hash thực tế do lệnh tính ra.</p>
+<h3>Vì sao phải <code>cd source</code> trước khi tính checksum?</h3>
+<p>Vì manifest lưu tên file tương đối: <code>config.txt</code>, <code>orders.txt</code>. Khi restore, bạn có thể kiểm tra từ thư mục đích mới mà không phụ thuộc đường dẫn gốc.</p>
+<h3>Checksum có chứng minh backup an toàn không?</h3>
+<p>Chưa đủ. Checksum có thể phát hiện file không khớp với manifest. Nhưng nếu attacker thay đổi cả dữ liệu và manifest thì phép kiểm tra đơn thuần không xác thực được nguồn gốc. Để chống sửa đổi có chủ đích, cần bảo vệ manifest hoặc sử dụng chữ ký số, MAC hay cơ chế xác thực tương đương.</p>
+<h2>16. Bước 3 — Tạo backup archive</h2>
+<pre><code class="language-bash">tar -czf backup.tar.gz -C source .
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Thành phần</th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>tar</code></td>
+  <td>Công cụ tạo/giải archive</td>
+</tr>
+<tr>
+  <td><code>-c</code></td>
+  <td>Create</td>
+</tr>
+<tr>
+  <td><code>-z</code></td>
+  <td>Nén gzip</td>
+</tr>
+<tr>
+  <td><code>-f</code></td>
+  <td>Chỉ định file archive</td>
+</tr>
+<tr>
+  <td><code>backup.tar.gz</code></td>
+  <td>File output</td>
+</tr>
+<tr>
+  <td><code>-C source</code></td>
+  <td>Chuyển vào source</td>
+</tr>
+<tr>
+  <td><code>.</code></td>
+  <td>Archive nội dung thư mục hiện tại</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tại sao dùng <code>-C source .</code> thay vì archive đường dẫn tuyệt đối?</strong> Vì bạn muốn dữ liệu có thể giải nén ở nhiều nơi mà không gắn cứng vào đường dẫn ban đầu.</p>
+<pre><code class="language-bash">tar -tzf backup.tar.gz
+</code></pre>
+<p>Kết quả dự kiến:</p>
+<pre><code class="language-text">./
+./config.txt
+./orders.txt
+</code></pre>
+<h2>17. Bước 4 — Restore vào thư mục độc lập</h2>
+<pre><code class="language-bash">mkdir restore
+tar -xzf backup.tar.gz -C restore
+</code></pre>
+<pre><code class="language-text">recovery/
+├── source/
+│   ├── config.txt
+│   └── orders.txt
+├── backup.tar.gz
+├── manifest.sha256
+└── restore/
+    ├── config.txt
+    └── orders.txt
+</code></pre>
+<p>Tại sao không restore trực tiếp vào <code>source</code>? Vì nếu bản backup sai hoặc thao tác restore có lỗi, bạn có thể phá hủy dữ liệu gốc và bằng chứng điều tra.</p>
+<p><strong>Lần kiểm tra restore đầu tiên nên thực hiện vào một môi trường hoặc đích độc lập.</strong> Ngoài ra, không nên giải nén archive không đáng tin cậy với quyền cao. Archive có thể chứa đường dẫn, symlink hoặc metadata nguy hiểm.</p>
+<h2>18. Bước 5 — Kiểm tra checksum</h2>
+<pre><code class="language-bash">(
+    cd restore
+    sha256sum -c ../manifest.sha256
+)
+</code></pre>
+<p>Kết quả:</p>
+<pre><code class="language-text">config.txt: OK
+orders.txt: OK
+</code></pre>
+<pre><code class="language-bash">diff -r source restore
+echo $?
+</code></pre>
+<p>Nếu không có khác biệt, <code>diff</code> thông thường không in gì và trả exit code 0.</p>
+<h3>Vì sao phải kiểm tra cả checksum và diff?</h3>
+<p>Trong lab đơn giản, hai cách này có phần chồng lấn. Checksum kiểm tra nội dung so với manifest, còn diff so sánh hai cây dữ liệu đang có.</p>
+<p>Chỉ <code>diff -r</code> chưa kiểm tra đầy đủ metadata như ownership, ACL, extended attributes và mọi đặc tính cần thiết của filesystem. Nếu ứng dụng phụ thuộc các metadata đó, quy trình backup/restore phải bảo toàn và xác minh chúng riêng.</p>
+<hr />
+<h1 id="part-8">PHẦN VII — LAB 2: MÔ PHỎNG MẤT DỮ LIỆU VÀ RPO</h1>
+<h2>19. Điều gì xảy ra với dữ liệu tạo sau backup?</h2>
+<pre><code class="language-bash">printf 'order-002\n' &gt;&gt; source/orders.txt
+</code></pre>
+<p>Nội dung mới:</p>
+<pre><code class="language-text">order-001
+order-002
+</code></pre>
+<p>Bây giờ tạo thư mục restore khác:</p>
+<pre><code class="language-bash">mkdir restore2
+tar -xzf backup.tar.gz -C restore2
+cat restore2/orders.txt
+</code></pre>
+<p>Kết quả:</p>
+<pre><code class="language-text">order-001
+</code></pre>
+<p><code>order-002</code> không xuất hiện. Tại sao? Vì backup là một điểm khôi phục trong quá khứ.</p>
+<figure class="diagram"><div class="timeline"><div class="time-point "><div class="dot"></div><b>Backup</b><small>Order 001</small></div><div class="time-point "><div class="dot"></div><b>Sau backup</b><small>Order 002</small></div><div class="time-point danger"><div class="dot"></div><b>Sự cố</b><small>Restore không có Order 002</small></div></div></figure><p>Trong hệ thống thật, một số dữ liệu có thể được khôi phục từ log, replication, event stream hoặc nguồn khác. Mất dữ liệu không nhất thiết bằng toàn bộ thay đổi sau lần full backup.</p>
+<h2>20. Tư duy senior: Backup không đồng nghĩa với lịch sử đầy đủ</h2>
+<p>Giả sử backup lúc 00:00. Người dùng tạo đơn hàng lúc 00:05. Đến 00:10, đơn hàng bị xóa nhầm. Nếu chỉ có backup lúc 00:00, bạn không thể khôi phục riêng đơn hàng được tạo lúc 00:05.</p>
+<p>Bạn cần một cơ chế bổ sung, chẳng hạn transaction log, Point-in-Time Recovery, audit/event log có đủ dữ liệu, versioning hoặc application-level undo. Đây là lý do backup và recovery phải được thiết kế theo bản chất dữ liệu.</p>
+<hr />
+<h1 id="part-9">PHẦN VIII — DATABASE BACKUP: TẠI SAO POSTGRESQL CẦN CƠ CHẾ RIÊNG?</h1>
+<h2>21. Database không phải một thư mục file thông thường</h2>
+<p>PostgreSQL lưu dữ liệu trong các file trên storage, nhưng trạng thái logic của database còn phụ thuộc vào transaction, WAL, buffer cache, checkpoint, MVCC, catalog, schema và quan hệ giữa bảng/index.</p>
+<p>Nếu bạn thực hiện:</p>
+<pre><code class="language-bash">cp -r /var/lib/postgresql/data /backup/
+</code></pre>
+<p>trong lúc PostgreSQL đang chạy, bạn không có bảo đảm rằng bản sao đó là một physical backup hợp lệ. Các file có thể được đọc tại những thời điểm khác nhau, trong khi database liên tục cập nhật. PostgreSQL cung cấp những cơ chế backup phù hợp để giải quyết vấn đề này.</p>
+<h2>22. Logical backup với <code>pg_dump</code></h2>
+<p>Logical backup xuất nội dung database ở mức logic, chẳng hạn schema và dữ liệu.</p>
+<pre><code class="language-bash">pg_dump \
+  -U postgres \
+  -d shopdb \
+  -Fc \
+  -f shopdb.dump
+</code></pre>
+<p>Trong đó <code>-U postgres</code> là user PostgreSQL, <code>-d shopdb</code> là database, <code>-Fc</code> là custom archive format, <code>-f</code> là file output.</p>
+<p>Restore vào database mới:</p>
+<pre><code class="language-bash">createdb -U postgres shopdb_restore
+pg_restore \
+  -U postgres \
+  -d shopdb_restore \
+  shopdb.dump
+</code></pre>
+<p>Các lệnh giả định bạn đã cấu hình xác thực phù hợp và có quyền cần thiết. Không đưa mật khẩu trực tiếp vào command line.</p>
+<h3>Vì sao restore sang database mới?</h3>
+<p>Vì chúng ta muốn kiểm tra mà không đè dữ liệu production.</p>
+<pre><code class="language-bash">psql -U postgres -d shopdb_restore
+</code></pre>
+<p>Trong PostgreSQL:</p>
+<pre><code class="language-sql">SELECT COUNT(*) FROM orders;
+</code></pre>
+<p>Nhưng chỉ kiểm tra số lượng bản ghi đã đủ chưa? Chưa. Bạn cần kiểm tra schema, foreign key/constraint, dữ liệu quan trọng, truy vấn ứng dụng, role/quyền truy cập và extension cần thiết.</p>
+<p><code>pg_dump</code> của một database riêng lẻ không tự động backup mọi global object như roles và tablespaces. Có thể cần <code>pg_dumpall --globals-only</code> hoặc cơ chế quản lý riêng.</p>
+<h2>23. Physical backup và WAL</h2>
+<p>Logical backup hữu ích khi muốn xuất dữ liệu và restore linh hoạt ở mức database object. Nhưng với database lớn hoặc yêu cầu PITR, physical backup và WAL thường là một phần của chiến lược phù hợp hơn.</p>
+<h3>WAL là gì?</h3>
+<p>WAL = Write-Ahead Log. Trước khi thay đổi dữ liệu được coi là bền vững theo giao thức database, PostgreSQL ghi thông tin cần thiết vào log để có thể recovery.</p>
+<figure class="diagram"><div class="flow vertical"><div class="flow-node "><b>Transaction</b><small>UPDATE orders</small></div><div class="arrow">↓</div><div class="flow-node "><b>WAL</b><small>Ghi log trước</small></div><div class="arrow">↓</div><div class="flow-node green"><b>Data Files</b><small>Các data page; WAL hỗ trợ redo/recovery</small></div></div></figure><p>Ứng dụng không thể chỉ dựa vào việc ghi trực tiếp từng data page và hy vọng mọi thứ hoàn tất nguyên tử khi mất điện. WAL giúp database tái tạo những thay đổi đã commit theo quy tắc durability và recovery của PostgreSQL.</p>
+<h2>24. PITR — Point-in-Time Recovery</h2>
+<p>Giả sử:</p>
+<pre><code class="language-text">00:00: Physical base backup
+09:00: Giao dịch bình thường
+10:15: Giao dịch bình thường
+10:30: Admin xóa nhầm dữ liệu
+10:31: Phát hiện lỗi
+</code></pre>
+<p>Bạn muốn đưa database về 10:29:59, ngay trước thao tác sai. Nếu có base backup hợp lệ cùng chuỗi WAL cần thiết, PostgreSQL có thể replay WAL đến mục tiêu recovery được cấu hình.</p>
+<figure class="diagram"><div class="timeline"><div class="time-point "><div class="dot"></div><b>00:00</b><small>Base backup</small></div><div class="time-point "><div class="dot"></div><b>10:29</b><small>Mục tiêu PITR</small></div><div class="time-point danger"><div class="dot"></div><b>10:30</b><small>Xóa nhầm</small></div></div></figure><p>PITR không phải nút Undo đơn giản. Bạn phải có base backup hợp lệ, WAL liên tục, cấu hình recovery phù hợp, phiên bản PostgreSQL tương thích và môi trường restore cần thiết.</p>
+<p>Recovery về thời điểm trước lỗi có thể loại bỏ cả những giao dịch hợp lệ xảy ra sau đó. Với lỗi xóa nhầm một bảng, đôi khi giải pháp tốt hơn là PITR sang instance riêng rồi trích xuất dữ liệu cần thiết, thay vì đảo ngược toàn bộ production.</p>
+<hr />
+<h1 id="part-10">PHẦN IX — ĐO RTO THỰC TẾ</h1>
+<h2>25. Đo thế nào cho đúng?</h2>
+<p>Trong lab đơn giản, bạn có thể đo quá trình restore:</p>
+<pre><code class="language-bash">start=$(date +%s)
+mkdir -p restore3
+tar -xzf backup.tar.gz -C restore3
+(
+    cd restore3
+    sha256sum -c ../manifest.sha256
+)
+end=$(date +%s)
+echo &quot;Elapsed: $((end - start)) seconds&quot;
+</code></pre>
+<p>Nhưng đây mới là thời gian restore và kiểm tra file. Để đo recovery toàn dịch vụ, bạn cần đo từ mốc bắt đầu quy trình phục hồi đã định nghĩa đến khi hệ thống vượt qua các health check và business check.</p>
+<pre><code class="language-text">T0: Bắt đầu quy trình recovery
+T1: Máy chủ sẵn sàng
+T2: Storage sẵn sàng
+T3: Database restore xong
+T4: Backend khởi động
+T5: API health check thành công
+T6: Business transaction test thành công
+</code></pre>
+<p>[T_{\text{recovery}} = T_6 - T_0]</p>
+<p>Nếu mục tiêu là đo toàn bộ thời gian gián đoạn mà người dùng chịu, phải chọn mốc bắt đầu từ khi dịch vụ thực sự không khả dụng, thay vì lúc đội vận hành bắt đầu thao tác.</p>
+<h3>Câu hỏi senior thường đặt</h3>
+<p>Nếu <code>/health</code> trả về HTTP 200 thì hệ thống đã recovery xong chưa? Không chắc.</p>
+<pre><code class="language-bash">curl http://localhost:8080/health
+</code></pre>
+<pre><code class="language-json">{&quot;status&quot;:&quot;ok&quot;}
+</code></pre>
+<p>Nhưng API tạo đơn hàng vẫn thất bại do bảng <code>orders</code> thiếu index hoặc migration sai.</p>
+<ul>
+<li><strong>Liveness:</strong> Process còn sống?</li>
+<li><strong>Readiness:</strong> Service sẵn sàng nhận traffic?</li>
+<li><strong>Business health:</strong> Chức năng quan trọng thực sự hoạt động?</li>
+</ul>
+<p>Để xác nhận recovery, nên có business check đủ đại diện và không gây tác dụng phụ nguy hiểm.</p>
+<hr />
+<h1 id="part-11">PHẦN X — QUẢN LÝ THAY ĐỔI: VÌ SAO BACKUP TỐT VẪN CHƯA ĐỦ?</h1>
+<h2>26. Một sự cố có thể bắt nguồn từ chính bản cập nhật</h2>
+<p>Giả sử bạn chuẩn bị triển khai backend v2. Ban đầu có Backend v1, PostgreSQL, Nginx và systemd. Sau deployment, backend là v2, nhưng v2 dùng cấu trúc database mới.</p>
+<p>Bạn deploy code và migration cùng lúc. Nếu migration thất bại giữa chừng hoặc backend mới có bug, hệ thống có thể rơi vào trạng thái không tương thích.</p>
+<p>Vì vậy một thay đổi production phải có ít nhất:</p>
+<ul>
+<li>Kế hoạch triển khai.</li>
+<li>Kiểm tra điều kiện trước thay đổi.</li>
+<li>Baseline để so sánh.</li>
+<li>Tiêu chí xác nhận thành công.</li>
+<li>Điều kiện dừng hoặc abort.</li>
+<li>Kế hoạch rollback.</li>
+<li>Kế hoạch xử lý dữ liệu.</li>
+</ul>
+<p>Đây là ý nghĩa thực tế của <strong>Change Management</strong>.</p>
+<h2>27. Runbook là gì?</h2>
+<p>Runbook là tài liệu thao tác vận hành có thể thực hiện theo từng bước. Nó không chỉ ghi “Nếu lỗi thì rollback”, mà phải trả lời rollback cái gì, phiên bản nào, ai có quyền, khi nào bắt đầu, làm sao xác nhận và xử lý dữ liệu mới thế nào.</p>
+<p>Một runbook tốt phải đủ rõ để một kỹ sư khác có thể thực hiện an toàn, kể cả khi người viết không có mặt.</p>
+<hr />
+<h1 id="part-12">PHẦN XI — CANARY DEPLOYMENT VÀ ROLLBACK</h1>
+<h2>28. Canary deployment là gì?</h2>
+<p>Hãy tưởng tượng một nhà máy thay đổi công thức sản phẩm. Thay vì áp dụng cho toàn bộ 100.000 sản phẩm, nhà máy thử trên một lô nhỏ. Nếu chất lượng đạt, mới mở rộng.</p>
+<p>Canary deployment hoạt động theo ý tưởng tương tự. Ví dụ 5% traffic → v2, 95% traffic → v1. Nếu v2 ổn định, tăng lên 25% → 50% → 100%.</p>
+<div class="widget" id="canary-widget"><div class="widget-title">◉ Mô phỏng phân phối traffic · Canary</div><label>Traffic đến v2: <output id="canaryV">5%</output><input id="canary" type="range" min="0" max="100" step="5" value="5"></label><div class="traffic"><div id="oldTraffic" class="old" style="width:95%"></div><div id="newTraffic" class="new" style="width:5%"></div></div><div class="stats"><div><small>Ổn định · v1</small><strong id="oldV">95%</strong></div><div><small>Thử nghiệm · v2</small><strong id="newV">5%</strong></div></div><div class="actions"><button type="button" id="rollbackBtn">↶ Rollback về v1</button><button type="button" id="expandBtn">Mở rộng v2 →</button></div><p class="hint">Chỉ là mô phỏng; không thay đổi traffic thực tế.</p></div><h3>Canary có đảm bảo an toàn tuyệt đối?</h3>
+<p>Không. Nếu v2 thực hiện migration phá tương thích hoặc thay đổi dữ liệu dùng chung, dù chỉ nhận 5% traffic, nó vẫn có thể làm hỏng database mà v1 đang sử dụng.</p>
+<p>Canary giới hạn phạm vi traffic, nhưng không tự động giới hạn mọi tác động lên shared state. Đó là lý do cần kết hợp canary với schema migration tương thích.</p>
+<hr />
+<h1 id="part-13">PHẦN XII — EXPAND/CONTRACT DATABASE MIGRATION</h1>
+<h2>29. Vấn đề khi thay đổi schema</h2>
+<p>Giả sử ban đầu bảng <code>users</code> có:</p>
+<pre><code class="language-sql">CREATE TABLE users (
+    id BIGINT PRIMARY KEY,
+    fullname TEXT
+);
+</code></pre>
+<p>Backend v1 đọc:</p>
+<pre><code class="language-sql">SELECT fullname FROM users;
+</code></pre>
+<p>Bây giờ backend v2 muốn tách thành <code>first_name</code>, <code>last_name</code>. Một kỹ sư thiếu kinh nghiệm có thể lập tức chạy:</p>
+<pre><code class="language-sql">ALTER TABLE users DROP COLUMN fullname;
+</code></pre>
+<p>Kết quả: backend v1 hỏng. Nếu v2 cũng lỗi, rollback về v1 không giúp được gì.</p>
+<h2>30. Expand/Contract giải quyết thế nào?</h2>
+<p>Đây là kỹ thuật thay đổi schema theo từng giai đoạn để hỗ trợ nhiều phiên bản ứng dụng cùng tồn tại.</p>
+<figure class="diagram"><div class="flow vertical"><div class="flow-node "><b>1. Expand</b><small>Thêm cột mới, giữ fullname</small></div><div class="arrow">↓</div><div class="flow-node "><b>2. Backfill</b><small>Chuyển dữ liệu cũ có kiểm chứng</small></div><div class="arrow">↓</div><div class="flow-node "><b>3. Transition</b><small>Ứng dụng hỗ trợ cả hai schema</small></div><div class="arrow">↓</div><div class="flow-node green"><b>4. Contract</b><small>Xóa cột cũ sau thời gian rollback</small></div></div></figure><p>Ví dụ Expand:</p>
+<pre><code class="language-sql">ALTER TABLE users
+ADD COLUMN first_name TEXT;
+
+ALTER TABLE users
+ADD COLUMN last_name TEXT;
+</code></pre>
+<p>Lúc này schema có <code>id</code>, <code>fullname</code>, <code>first_name</code>, <code>last_name</code>. Backend v1 vẫn hoạt động vì <code>fullname</code> chưa bị xóa. Sau khi chuyển dữ liệu và triển khai v2 thành công, hệ thống có thể dần loại bỏ cột cũ.</p>
+<h3>Tại sao không đơn giản đổi tên cột?</h3>
+<p>Vì rename cũng có thể phá vỡ hợp đồng giữa application và database. Trong hệ thống phân tán, bạn không thể mặc định tất cả instance đều được cập nhật tại đúng một thời điểm.</p>
+<pre><code class="language-text">Instance 1: v1
+Instance 2: v1
+Instance 3: v2
+Instance 4: v2
+</code></pre>
+<p>Trong giai đoạn rolling deployment, cả v1 và v2 có thể cùng truy cập database. Expand/Contract cho phép thiết kế giai đoạn tương thích đó.</p>
+<h3>Một vấn đề sâu hơn: Dual-write</h3>
+<p>Giả sử v2 ghi cả <code>fullname</code>, <code>first_name</code>, <code>last_name</code>. Điều gì xảy ra nếu cập nhật <code>first_name</code> thành công nhưng cập nhật <code>fullname</code> thất bại? Bạn có thể tạo dữ liệu không nhất quán.</p>
+<p>Vì vậy, chiến lược đồng bộ dữ liệu phải được thiết kế cẩn thận, ví dụ transaction, một nguồn dữ liệu chuẩn, trigger phù hợp hoặc một quy trình chuyển đổi có kiểm chứng.</p>
+<p>Expand/Contract không phải công thức tự động đúng cho mọi database. Nó là phương pháp giúp bạn suy nghĩ về khả năng tương thích theo thời gian.</p>
+<hr />
+<h1 id="part-14">PHẦN XIII — THIẾT KẾ RUNBOOK ROLLBACK THỰC TẾ</h1>
+<h2>31. Một runbook mẫu cho backend service</h2>
+<p>Giả sử service tên <code>shop-api.service</code>. Phiên bản đang chạy v1.4.2, chuẩn bị deploy v1.5.0.</p>
+<h3>Giai đoạn A — Pre-deployment</h3>
+<pre><code class="language-bash">systemctl status shop-api.service
+journalctl -u shop-api.service -n 100
+curl -f http://localhost:8080/health
+sha256sum /opt/shop/releases/v1.4.2/shop-api
+</code></pre>
+<p>Ghi nhận:</p>
+<pre><code class="language-text">Current version: 1.4.2
+Target version: 1.5.0
+Database migration: additive
+Rollback artifact: v1.4.2
+Backup status: verified
+</code></pre>
+<p>Không nên xem <code>systemctl status</code> hay health endpoint là đủ để kết luận hệ thống hoàn toàn khỏe mạnh. Cần baseline error rate, latency và chỉ số nghiệp vụ từ bài 29.</p>
+<h3>Giai đoạn B — Deployment</h3>
+<p>Giả sử cấu trúc release:</p>
+<pre><code class="language-text">/opt/shop/
+├── releases/
+│   ├── v1.4.2/
+│   └── v1.5.0/
+└── current -&gt; releases/v1.4.2
+</code></pre>
+<p>File service:</p>
+<pre><code class="language-ini">[Unit]
+Description=Shop API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shop
+WorkingDirectory=/opt/shop/current
+ExecStart=/opt/shop/current/shop-api
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p>Khi chuyển sang v1.5.0, cần đảm bảo artifact mới đã được kiểm tra và quyền file phù hợp.</p>
+<pre><code class="language-bash">ln -sfn /opt/shop/releases/v1.5.0 \
+  /opt/shop/current.new
+mv -Tf /opt/shop/current.new \
+  /opt/shop/current
+sudo systemctl restart shop-api.service
+</code></pre>
+<p>Cách dùng symlink tạm rồi rename giúp thay đổi tên liên kết theo một thao tác rename trên cùng filesystem. Nó không làm toàn bộ quá trình deployment trở thành transaction nguyên tử.</p>
+<h3>Giai đoạn C — Xác nhận</h3>
+<pre><code class="language-bash">systemctl is-active shop-api.service
+curl -f http://localhost:8080/health
+journalctl -u shop-api.service \
+  --since &quot;5 minutes ago&quot;
+</code></pre>
+<p>Sau đó kiểm tra metrics và business transaction. Ví dụ tiêu chí giả định:</p>
+<pre><code class="language-text">HTTP 5xx rate &lt; 1%
+p95 latency &lt; 300ms
+Business check = PASS
+</code></pre>
+<p>Các ngưỡng này chỉ là ví dụ; production phải lấy từ SLO, baseline và yêu cầu thực tế.</p>
+<h3>Giai đoạn D — Rollback</h3>
+<p>Nếu tiêu chí thất bại, chuyển về v1.4.2:</p>
+<pre><code class="language-bash">ln -sfn /opt/shop/releases/v1.4.2 \
+  /opt/shop/current.new
+mv -Tf /opt/shop/current.new \
+  /opt/shop/current
+sudo systemctl restart shop-api.service
+</code></pre>
+<p>Sau đó xác nhận phiên bản cũ hoạt động và dữ liệu còn tương thích.</p>
+<p><strong>Cảnh báo:</strong> Chỉ thực hiện rollback binary kiểu này khi đã xác nhận schema, configuration và dữ liệu vẫn tương thích với phiên bản cũ. Không dùng nó như một thao tác rollback mặc định trong mọi tình huống.</p>
+<hr />
+<h1 id="part-15">PHẦN XIV — BACKUP VÀ ROLLBACK KHÔNG PHẢI MỘT</h1>
+<h2>32. Một ví dụ rất quan trọng</h2>
+<pre><code class="language-text">10:00 Backup database
+10:05 Deploy v2
+10:10 Có 100 đơn hàng mới
+10:15 Phát hiện v2 lỗi
+</code></pre>
+<p><strong>Lựa chọn A: Rollback application.</strong> Chuyển v2 về v1, giữ database hiện tại. Nếu schema và dữ liệu còn tương thích, 100 đơn hàng mới được giữ lại.</p>
+<p><strong>Lựa chọn B: Restore database về 10:00.</strong> Database quay về trạng thái trước deployment. Nhưng 100 đơn hàng tạo từ 10:10 sẽ không có trong database vừa restore.</p>
+<p>Đây là lý do restore database không phải phương án rollback vô hại. Trong production, cần cân nhắc cách bảo toàn các giao dịch hợp lệ đã xảy ra sau khi triển khai.</p>
+<p>Đôi khi giải pháp đúng là roll forward bằng hotfix, rollback application nhưng giữ database, restore vào môi trường riêng để lấy lại dữ liệu bị xóa, dùng PITR và đối soát giao dịch, hoặc tạm dừng ghi để phân tích và khôi phục có kiểm soát.</p>
+<p>Không có một lựa chọn đúng cho mọi sự cố.</p>
+<hr />
+<h1 id="part-16">PHẦN XV — RESTORE DRILL: KIỂM TRA BACKUP THẬT SỰ</h1>
+<h2>33. Restore drill là gì?</h2>
+<p>Restore drill là một buổi diễn tập phục hồi có kiểm soát. Mục tiêu không phải chỉ kiểm tra backup file có tồn tại. Mục tiêu là chứng minh rằng đội vận hành có thể đưa hệ thống về trạng thái hoạt động.</p>
+<div class="widget" id="drill-widget"><div class="widget-title">◉ Checklist phục hồi dịch vụ</div><div class="progress"><div id="progressFill"></div></div><div id="drillProgress">0/10 bước</div><div id="drillList"></div><div class="actions"><button type="button" id="resetDrill">Đặt lại checklist</button></div><p class="hint">Đánh dấu hoàn tất không thay thế bằng chứng diễn tập thực tế.</p></div><h3>Tại sao restore drill phải bao gồm khóa giải mã?</h3>
+<p>Giả sử backup được mã hóa AES-256. Dữ liệu vẫn còn nguyên, nhưng khóa giải mã bị mất. Bạn có thể phục hồi không? Không, nếu không còn cách hợp lệ nào lấy lại khóa.</p>
+<p>[\text{Backup usable} = \text{Data available} + \text{Dependencies available} + \text{Decryption access} + \text{Restore procedure}]</p>
+<p>Đây là biểu thức khái niệm, không phải phép cộng định lượng. Một hệ thống backup mã hóa phải có chính sách quản lý khóa, phân quyền và khôi phục khóa phù hợp.</p>
+<hr />
+<h1 id="part-17">PHẦN XVI — CÁC TÌNH HUỐNG THỰC TẾ MÀ SENIOR PHẢI SUY NGHĨ</h1>
+<h2>34. Tình huống 1 — RAID có thay thế backup được không?</h2>
+<p>Không. RAID có thể giúp hệ thống chịu lỗi một hoặc nhiều ổ đĩa tùy cấu hình. Nhưng nếu bạn chạy:</p>
+<pre><code class="language-bash">rm -rf /important-data
+</code></pre>
+<p>thì thao tác xóa vẫn được phản ánh lên RAID. RAID không lưu lịch sử phiên bản theo mặc định. Ransomware mã hóa dữ liệu trên filesystem thì RAID vẫn có thể lưu các byte đã bị mã hóa đó một cách chính xác.</p>
+<p><strong>RAID giải quyết availability ở một số loại lỗi storage; backup giải quyết khả năng phục hồi dữ liệu từ các điểm đã lưu.</strong></p>
+<h2>35. Tình huống 2 — Replication có thay thế backup được không?</h2>
+<p>Không. Giả sử PostgreSQL primary replication sang standby. Khi primary nhận lệnh:</p>
+<pre><code class="language-sql">DELETE FROM orders;
+</code></pre>
+<p>thao tác xóa có thể được replicate sang standby. Replication không tự động bảo vệ khỏi lỗi logic của người dùng.</p>
+<p>Replication có thể cải thiện availability và failover, còn backup/PITR giúp phục hồi dữ liệu ở các điểm trong quá khứ. Hai cơ chế bổ sung cho nhau.</p>
+<h2>36. Tình huống 3 — Snapshot có thay thế backup offsite được không?</h2>
+<p>Không hoàn toàn. Snapshot trên cùng storage thường chia sẻ nhiều miền lỗi với dữ liệu gốc. Nếu storage array bị phá hủy hoặc quyền quản trị bị chiếm, snapshot cũng có thể mất.</p>
+<p>Một snapshot được sao chép sang miền lỗi độc lập, có retention và kiểm tra restore phù hợp có thể trở thành một thành phần trong chiến lược backup. Điểm quan trọng là khả năng sống sót trước sự cố, không phải tên công nghệ.</p>
+<h2>37. Tình huống 4 — Backup báo SUCCESS nhưng restore FAIL</h2>
+<p>Nguyên nhân có thể là:</p>
+<ul>
+<li>File archive bị thiếu.</li>
+<li>Incremental chain bị đứt.</li>
+<li>Key giải mã không còn.</li>
+<li>Tool restore không tương thích.</li>
+<li>Thiếu extension database.</li>
+<li>Thiếu permission hoặc metadata.</li>
+<li>Backup bị hỏng logic.</li>
+<li>Không đủ dung lượng restore.</li>
+<li>Backup không chứa một dependency cần thiết.</li>
+</ul>
+<p>Một dòng log <code>Backup completed successfully</code> không thể được xem là bằng chứng đạt RTO.</p>
+<h2>38. Tình huống 5 — Backup có checksum đúng nhưng ứng dụng vẫn lỗi</h2>
+<p>Giả sử toàn bộ file đã khớp checksum. Nhưng backend vẫn không khởi động được vì thiếu <code>/etc/shop/config.yaml</code>, certificate TLS hết hạn hoặc database role chưa được tạo.</p>
+<p>Checksum chỉ chứng minh nội dung các file được kiểm tra khớp với manifest. Nó không chứng minh hệ thống đầy đủ các thành phần cần thiết.</p>
+<hr />
+<h1 id="part-18">PHẦN XVII — KẾT NỐI VỚI NHỮNG BÀI LINUX ĐÃ HỌC</h1>
+<p>Bài 30 không đứng riêng lẻ. Nó kết nối trực tiếp với các chủ đề trước:</p>
+<table>
+<thead>
+<tr>
+  <th>Bài</th>
+  <th>Mối liên hệ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Bài 13 — Shell scripting</td>
+  <td>Viết backup script kiểm soát lỗi, exit code</td>
+</tr>
+<tr>
+  <td>Bài 17 — Memory</td>
+  <td>Hiểu page cache, dữ liệu chưa flush</td>
+</tr>
+<tr>
+  <td>Bài 21 — Storage</td>
+  <td>Filesystem, journal, snapshot, I/O</td>
+</tr>
+<tr>
+  <td>Bài 22 — LVM/RAID</td>
+  <td>Storage redundancy, snapshot, encryption</td>
+</tr>
+<tr>
+  <td>Bài 25 — Network service</td>
+  <td>Khôi phục reverse proxy, firewall, DNS</td>
+</tr>
+<tr>
+  <td>Bài 26 — Security</td>
+  <td>Quyền truy cập backup, secret và key</td>
+</tr>
+<tr>
+  <td>Bài 27 — Hardening</td>
+  <td>Bảo vệ backup khỏi truy cập trái phép</td>
+</tr>
+<tr>
+  <td>Bài 28 — Ansible</td>
+  <td>Tái tạo cấu hình hạ tầng</td>
+</tr>
+<tr>
+  <td>Bài 29 — Observability</td>
+  <td>Phát hiện lỗi và xác nhận recovery</td>
+</tr>
+</tbody>
+</table>
+<h2>39. Một góc nhìn sâu hơn: Disaster Recovery as Code</h2>
+<p>Giả sử toàn bộ máy chủ bị mất. Bạn có backup database, nhưng phải nhớ từng bước cài đặt:</p>
+<pre><code class="language-text">Cài PostgreSQL
+Cài Nginx
+Tạo user
+Tạo systemd unit
+Mở firewall
+Cài application
+Restore database
+</code></pre>
+<p>Nếu thực hiện thủ công, recovery có thể mất hàng giờ. Nhưng nếu sử dụng Ansible từ bài 28:</p>
+<pre><code class="language-bash">ansible-playbook -i inventory.ini site.yml
+</code></pre>
+<p>bạn có thể tái tạo phần lớn cấu hình hệ thống một cách nhất quán.</p>
+<p><strong>Không chỉ backup dữ liệu. Hãy bảo đảm có thể tái tạo môi trường mà dữ liệu cần để hoạt động.</strong> Điều này liên quan tới Infrastructure as Code và Disaster Recovery as Code.</p>
+<p>Tuy nhiên, tự động hóa cũng phải được diễn tập. Một playbook chạy thành công không đảm bảo database restore và business check thành công.</p>
+<hr />
+<h1 id="part-19">PHẦN XVIII — THIẾT KẾ KIẾN TRÚC BACKUP CHO PRODUCTION</h1>
+<h2>40. Một mô hình tham khảo</h2>
+<figure class="diagram"><div class="flow vertical"><div class="flow-node "><b>Production</b><small>App + PostgreSQL</small></div><div class="arrow">↓</div><div class="flow-node "><b>Backup Job + Monitoring</b><small>Base backup, WAL, metrics, alerts</small></div><div class="arrow">↓</div><div class="flow-node "><b>Offsite Backup Storage</b><small>Isolated · Retention · Encrypted</small></div><div class="arrow">↓</div><div class="flow-node green"><b>Restore Test Environment</b><small>Diễn tập phục hồi độc lập</small></div></div></figure><p>Đây là mô hình khái niệm, không phải cấu hình PostgreSQL đầy đủ.</p>
+<p>Trong hệ thống thật, bạn còn phải thiết kế cơ chế archive WAL và kiểm tra tính liên tục, tần suất base backup, integrity, phân tách tài khoản và quyền, retention, key, băng thông, dung lượng, tái tạo hạ tầng và restore drill.</p>
+<h3>Tại sao phải có monitoring cho backup?</h3>
+<p>Vì backup là một service quan trọng như các service khác. Bạn cần biết:</p>
+<pre><code class="language-text">backup_last_success_timestamp
+backup_duration_seconds
+backup_size_bytes
+backup_failure_total
+restore_test_last_success
+</code></pre>
+<p>Đây là ví dụ tên metric do hệ thống tự định nghĩa, không phải các metric mặc định luôn có sẵn.</p>
+<p>Một cảnh báo hữu ích có thể là: “Không có bản backup thành công nào trong 2 giờ qua.” Nhưng ngưỡng phải phù hợp với mục tiêu RPO và tần suất backup của hệ thống.</p>
+<hr />
+<h1 id="part-20">PHẦN XIX — LAB TỔNG HỢP: TỰ ĐỘNG HÓA BACKUP CÓ KIỂM SOÁT LỖI</h1>
+<h2>41. Viết Bash script backup an toàn hơn</h2>
+<p>Đây là ví dụ dành cho dữ liệu tĩnh trên Linux VM. Script tạo một archive, manifest và kiểm tra restore vào thư mục tạm.</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+SOURCE=&quot;$HOME/linux-lab/recovery/source&quot;
+BACKUP_DIR=&quot;$HOME/linux-lab/recovery/backups&quot;
+
+timestamp=$(date -u +%Y%m%dT%H%M%SZ)
+
+mkdir -p &quot;$BACKUP_DIR&quot;
+
+workdir=$(mktemp -d)
+
+cleanup() {
+    rm -rf -- &quot;$workdir&quot;
+}
+
+trap cleanup EXIT
+
+archive=&quot;$BACKUP_DIR/backup-$timestamp.tar.gz&quot;
+manifest=&quot;$BACKUP_DIR/backup-$timestamp.sha256&quot;
+
+# Source phải tĩnh trong quá trình tạo backup.
+
+(
+    cd &quot;$SOURCE&quot;
+    find . -type f -print0 |
+        sort -z |
+        xargs -0 -r sha256sum
+) &gt; &quot;$workdir/manifest.sha256&quot;
+
+tar -czf &quot;$workdir/backup.tar.gz&quot; \
+    -C &quot;$SOURCE&quot; .
+
+mkdir &quot;$workdir/restore&quot;
+
+tar -xzf &quot;$workdir/backup.tar.gz&quot; \
+    -C &quot;$workdir/restore&quot;
+
+(
+    cd &quot;$workdir/restore&quot;
+    sha256sum -c &quot;$workdir/manifest.sha256&quot;
+)
+
+cp -- &quot;$workdir/backup.tar.gz&quot; &quot;$archive&quot;
+cp -- &quot;$workdir/manifest.sha256&quot; &quot;$manifest&quot;
+
+echo &quot;Backup created: $archive&quot;
+echo &quot;Manifest created: $manifest&quot;
+</code></pre>
+<h3>Phân tích như một senior</h3>
+<p><strong>1. <code>set -Eeuo pipefail</code>:</strong> Giúp phát hiện nhiều loại lỗi shell scripting, nhưng không thay thế việc xử lý lỗi có chủ đích. <code>set -e</code> có ngoại lệ theo ngữ cảnh.</p>
+<p><strong>2. <code>mktemp -d</code>:</strong> Tạo thư mục làm việc tạm, tránh ghi đè ngẫu nhiên lên dữ liệu khác.</p>
+<p><strong>3. <code>trap cleanup EXIT</code>:</strong> Dọn thư mục tạm khi shell kết thúc.</p>
+<p><strong>4. <code>find -print0</code>, <code>sort -z</code>, <code>xargs -0</code>:</strong> Giúp xử lý tên file chứa khoảng trắng và newline an toàn hơn so với cách tách theo dòng. Với manifest tùy ý, còn phải xét cách công cụ biểu diễn tên file, symlink, file đặc biệt và metadata.</p>
+<p><strong>5. Restore test trước khi xuất bản backup:</strong> Script không chỉ tạo archive mà còn giải nén và kiểm tra nội dung. Đây là bước tốt hơn so với chỉ chạy <code>tar</code> rồi báo thành công.</p>
+<h3>Những giới hạn cần biết</h3>
+<p>Script này là lab, chưa phải giải pháp backup production hoàn chỉnh. Nó chưa:</p>
+<ul>
+<li>Khóa hoặc snapshot dữ liệu đang thay đổi.</li>
+<li>Backup ownership, ACL và xattrs một cách được xác minh.</li>
+<li>Xử lý đầy đủ symlink và file đặc biệt.</li>
+<li>Mã hóa và chuyển backup offsite.</li>
+<li>Thực hiện atomic publication của toàn bộ bộ artifact.</li>
+<li>Đồng bộ bền vững xuống storage.</li>
+<li>Quản lý retention.</li>
+<li>Chống chạy đồng thời.</li>
+<li>Giám sát và cảnh báo.</li>
+<li>Xác nhận business-level recovery.</li>
+</ul>
+<p>Timestamp có độ phân giải một giây. Hai lần chạy cùng giây có thể trùng tên artifact. Production cần cơ chế định danh và chống ghi đè chắc chắn hơn.</p>
+<p><strong>Đừng nhầm script demo chạy thành công với một hệ thống backup đã sẵn sàng production.</strong></p>
+<hr />
+<h1 id="part-21">PHẦN XX — BÀI TẬP PHẢN BIỆN VÀ TÌNH HUỐNG PHỎNG VẤN</h1>
+<h2>42. Kiểm tra tư duy kỹ thuật</h2>
+<div class="widget" id="quiz-widget"><div class="widget-title">◉ Quiz: Backup & Recovery</div><div id="quizList"></div><div id="quizScore" class="score"></div><button type="button" id="resetQuiz">Làm lại</button></div><hr />
+<h1 id="part-22">PHẦN XXI — NHỮNG NGUYÊN TẮC KINH NGHIỆM CẦN GHI NHỚ</h1>
+<h2>43. Mười nguyên tắc vận hành</h2>
+<ol>
+<li><strong>Backup chưa được thử restore thì chưa được xác minh đầy đủ.</strong> Đừng chỉ dựa vào trạng thái SUCCESS của job.</li>
+<li><strong>RPO và RTO là mục tiêu nghiệp vụ.</strong> Hãy chọn kiến trúc backup dựa trên mục tiêu, không chọn theo thói quen.</li>
+<li><strong>Dữ liệu nhất quán quan trọng hơn việc copy đủ file.</strong> Database cần cơ chế backup phù hợp.</li>
+<li><strong>Đừng giữ mọi bản backup trong cùng miền lỗi.</strong> Cần phân tách storage, quyền và địa điểm khi thích hợp.</li>
+<li><strong>Retention phải tính đến lỗi được phát hiện muộn.</strong> Backup gần nhất có thể đã chứa dữ liệu sai.</li>
+<li><strong>Mã hóa backup phải đi cùng quản lý khóa.</strong> Mất key có thể tương đương mất backup.</li>
+<li><strong>Rollback code không đồng nghĩa rollback database.</strong> Cần xét compatibility và các giao dịch mới.</li>
+<li><strong>Canary không thay thế migration an toàn.</strong> Shared state có thể làm tác động lan rộng.</li>
+<li><strong>Recovery phải được đo tới mức chức năng nghiệp vụ.</strong> Health endpoint đơn giản chưa đủ.</li>
+<li><strong>Runbook phải có thể thực hiện bởi người khác.</strong> Một quy trình chỉ nằm trong trí nhớ của một kỹ sư là một rủi ro vận hành.</li>
+</ol>
+<hr />
+<h1 id="part-23">PHẦN XXII — BÀI LAB CUỐI CÙNG: TỰ THIẾT KẾ PHƯƠNG ÁN PHỤC HỒI</h1>
+<p>Giả sử bạn phụ trách hệ thống:</p>
+<pre><code class="language-text">Ubuntu Server
+    |
+    +-- Nginx
+    |
+    +-- Backend API (systemd)
+    |
+    +-- PostgreSQL
+    |
+    +-- /var/lib/shop/uploads
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Tiêu chí</th>
+  <th>Mục tiêu giả định</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>RPO database</td>
+  <td>15 phút</td>
+</tr>
+<tr>
+  <td>RPO uploads</td>
+  <td>1 giờ</td>
+</tr>
+<tr>
+  <td>RTO toàn dịch vụ</td>
+  <td>60 phút</td>
+</tr>
+<tr>
+  <td>Retention daily</td>
+  <td>30 ngày</td>
+</tr>
+<tr>
+  <td>Retention monthly</td>
+  <td>12 tháng</td>
+</tr>
+<tr>
+  <td>Backup location</td>
+  <td>Local + Offsite</td>
+</tr>
+<tr>
+  <td>Restore drill</td>
+  <td>Hằng tháng</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Câu 1:</strong> Nếu chỉ chạy <code>pg_dump</code> mỗi 24 giờ, có đáp ứng được RPO database 15 phút không?</p>
+<p>Thông thường không. Bạn cần thiết kế các recovery point đủ gần nhau, chẳng hạn một chiến lược physical backup kết hợp WAL archiving và PITR, với việc giám sát độ trễ và khả năng khôi phục.</p>
+<p><strong>Câu 2:</strong> Nếu chỉ backup database mà không backup thư mục uploads, hệ thống đã được bảo vệ đầy đủ chưa?</p>
+<p>Chưa. Database có thể lưu đường dẫn file, trong khi nội dung file nằm ngoài database. Restore một bên mà thiếu bên còn lại có thể tạo dữ liệu tham chiếu không hợp lệ.</p>
+<p><strong>Câu 3:</strong> Nếu database restore trong 20 phút, nhưng cấu hình lại Nginx, firewall và certificate mất 50 phút, có đạt RTO 60 phút không?</p>
+<p>Nếu tổng thời gian thực tế là 70 phút và các bước không chồng lấn thì không đạt.</p>
+<p><strong>Câu 4:</strong> Nếu có Ansible playbook tái tạo hệ thống trong 10 phút, có chắc đạt RTO không?</p>
+<p>Chưa. Còn thời gian phục hồi dữ liệu, kiểm tra và chuyển traffic.</p>
+<p><strong>Câu 5:</strong> Nếu bản v2 gây lỗi dữ liệu nhưng hệ thống vẫn trả HTTP 200, monitoring có phát hiện không?</p>
+<p>Chưa chắc. Bạn cần business metrics, data quality checks hoặc các kiểm tra nghiệp vụ tương ứng.</p>
+<hr />
+<h1 id="part-24">PHẦN XXIII — TỔNG KẾT KIẾN TRÚC TƯ DUY</h1>
+<p>Khi thiết kế một hệ thống Linux production, bạn cần suy nghĩ theo chuỗi:</p>
+<figure class="diagram"><div class="flow vertical"><div class="flow-node "><b>1. Xác định tài sản</b><small>Dữ liệu, ứng dụng, cấu hình, secrets</small></div><div class="arrow">↓</div><div class="flow-node "><b>2. Xác định mục tiêu</b><small>RPO, RTO, retention, phạm vi sự cố</small></div><div class="arrow">↓</div><div class="flow-node "><b>3. Thiết kế bảo vệ</b><small>Backup, WAL, offsite, encryption</small></div><div class="arrow">↓</div><div class="flow-node "><b>4. Thiết kế phục hồi</b><small>Restore, dependencies, rollback</small></div><div class="arrow">↓</div><div class="flow-node green"><b>5. Diễn tập và đo lường</b><small>Restore drill, metrics, business check</small></div></div></figure><p>Bài 30 thực chất dạy một nguyên tắc kỹ thuật lớn hơn backup:</p>
+<p><strong>Một hệ thống đáng tin cậy không chỉ là hệ thống ít gặp lỗi, mà còn là hệ thống có thể phục hồi có kiểm soát khi lỗi xảy ra.</strong></p>
+<p>Đây cũng là cầu nối sang <strong>Bài 31 — Phương pháp phân tích hiệu năng</strong>.</p>
+<p>Bởi sau khi đã thiết kế khả năng phục hồi, chúng ta sẽ tiếp tục giải quyết câu hỏi khác: hệ thống vẫn hoạt động nhưng chậm, nghẽn hoặc không đạt SLO thì làm thế nào xác định chính xác nguyên nhân?</p>
+<p>Trong bài 31, những kiến thức về observability, storage I/O, memory, CPU scheduler và network sẽ được kết hợp để điều tra hiệu năng một cách có phương pháp.</p>
+<p><strong>Tài liệu tham khảo:</strong> <code>man tar</code>, <code>man sha256sum</code>, <code>man systemd.service</code> và <a href="https://www.postgresql.org/docs/current/backup.html">PostgreSQL — Backup and Restore</a>. Khi triển khai PostgreSQL thực tế, hãy đối chiếu tài liệu đúng major version đang sử dụng.</p>
+</article><div class="footer">Tài liệu HTML độc lập · Tương tác chạy trực tiếp trong trình duyệt · Không cần Internet</div></main></div><script>
+const $=id=>document.getElementById(id);
+function updateRpo(){const b=+$('backup').value,f=+$('fail').value,p=+$('prep').value,r=+$('restore').value;const loss=Math.max(0,f-b),total=p+r;$('backupV').textContent=b+':00';$('failV').textContent=f+':00';$('prepV').textContent=p+' phút';$('restoreV').textContent=r+' phút';$('lossValue').textContent=loss+' giờ';$('rtoValue').textContent=total+' phút';$('lossStatus').textContent=loss<=1?'Đạt mục tiêu RPO 1 giờ':'Không đạt RPO 1 giờ';$('rtoStatus').textContent=total<=30?'Đạt mục tiêu RTO 30 phút':'Không đạt RTO 30 phút'}
+['backup','fail','prep','restore'].forEach(id=>$(id).addEventListener('input',()=>{if(+$('backup').value>+$('fail').value){if(id==='backup')$('fail').value=$('backup').value;else $('backup').value=$('fail').value}updateRpo()}));updateRpo();
+function updateCanary(){let v=+$('canary').value;$('canaryV').textContent=v+'%';$('oldTraffic').style.width=(100-v)+'%';$('newTraffic').style.width=v+'%';$('oldV').textContent=(100-v)+'%';$('newV').textContent=v+'%'}$('canary').addEventListener('input',updateCanary);$('rollbackBtn').addEventListener('click',()=>{$('canary').value=0;updateCanary()});$('expandBtn').addEventListener('click',()=>{$('canary').value=Math.min(100,+$('canary').value+25);updateCanary()});
+const steps=['Chọn đúng recovery point','Chuẩn bị môi trường restore độc lập','Truy cập backup và khóa giải mã','Khôi phục dữ liệu và metadata cần thiết','Khôi phục cấu hình, secrets và dependencies','Khởi động database và ứng dụng','Kiểm tra checksum và tính toàn vẹn dữ liệu','Chạy business transaction test','Đo thời gian phục hồi','Lưu kết quả và cập nhật runbook'];
+function updateDrill(){let count=document.querySelectorAll('#drillList input:checked').length;$('drillProgress').textContent=count+'/'+steps.length+' bước'+(count===steps.length?' — Đã đánh dấu đầy đủ; cần lưu bằng chứng thực tế':'');$('progressFill').style.width=(count/steps.length*100)+'%'}steps.forEach(s=>{let row=document.createElement('label');row.className='checkrow';let inp=document.createElement('input');inp.type='checkbox';inp.addEventListener('change',updateDrill);let t=document.createElement('span');t.textContent=s;row.append(inp,t);$('drillList').append(row)});$('resetDrill').addEventListener('click',()=>{document.querySelectorAll('#drillList input').forEach(i=>i.checked=false);updateDrill()});updateDrill();
+const quiz=[['RAID 1 có thay thế được backup không?',['Có, vì dữ liệu được nhân đôi','Không, vì lỗi logic và xóa nhầm vẫn có thể ảnh hưởng cả hai ổ','Có, nếu dùng SSD'],1,'RAID 1 chủ yếu cung cấp redundancy ở tầng ổ đĩa. Xóa nhầm, corruption logic hoặc ransomware vẫn có thể tác động lên dữ liệu được mirror.'],['Một backup có checksum đúng đã chứng minh RTO đạt yêu cầu chưa?',['Đã chứng minh','Chưa, cần kiểm tra toàn bộ recovery path','Chỉ cần chạy tar -t'],1,'Checksum không chứng minh ứng dụng, database, khóa, cấu hình và dependency đã được phục hồi đúng trong thời gian mục tiêu.'],['Backend v2 đã thay đổi schema không tương thích. Rollback binary về v1 có chắc hoạt động?',['Có, luôn luôn','Không, cần xác minh schema và dữ liệu tương thích','Chỉ cần restart Nginx'],1,'Rollback code không tự động đảo ngược migration hoặc các thay đổi dữ liệu.'],['Muốn phục hồi PostgreSQL tới thời điểm trước khi xóa nhầm, nên cân nhắc cơ chế nào?',['PITR với base backup và WAL đầy đủ','Chỉ copy thư mục data đang chạy','Chỉ restart PostgreSQL'],0,'PITR dùng base backup và WAL liên tục để phục hồi đến recovery target. Cần thiết kế, kiểm tra và bảo đảm compatibility.'],['Canary 5% có bảo đảm lỗi chỉ ảnh hưởng 5% dữ liệu không?',['Có','Không, vì database và dependency có thể dùng chung','Có, nếu sử dụng HTTPS'],1,'Traffic canary giới hạn tỷ lệ request đến bản mới, nhưng tác động lên shared state có thể lan rộng.']];
+const chosen={};function drawQuiz(){let root=$('quizList');root.innerHTML='';quiz.forEach(([q,opts,correct,why],i)=>{let div=document.createElement('div');div.className='quiz-q';let h=document.createElement('h4');h.textContent=(i+1)+'. '+q;div.append(h);opts.forEach((opt,j)=>{let lab=document.createElement('label');let input=document.createElement('input');input.type='radio';input.name='quiz-'+i;input.checked=chosen[i]===j;input.addEventListener('change',()=>{chosen[i]=j;drawQuiz()});let text=document.createElement('span');text.textContent=opt;lab.append(input,text);div.append(lab)});if(chosen[i]!==undefined){let p=document.createElement('div');p.className='feedback';p.textContent=(chosen[i]===correct?'✓ Chính xác. ':'✕ Chưa chính xác. ')+why;div.append(p)}root.append(div)});let n=Object.keys(chosen).length;$('quizScore').textContent=n===quiz.length?'Kết quả: '+quiz.filter((q,i)=>chosen[i]===q[2]).length+'/'+quiz.length+' câu đúng':'Đã trả lời '+n+'/'+quiz.length+' câu'}$('resetQuiz').addEventListener('click',()=>{Object.keys(chosen).forEach(k=>delete chosen[k]);drawQuiz()});drawQuiz();
+document.querySelectorAll('pre').forEach(pre=>{const btn=document.createElement('button');btn.className='copy';btn.type='button';btn.textContent='Sao chép';btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(pre.querySelector('code')?.textContent||pre.textContent);btn.textContent='Đã chép';setTimeout(()=>btn.textContent='Sao chép',1200)}catch(e){btn.textContent='Chọn và copy thủ công'}});pre.append(btn)});
+$('menuBtn').addEventListener('click',()=>{$('sidebar').classList.toggle('open')});document.querySelectorAll('.sidebar a').forEach(a=>a.addEventListener('click',()=>{$('sidebar').classList.remove('open')}));$('printBtn').addEventListener('click',()=>window.print());
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.sidebar a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-15% 0px -70% 0px'});document.querySelectorAll('article h1[id]').forEach(h=>obs.observe(h));
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

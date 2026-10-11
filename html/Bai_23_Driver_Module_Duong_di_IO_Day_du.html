@@ -1,0 +1,830 @@
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 23 — Linux Driver, Kernel Module và đường đi I/O</title><style>
+:root{--bg:#f6f8fc;--paper:#fff;--ink:#17253a;--muted:#62728a;--border:#dbe3ed;--accent:#2563eb;--green:#16824a;--code:#142133}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,-apple-system,'Segoe UI',sans-serif}.layout{display:grid;grid-template-columns:245px minmax(0,900px);gap:30px;max-width:1230px;margin:auto;padding:26px}.sidebar{position:sticky;top:20px;height:calc(100vh - 40px);overflow:auto;padding:20px 14px;border:1px solid var(--border);border-radius:16px;background:white}.sidebar h3{font-size:14px;margin:0 0 10px}.sidebar a{display:block;color:var(--muted);text-decoration:none;font-size:12.5px;line-height:1.5;padding:7px;border-radius:7px}.sidebar a:hover,.sidebar a.active{background:#eaf2ff;color:#1556be}.paper{background:var(--paper);border:1px solid var(--border);border-radius:20px;padding:38px 46px;box-shadow:0 10px 35px #22334c0c}h1{font-size:35px;line-height:1.25;color:#102b50;margin:0 0 20px}h2{font-size:25px;line-height:1.35;margin-top:58px;border-top:1px solid var(--border);padding-top:32px;color:#163d73}h3{font-size:20px;color:#1b4679;margin-top:34px}h4{font-size:16px;margin:0 0 16px;color:#183d6b}p,li{overflow-wrap:anywhere}li{margin:4px 0}a{color:var(--accent)}blockquote{border-left:4px solid #4286d8;background:#f1f6ff;padding:12px 20px;margin:20px 0;border-radius:0 10px 10px 0}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto;margin:20px 0}th,td{border:1px solid var(--border);padding:11px 14px;text-align:left;min-width:125px}th{background:#eff5ff;color:#214b80}tr:nth-child(even){background:#fafcff}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em}p code,li code,td code{background:#eaf0f8;color:#1e4b85;padding:2px 5px;border-radius:4px}.code-wrap{position:relative;margin:18px 0}.code-wrap pre{background:var(--code);color:#e6f1ff;padding:22px 18px;overflow-x:auto;border-radius:12px;line-height:1.6;font-size:13px;margin:0}.code-wrap code{font-size:inherit}.copy{position:absolute;top:8px;right:8px;background:#34465c;color:white;border:1px solid #5c718a;border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer}.diagram,.interactive{border:1px solid var(--border);border-radius:16px;background:#fbfdff;padding:22px;margin:24px 0;box-shadow:0 2px 8px #22334c09}.node{border:1px solid #cbd8e8;border-radius:10px;background:#fff;padding:13px 15px;text-align:center;font-weight:650;flex:1;min-width:0}.node p{font-weight:400;font-size:13px;margin:7px 0}.node small{display:block;color:var(--muted);font-size:12px;font-weight:400;line-height:1.55;margin-top:3px}.node.highlight{background:#eaf2ff;border-color:#8cb7f4}.node.green{background:#eaf9f0;border-color:#7ccca0}.arrow{text-align:center;color:#6986ab;font-size:22px;line-height:1.5}.horizontal,.cards{display:flex;gap:12px;align-items:stretch}.horizontal{align-items:center}.horizontal .arrow{flex:none}.cards>*{flex:1;min-width:0}.note{font-size:12px;color:var(--muted);line-height:1.65;margin:14px 0 0}.interactive button,.top-actions button{border:1px solid #b9cde6;border-radius:8px;padding:8px 13px;background:white;color:#1b4d83;cursor:pointer;font-weight:600}.interactive button:hover,.top-actions button:hover{background:#eaf2ff}.interactive button.selected{background:#235caa;color:white}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.progress{height:9px;border-radius:20px;background:#dce7f4;overflow:hidden}.progress div{height:100%;background:#23a26c;transition:width .35s}.big-value{font-size:29px;font-weight:800;color:#2563eb}.stage{transition:background .3s,border-color .3s,transform .3s}.stage.active{background:#eaf9f0;border:2px solid #24a16b;transform:scale(1.01)}details{background:#fff;border:1px solid var(--border);border-radius:9px;margin:10px 0;padding:12px 16px}summary{cursor:pointer;font-weight:650}details p{font-size:14px;color:#38506d;margin:9px 0 0}.checklist label{display:block;border:1px solid var(--border);padding:12px;margin:10px 0;border-radius:9px;font-weight:650}.checklist pre{background:#eef3fa;color:#2d4663;border-radius:6px;padding:9px;white-space:pre-wrap;font-size:12px;font-weight:400}.checklist label:has(input:checked){background:#eaf9f0;border-color:#88cdaa}.top-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:15px}.hero-kicker{color:#2563eb;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px}.floating{position:fixed;bottom:20px;right:20px;background:#1c5caf;color:white;border-radius:50%;padding:9px 14px;text-decoration:none;box-shadow:0 4px 14px #0002}@media(max-width:950px){.layout{display:block;padding:10px}.sidebar{position:static;height:auto;max-height:210px;margin-bottom:14px}.paper{padding:22px 18px}h1{font-size:27px}h2{font-size:22px}.horizontal,.cards{flex-wrap:wrap}.horizontal .node{min-width:100px}}@media print{body{background:white}.layout{display:block;padding:0}.sidebar,.top-actions,.floating,.copy,.controls{display:none!important}.paper{border:0;box-shadow:none;padding:0}h2{break-before:page}pre,.diagram,table{break-inside:avoid}details:not([open])>p{display:block!important}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body id="top" class="lesson-page" data-lesson="23"><div class="layout"><aside class="sidebar"><h3>📘 MỤC LỤC BÀI 23</h3><a href="#section-1">1. Đặt vấn đề: Vì sao Linux cần driver?</a><a href="#section-2">2. Driver thực chất là gì?</a><a href="#section-3">3. Kernel module là gì? Driver và module có phải một?</a><a href="#section-4">4. Firmware khác driver như thế nào?</a><a href="#section-5">5. Linux Device Model — Kernel biết thiết bị nào dùng driver nào?</a><a href="#section-6">6. udev là gì? Tại sao cắm USB lại xuất hiện /dev/ttyUSB0?</a><a href="#section-7">7. Interrupt và DMA — CPU giao tiếp với phần cứng như thế nào?</a><a href="#section-8">8. DMA — Direct Memory Access</a><a href="#section-9">9. DMA và Cache Coherency — Một lỗi rất khó debug</a><a href="#section-10">10. Buffer ownership — Ai được phép sử dụng buffer?</a><a href="#section-11">11. I/O Scheduler khác CPU Scheduler như thế nào?</a><a href="#section-12">12. NVMe và Multi-Queue — Vì sao một thiết bị có thể xử lý nhiều I/O cùng lúc?</a><a href="#section-13">13. Buffered I/O — Vì sao write() thành công chưa chắc dữ liệu đã nằm trên ổ?</a><a href="#section-14">14. flush(), fsync() và sync() khác nhau thế nào?</a><a href="#section-15">15. Direct I/O và Buffered I/O</a><a href="#section-16">16. Crash Consistency — Vì sao ghi file xong vẫn có thể mất tên file?</a><a href="#section-17">17. Lab 1 — Truy vết thiết bị từ /dev đến driver</a><a href="#section-18">18. Lab 2 — Quan sát fsync() bằng strace</a><a href="#section-19">19. Liên hệ thực tế với Embedded Linux</a><a href="#section-20">20. Quy trình debug driver theo tư duy Senior</a><a href="#section-21">21. Những câu hỏi phỏng vấn và tình huống thực tế</a><a href="#section-22">22. Tổng kết — Ghép toàn bộ kiến thức thành một bức tranh</a><a href="#section-23">23. Bài tập thực hành cuối bài</a></aside><main class="paper"><div class="top-actions"><button onclick="window.print()">🖨 In / Lưu PDF</button><button onclick="document.documentElement.classList.toggle('compact')">📖 Đọc bài</button></div><div class="hero-kicker">Linux Internals • Bài 23 • Tài liệu offline</div><h1>Bài 23 — Linux Driver, Kernel Module và đường đi I/O</h1>
+<p><em>Giải thích chuyên sâu theo góc nhìn Senior Linux / Embedded Linux Engineer</em></p>
+<p>Bài này kết nối những kiến thức đã học về <strong>system call, quản lý bộ nhớ, filesystem, scheduler và phần cứng</strong> để trả lời một câu hỏi quan trọng:</p>
+<p><strong>Khi chương trình Linux muốn đọc hoặc ghi dữ liệu vào một thiết bị, từ lúc gọi <code>read()</code> hoặc <code>write()</code> cho đến khi phần cứng thực sự hoạt động, chuyện gì xảy ra?</strong></p>
+<p>Ví dụ, bạn có một board ODROID XU4 chạy Linux, một ESP32 kết nối qua USB-UART, một ổ eMMC và một card mạng Ethernet. Làm thế nào Linux nhận diện, quản lý và giao tiếp được với tất cả những thiết bị khác nhau này?</p>
+<p>Chúng ta sẽ đi từ bức tranh tổng thể đến từng cơ chế bên trong kernel, rồi thực hành quan sát trực tiếp.</p>
+<h2 id="section-1">1. Đặt vấn đề: Vì sao Linux cần driver?</h2>
+<p>Hãy tưởng tượng bạn viết chương trình:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(void)
+{
+    FILE *f = fopen(&quot;/tmp/data.txt&quot;, &quot;w&quot;);
+    if (!f) { perror(&quot;fopen&quot;); return 1; }
+    fprintf(f, &quot;Hello Linux\n&quot;);
+    if (fclose(f) != 0) { perror(&quot;fclose&quot;); return 1; }
+    return 0;
+}
+</code></pre></div>
+<p>Chương trình rất đơn giản, nhưng có những câu hỏi thú vị:</p>
+<ul>
+<li>Làm sao <code>fprintf()</code> biết dữ liệu cần ghi vào ổ SSD, eMMC hay thẻ SD?</li>
+<li>Ai biết địa chỉ thanh ghi phần cứng của bộ điều khiển lưu trữ?</li>
+<li>CPU có phải tự chép từng byte xuống thiết bị không?</li>
+<li>Tại sao chương trình ghi xong nhưng mất điện vẫn có thể mất dữ liệu?</li>
+<li>Nếu thay SSD SATA bằng NVMe, tại sao chương trình C không phải sửa?</li>
+</ul>
+<p>Để trả lời, hãy xem kiến trúc tổng thể.</p>
+<div class="diagram" data-diagram="stack"><h4>Đường đi dữ liệu từ ứng dụng đến thiết bị lưu trữ</h4><div class="node highlight">User Space<br><small>Ứng dụng C / Python / Database<br>fprintf(), fwrite(), read()</small></div><div class="arrow">↓ System call: write(), read(), fsync()</div><div class="node">VFS<br><small>Giao diện filesystem thống nhất</small></div><div class="arrow">↓</div><div class="node">Filesystem<br><small>ext4, XFS, Btrfs...</small></div><div class="arrow">↓</div><div class="node">Page Cache / Writeback<br><small>Cache dữ liệu và đẩy trang bẩn</small></div><div class="arrow">↓</div><div class="node">Block Layer<br><small>Tạo, gộp và xếp hàng I/O request</small></div><div class="arrow">↓</div><div class="node">Device Driver<br><small>Điều khiển bộ điều khiển phần cứng</small></div><div class="arrow">↓</div><div class="node green">Hardware<br><small>SSD / eMMC / SD Card / NVMe<br>Controller, DMA, interrupt, firmware</small></div><p class="note">Đây là đường đi khái niệm của block I/O thông thường. Một số lớp có thể bị bỏ qua hoặc thay đổi tùy loại I/O, filesystem và thiết bị.</p></div>
+
+<p>Điều quan trọng đầu tiên: <strong>ứng dụng không cần biết phần cứng cụ thể đang được sử dụng</strong>.</p>
+<p>Ứng dụng chỉ cần sử dụng một giao diện chuẩn. Kernel và driver chịu trách nhiệm chuyển yêu cầu đó thành những thao tác phù hợp với thiết bị.</p>
+<p>Đây chính là nguyên lý <em>abstraction</em> (trừu tượng hóa) mà bạn đã gặp trong lập trình hướng đối tượng và kiến trúc hệ điều hành.</p>
+<h2 id="section-2">2. Driver thực chất là gì?</h2>
+<h3>2.1. Định nghĩa</h3>
+<p><strong>Device driver</strong> là thành phần phần mềm chịu trách nhiệm điều khiển một loại thiết bị, đồng thời kết nối thiết bị đó với các subsystem của hệ điều hành.</p>
+<p>Nói đơn giản:</p>
+<blockquote>
+<p>Driver là người phiên dịch giữa yêu cầu của hệ điều hành và cách điều khiển cụ thể của phần cứng.</p>
+</blockquote>
+<p>Ví dụ trong đời sống: Bạn là khách hàng tại nhà hàng, muốn gọi món. Bạn không cần biết bếp sử dụng lò điện, lò gas hay bếp từ.</p>
+<ul>
+<li>Khách hàng: ứng dụng.</li>
+<li>Nhân viên nhận đơn: giao diện hệ điều hành.</li>
+<li>Đầu bếp: driver.</li>
+<li>Thiết bị nấu: phần cứng.</li>
+</ul>
+<p>Cùng một yêu cầu &quot;nấu cơm&quot;, đầu bếp phải biết thao tác với từng loại thiết bị.</p>
+<h3>2.2. Driver làm những công việc nào?</h3>
+<p>Một driver có thể thực hiện:</p>
+<ol>
+<li>Phát hiện và khởi tạo thiết bị.</li>
+<li>Cấu hình thanh ghi phần cứng.</li>
+<li>Thiết lập clock, interrupt, DMA.</li>
+<li>Gửi yêu cầu đọc/ghi dữ liệu.</li>
+<li>Nhận thông báo hoàn thành từ phần cứng.</li>
+<li>Xử lý lỗi, timeout và reset thiết bị.</li>
+<li>Quản lý trạng thái nguồn và suspend/resume.</li>
+<li>Cung cấp giao diện cho các lớp kernel khác hoặc user space.</li>
+</ol>
+<p>Lấy ví dụ một UART driver trên SoC.</p>
+<p>Khi ứng dụng gọi:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">write(fd, &quot;ABC&quot;, 3);
+</code></pre></div>
+<p>Kernel có thể chuyển dữ liệu đến UART driver. Driver kiểm tra trạng thái FIFO, cấu hình interrupt hoặc DMA, sau đó yêu cầu UART controller phát các bit ra chân TX.</p>
+<p>Không phải driver nào cũng trực tiếp tạo bit tín hiệu. Phần lớn công việc truyền bit thực tế do peripheral phần cứng thực hiện.</p>
+<h3>2.3. Driver khác ứng dụng bình thường như thế nào?</h3>
+<table>
+<thead>
+<tr>
+  <th>Đặc điểm</th>
+  <th>Ứng dụng user space</th>
+  <th>Kernel driver</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Quyền truy cập</td>
+  <td>Bị giới hạn</td>
+  <td>Có quyền kernel</td>
+</tr>
+<tr>
+  <td>Truy cập thanh ghi MMIO</td>
+  <td>Thường không trực tiếp</td>
+  <td>Có thể qua API kernel</td>
+</tr>
+<tr>
+  <td>Lỗi truy cập bộ nhớ</td>
+  <td>Thường làm hỏng process</td>
+  <td>Có thể gây kernel panic</td>
+</tr>
+<tr>
+  <td>API sử dụng</td>
+  <td>libc, POSIX</td>
+  <td>Linux kernel API</td>
+</tr>
+<tr>
+  <td>Quản lý bộ nhớ</td>
+  <td>malloc, mmap</td>
+  <td>kmalloc, vmalloc, DMA API...</td>
+</tr>
+<tr>
+  <td>Khả năng sleep</td>
+  <td>Theo luồng xử lý</td>
+  <td>Phụ thuộc execution context</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Câu hỏi phản biện:</strong> Driver có bắt buộc chạy trong kernel không?</p>
+<p>Không. Linux cũng có những giải pháp điều khiển phần cứng từ user space như UIO, VFIO, libusb và một số mô hình driver chuyên dụng.</p>
+<p>Tuy nhiên, các driver truyền thống của block, network, UART, I2C và SPI thường hoạt động trong kernel.</p>
+<h2 id="section-3">3. Kernel module là gì? Driver và module có phải một?</h2>
+<p>Đây là hai khái niệm rất dễ nhầm lẫn.</p>
+<p><strong>Driver mô tả chức năng. Module mô tả cách đóng gói và nạp mã vào kernel.</strong></p>
+<p>Một driver có thể được biên dịch trực tiếp vào kernel hoặc biên dịch thành một module nạp động.</p>
+<h3>3.1. Hai hình thức driver phổ biến</h3>
+<div class="cards"><div class="node"><b>Built-in driver</b><p>Mã driver nằm trong kernel image và có mặt khi kernel khởi động.</p><code>CONFIG_XXX=y</code></div><div class="node"><b>Loadable module</b><p>Mã được đóng gói thành file .ko, có thể nạp vào kernel khi cần.</p><code>CONFIG_XXX=m</code></div></div>
+
+<p>Trong cấu hình build kernel:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">CONFIG_FOO=y   # Built-in
+CONFIG_FOO=m   # Module
+# CONFIG_FOO is not set
+</code></pre></div>
+<p>Giả sử driver USB-UART được biên dịch thành module <code>cp210x.ko</code>.</p>
+<p>Khi cắm một USB-UART CP210x tương thích, Linux có thể tự nạp module và gắn driver với thiết bị.</p>
+<p>Các lệnh thường dùng:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">lsmod
+modinfo cp210x
+sudo modprobe cp210x
+</code></pre></div>
+<p><code>lsmod</code> liệt kê module đang nạp. <code>modinfo</code> hiển thị metadata của module. <code>modprobe</code> yêu cầu nạp module và xử lý các dependency liên quan theo cấu hình hệ thống.</p>
+<h3>3.2. Vì sao <code>lsmod</code> không thấy driver nhưng thiết bị vẫn hoạt động?</h3>
+<p>Vì driver có thể là <strong>built-in</strong>.</p>
+<p>Ví dụ, trên một board nhúng, driver phục vụ root filesystem thường phải sẵn sàng đủ sớm trong quá trình boot.</p>
+<p>Nếu driver lưu trữ chỉ tồn tại trên chính filesystem cần driver đó để đọc, ta gặp vấn đề &quot;con gà và quả trứng&quot;.</p>
+<p>Giải pháp thường là tích hợp driver cần thiết vào kernel hoặc cung cấp module và dependency trong initramfs.</p>
+<h3>3.3. Module được nạp như thế nào?</h3>
+<div class="diagram"><h4>Luồng nạp module tự động — ví dụ USB-UART</h4><div class="node">① Cắm USB-UART vào cổng USB</div><div class="arrow">↓</div><div class="node">② USB core phát hiện thiết bị và đọc descriptor</div><div class="arrow">↓</div><div class="node">③ Kernel tạo thông tin thiết bị và phát uevent</div><div class="arrow">↓</div><div class="node">④ Cơ chế userspace/kmod hỗ trợ tìm và nạp module phù hợp</div><div class="arrow">↓</div><div class="node">⑤ Driver đăng ký, được match và chạy probe()</div><div class="arrow">↓</div><div class="node green">⑥ Thiết bị sẵn sàng, ví dụ /dev/ttyUSB0</div></div>
+
+<p>Ở đây xuất hiện một khái niệm mới: <strong>probe()</strong>.</p>
+<p>Probe là callback mà bus/driver core sử dụng khi một thiết bị được ghép với driver phù hợp. Trong quá trình này driver có thể cấp phát tài nguyên, ánh xạ thanh ghi, đăng ký interrupt và khởi tạo thiết bị.</p>
+<p>Probe không phải lúc nào cũng chạy thành công. Driver có thể báo lỗi hoặc hoãn probe nếu tài nguyên phụ thuộc chưa sẵn sàng.</p>
+<h2 id="section-4">4. Firmware khác driver như thế nào?</h2>
+<p>Hãy lấy một card Wi-Fi làm ví dụ.</p>
+<p>Driver Linux biết cách giao tiếp với card Wi-Fi. Nhưng bản thân chip Wi-Fi có thể cần một chương trình riêng chạy trên bộ xử lý bên trong chip.</p>
+<p>Chương trình đó là firmware.</p>
+<div class="diagram"><div class="node">Ứng dụng Linux<br><small>Yêu cầu gửi dữ liệu qua Wi-Fi</small></div><div class="arrow">↓</div><div class="node">Wi-Fi Driver — chạy trên CPU Linux<br><small>Gửi lệnh, quản lý buffer, nhận sự kiện</small></div><div class="arrow">↓</div><div class="node highlight">Wi-Fi Firmware — chạy trên chip Wi-Fi<br><small>Thực hiện chức năng điều khiển nội bộ của thiết bị</small></div><div class="arrow">↓</div><div class="node">Radio / MAC / PHY Hardware</div></div>
+
+<p>Firmware có thể được lưu sẵn trong ROM/flash của thiết bị hoặc được driver tải xuống trong quá trình khởi tạo.</p>
+<p>Một đường dẫn thường gặp:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">ls /lib/firmware
+</code></pre></div>
+<p>Để tìm lỗi firmware:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">sudo dmesg | grep -i firmware
+</code></pre></div>
+<p>Cần phân biệt thêm:</p>
+<ul>
+<li>Bootloader khởi động hệ thống.</li>
+<li>Kernel quản lý tài nguyên hệ điều hành.</li>
+<li>Driver điều khiển và tích hợp thiết bị.</li>
+<li>Firmware cung cấp mã hoặc dữ liệu mà phần cứng/nền tảng cần.</li>
+</ul>
+<p><strong>Câu hỏi:</strong> Đã nạp đúng driver mà Wi-Fi vẫn không hoạt động, có chắc driver lỗi không?</p>
+<p>Không. Có thể thiếu firmware, firmware không tương thích, thiết bị chưa được cấp nguồn, sai Device Tree, lỗi clock hoặc reset.</p>
+<p>Đó là lý do kỹ sư nhúng không chỉ nhìn <code>lsmod</code> khi debug.</p>
+<h2 id="section-5">5. Linux Device Model — Kernel biết thiết bị nào dùng driver nào?</h2>
+<p>Trước khi bàn về interrupt và DMA, cần hiểu kernel tổ chức các thiết bị như thế nào.</p>
+<p>Linux có một <strong>device model</strong> mô tả quan hệ giữa thiết bị, bus, driver và các lớp thiết bị.</p>
+<p>Ví dụ một thiết bị USB-UART:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">USB Host Controller
+    |
+    +-- USB Bus
+         |
+         +-- USB Device
+              |
+              +-- USB Interface
+                   |
+                   +-- cp210x Driver
+                        |
+                        +-- tty subsystem
+                             |
+                             +-- /dev/ttyUSB0
+</code></pre></div>
+<p>Lưu ý rằng trong USB, driver thường được ghép với USB interface, không nhất thiết với toàn bộ USB device.</p>
+<h3>5.1. Device, bus, driver và class</h3>
+<table>
+<thead>
+<tr>
+  <th>Thành phần</th>
+  <th>Vai trò</th>
+  <th>Ví dụ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Device</td>
+  <td>Đối tượng thiết bị</td>
+  <td>Một USB interface</td>
+</tr>
+<tr>
+  <td>Bus</td>
+  <td>Cơ chế kết nối/match</td>
+  <td>USB, PCI, platform</td>
+</tr>
+<tr>
+  <td>Driver</td>
+  <td>Mã điều khiển</td>
+  <td>cp210x, nvme</td>
+</tr>
+<tr>
+  <td>Class</td>
+  <td>Nhóm chức năng</td>
+  <td>tty, net, block</td>
+</tr>
+<tr>
+  <td>Device node</td>
+  <td>Điểm truy cập user space</td>
+  <td><code>/dev/ttyUSB0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Một điểm cần chú ý: <code>/dev/ttyUSB0</code> không phải là driver.</p>
+<p>Đó là một device node giúp ứng dụng truy cập chức năng thiết bị thông qua kernel.</p>
+<h3>5.2. sysfs là gì?</h3>
+<p>sysfs là một filesystem ảo, thường được mount tại:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">/sys
+</code></pre></div>
+<p>Nó cung cấp cái nhìn có cấu trúc về các đối tượng và thuộc tính mà kernel xuất ra user space.</p>
+<p>Một số thư mục quan trọng:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">/sys/
+├── bus/
+├── class/
+├── devices/
+├── block/
+├── module/
+└── firmware/
+</code></pre></div>
+<p>Bạn có thể quan sát:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">ls /sys/class/net
+ls /sys/class/block
+ls /sys/bus/usb/devices
+</code></pre></div>
+<p><code>/sys/class/net</code> thể hiện các network interface, còn <code>/sys/class/block</code> thể hiện các block device.</p>
+<p>Các entry trong <code>/sys/class</code> thường liên kết tới những đối tượng nằm trong cây <code>/sys/devices</code>.</p>
+<h3>Ví dụ: lần theo driver của card mạng</h3>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">ls -l /sys/class/net
+</code></pre></div>
+<p>Giả sử hệ thống có <code>eth0</code>:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">readlink -f /sys/class/net/eth0/device
+</code></pre></div>
+<p>Tiếp theo:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">readlink -f /sys/class/net/eth0/device/driver
+</code></pre></div>
+<p>Với một thiết bị mạng vật lý, đường dẫn này có thể trỏ tới driver đang gắn với thiết bị.</p>
+<p>Tuy nhiên, không phải mọi interface đều có đường dẫn đó. <code>lo</code>, <code>veth</code>, <code>tun</code> hoặc một số interface ảo không tương ứng trực tiếp với thiết bị phần cứng.</p>
+<p><strong>Tư duy debug của senior:</strong> Nếu một symlink không tồn tại, đừng vội kết luận thiết bị không có driver. Trước tiên hãy xác định bạn đang quan sát thiết bị vật lý, thiết bị ảo hay một tầng trung gian.</p>
+<h2 id="section-6">6. udev là gì? Tại sao cắm USB lại xuất hiện <code>/dev/ttyUSB0</code>?</h2>
+<p>Đây là chỗ liên kết kiến thức kernel với user space.</p>
+<p>Kernel phát hiện thiết bị và quản lý đối tượng thiết bị. <code>udev</code>, thường thông qua <code>systemd-udevd</code>, xử lý các sự kiện thiết bị trong user space và áp dụng quy tắc.</p>
+<div class="diagram"><h4>Quá trình thiết bị xuất hiện</h4><div class="node">Kernel phát hiện thiết bị</div><div class="arrow">↓</div><div class="node">Kernel device model + uevent</div><div class="arrow">↓</div><div class="node">systemd-udevd xử lý rule<br><small>Permission, group, symlink, metadata</small></div><div class="arrow">↓</div><div class="node green">/dev/ttyUSB0 hoặc symlink ổn định</div></div>
+
+<p>Một điều chỉnh kỹ thuật quan trọng: trên Linux hiện đại, devtmpfs thường giúp kernel tạo device node cơ bản. udev không nhất thiết là thành phần trực tiếp tạo ra mọi node trong <code>/dev</code>; nó còn quản lý thuộc tính, quyền và các symlink.</p>
+<h3>6.1. Tại sao không nên chmod thủ công?</h3>
+<p>Giả sử:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">sudo chmod 666 /dev/ttyUSB0
+</code></pre></div>
+<p>Lệnh có thể cho phép nhiều process truy cập cổng UART, nhưng thay đổi này thường không bền khi thiết bị bị tháo/cắm lại.</p>
+<p>Ngoài ra, quyền <code>666</code> cho mọi người đọc/ghi có thể không phù hợp về bảo mật.</p>
+<p>Giải pháp tốt hơn là sử dụng group và udev rule phù hợp.</p>
+<p>Ví dụ:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-udev">SUBSYSTEM==&quot;tty&quot;, ATTRS{idVendor}==&quot;10c4&quot;, ATTRS{idProduct}==&quot;ea60&quot;, GROUP=&quot;dialout&quot;, MODE=&quot;0660&quot;
+</code></pre></div>
+<p>Đây là ví dụ cho một loại thiết bị CP210x với VID/PID tương ứng; không nên áp dụng cho mọi USB-UART nếu chưa kiểm tra descriptor.</p>
+<p>Xem thuộc tính:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">udevadm info --attribute-walk \
+    --name=/dev/ttyUSB0
+</code></pre></div>
+<h3>6.2. Tại sao tên ttyUSB0 không ổn định?</h3>
+<p>Giả sử bạn cắm hai USB-UART:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">USB-UART A → ttyUSB0
+USB-UART B → ttyUSB1
+</code></pre></div>
+<p>Sau reboot hoặc cắm theo thứ tự khác, tên có thể thay đổi.</p>
+<p>Vì vậy, trong sản phẩm nhúng, nên cân nhắc symlink theo serial hoặc đường kết nối vật lý.</p>
+<p>Kiểm tra:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">ls -l /dev/serial/by-id/
+ls -l /dev/serial/by-path/
+</code></pre></div>
+<p>Nếu thiết bị và cấu hình udev hỗ trợ, các đường dẫn này có thể ổn định hơn.</p>
+<p>Đây là một vấn đề rất thực tế khi làm robot, hệ thống điều khiển động cơ hoặc nhiều USB-CAN adapter.</p>
+<h2 id="section-7">7. Interrupt và DMA — CPU giao tiếp với phần cứng như thế nào?</h2>
+<p>Bây giờ ta đi xuống sâu hơn.</p>
+<p>Giả sử ứng dụng muốn đọc 4 KiB dữ liệu từ một thiết bị lưu trữ.</p>
+<p>Có hai câu hỏi:</p>
+<ol>
+<li>Ai chuyển dữ liệu giữa thiết bị và RAM?</li>
+<li>Làm sao CPU biết việc truyền dữ liệu đã hoàn thành?</li>
+</ol>
+<p>Đây là lúc DMA và interrupt xuất hiện.</p>
+<h3>7.1. Polling — CPU liên tục hỏi thiết bị</h3>
+<p>Ví dụ đơn giản:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">while (!(STATUS_REG &amp; DATA_READY)) {
+    /* wait */
+}
+value = DATA_REG;
+</code></pre></div>
+<p>CPU liên tục đọc thanh ghi trạng thái.</p>
+<p>Ví dụ đời sống: bạn đặt đồ ăn và cứ mỗi giây lại hỏi nhà hàng &quot;Xong chưa?&quot;.</p>
+<p>Ưu điểm là đơn giản và có thể hữu ích khi chờ cực ngắn hoặc trong những ngữ cảnh cần kiểm soát chặt độ trễ.</p>
+<p>Nhược điểm là CPU có thể tiêu tốn thời gian để chờ.</p>
+<h3>7.2. Interrupt — Thiết bị chủ động báo</h3>
+<p>Thay vì liên tục hỏi, CPU cấu hình thiết bị để phát interrupt khi một sự kiện xảy ra.</p>
+<p>Ví dụ đời sống: bạn đặt đồ ăn, nhà hàng gọi điện khi món đã sẵn sàng.</p>
+<div class="interactive" id="polling-demo"><h4>▶ Mô phỏng Polling và Interrupt</h4><div class="controls"><button class="selected" data-mode="interrupt">Interrupt</button><button data-mode="polling">Polling</button></div><div class="cards"><div class="node"><b>🖥 CPU</b><p id="cpu-status">Gửi yêu cầu</p></div><div class="node"><b>▣ Thiết bị</b><p id="device-status">Đang xử lý dữ liệu</p></div></div><p id="poll-step">Bước 1/4 — Gửi yêu cầu</p><div class="progress"><div id="poll-progress" style="width:25%"></div></div><div class="controls"><button id="poll-prev">← Trước</button><button id="poll-next">Bước tiếp →</button><button id="poll-play">▶ Tự chạy</button></div><p class="note">Minh họa đơn giản. Trong thực tế, polling có thể rất hiệu quả với một số workload và thiết bị tốc độ cao; interrupt cũng có overhead.</p></div>
+
+<h3>7.3. Interrupt có làm CPU lập tức chạy handler không?</h3>
+<p>Không phải lúc nào cũng ngay lập tức.</p>
+<p>CPU có thể đang tắt interrupt cục bộ, đang xử lý interrupt ưu tiên khác hoặc đang trong vùng kernel hạn chế preemption.</p>
+<p>Độ trễ interrupt phụ thuộc phần cứng, kiến trúc CPU, cấu hình kernel và tải hệ thống.</p>
+<p>Đây chính là điểm nối sang bài Real-Time Linux: <strong>latency và tính dự đoán được của thời gian phản hồi</strong>.</p>
+<h2 id="section-8">8. DMA — Direct Memory Access</h2>
+<p>Hãy tưởng tượng bạn cần chuyển 1 MB dữ liệu từ một peripheral vào RAM.</p>
+<p>Nếu CPU tự đọc từng đơn vị dữ liệu từ thiết bị rồi ghi vào RAM, CPU phải tham gia vào rất nhiều thao tác chuyển dữ liệu.</p>
+<p>DMA cho phép một DMA engine hoặc thiết bị bus-master chuyển dữ liệu trực tiếp tới hoặc từ bộ nhớ theo cấu hình được thiết lập.</p>
+<h3>8.1. Không dùng DMA</h3>
+<div class="diagram"><h4>CPU-mediated transfer — mô hình đơn giản</h4><div class="horizontal"><div class="node">▣ Thiết bị</div><div class="arrow">→</div><div class="node">🖥 CPU</div><div class="arrow">→</div><div class="node">▤ RAM</div></div><p class="note">CPU thực hiện thao tác chuyển dữ liệu, làm tăng công việc phải xử lý.</p></div>
+
+<h3>8.2. Sử dụng DMA</h3>
+<div class="diagram"><h4>DMA transfer</h4><div class="horizontal"><div class="node">▣ Thiết bị</div><div class="arrow">⇄</div><div class="node green">DMA</div><div class="arrow">⇄</div><div class="node">▤ RAM</div></div><p class="note">CPU cấu hình transfer và xử lý completion, không phải tự chép từng byte.</p></div>
+
+<h3>8.3. DMA có nghĩa CPU hoàn toàn không tham gia?</h3>
+<p>Không. CPU/driver vẫn thường phải:</p>
+<ul>
+<li>Chuẩn bị buffer và descriptor.</li>
+<li>Thiết lập mapping DMA.</li>
+<li>Cấu hình hoặc submit transfer.</li>
+<li>Đảm bảo thứ tự truy cập bộ nhớ thích hợp.</li>
+<li>Nhận completion.</li>
+<li>Thu hồi hoặc tái sử dụng tài nguyên.</li>
+</ul>
+<p>DMA giảm công việc chuyển dữ liệu của CPU, nhưng không loại bỏ vai trò điều phối của CPU.</p>
+<h3>8.4. Descriptor là gì?</h3>
+<p>Descriptor là cấu trúc mô tả công việc mà thiết bị hoặc DMA engine cần thực hiện.</p>
+<p>Một ví dụ khái niệm:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">struct dma_descriptor {
+    uint64_t dma_address;
+    uint32_t length;
+    uint32_t flags;
+};
+</code></pre></div>
+<p>Lưu ý đây không phải cấu trúc DMA API chung của Linux, mà chỉ dùng để minh họa.</p>
+<p>Descriptor có thể cho biết địa chỉ DMA, độ dài dữ liệu và cờ điều khiển.</p>
+<p>Đây là kiến thức rất gần với descriptor ring trong Ethernet controller, USB controller và nhiều bộ điều khiển lưu trữ.</p>
+<h2 id="section-9">9. DMA và Cache Coherency — Một lỗi rất khó debug</h2>
+<p>Đây là phần phân biệt giữa người mới học driver và người đã làm việc thực tế với phần cứng.</p>
+<p>Giả sử CPU có cache.</p>
+<p>CPU đọc một vùng RAM, sau đó thiết bị DMA ghi dữ liệu mới vào vùng RAM đó.</p>
+<p>Nếu hệ thống không bảo đảm cache coherence, CPU có thể vẫn nhìn thấy bản dữ liệu cũ trong cache.</p>
+<p>Ngược lại, CPU có thể đã sửa dữ liệu trong cache nhưng chưa làm cho thiết bị DMA nhìn thấy nội dung mới.</p>
+<div class="interactive" id="cache-demo"><h4>▶ Minh họa nguy cơ dữ liệu không nhất quán</h4><label><input type="checkbox" id="cache-sync"> Đã đồng bộ cache</label><div class="cards"><div class="node"><b>CPU Cache</b><div class="big-value" id="cache-value">0xAA</div><small id="cache-note">Có thể đang giữ dữ liệu cũ</small></div><div class="node"><b>RAM</b><div class="big-value">0xBB</div><small>DMA vừa ghi dữ liệu mới</small></div></div><p class="note">Đây là mô hình của hệ thống không tự bảo đảm coherence. Trên hệ thống cache-coherent, phần cứng có thể duy trì tính nhất quán mà không cần thao tác thủ công tương đương.</p></div>
+
+<p>Trong Linux kernel, driver nên sử dụng DMA API đúng cách thay vì tự đoán thao tác flush/invalidate cache.</p>
+<p>Ví dụ các API thường gặp:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">dma_alloc_coherent(...)
+dma_map_single(...)
+dma_unmap_single(...)
+dma_sync_single_for_cpu(...)
+dma_sync_single_for_device(...)
+</code></pre></div>
+<p>Việc chọn API phụ thuộc kiểu buffer, hướng truyền, ownership và khả năng coherence của nền tảng.</p>
+<p><strong>Câu hỏi:</strong> Nếu DMA đã ghi xong vào RAM thì có chắc CPU đọc được dữ liệu mới ngay không?</p>
+<p>Không thể kết luận như vậy trên mọi kiến trúc nếu chưa xét cache coherence, memory ordering và các quy tắc của DMA API.</p>
+<h2 id="section-10">10. Buffer ownership — Ai được phép sử dụng buffer?</h2>
+<p>Giả sử driver đang sử dụng một buffer để DMA truyền dữ liệu.</p>
+<p>CPU sửa buffer trong khi DMA đang đọc nó.</p>
+<p>Điều gì xảy ra?</p>
+<p>Thiết bị có thể nhận dữ liệu không nhất quán, tùy cách truy cập và đồng bộ.</p>
+<p>Vì vậy driver phải quản lý ownership: tại một thời điểm, bên nào được quyền truy cập hoặc sửa buffer theo hợp đồng DMA.</p>
+<div class="diagram"><h4>Vòng đời buffer DMA đơn giản</h4><div class="node">① CPU owns buffer<br><small>CPU chuẩn bị nội dung và metadata</small></div><div class="arrow">↓</div><div class="node">② DMA mapping / sync<br><small>Thiết lập khả năng truy cập cho thiết bị</small></div><div class="arrow">↓</div><div class="node">③ Device owns buffer<br><small>Thiết bị thực hiện truyền dữ liệu</small></div><div class="arrow">↓</div><div class="node">④ Completion<br><small>Driver nhận biết transfer hoàn thành</small></div><div class="arrow">↓</div><div class="node green">⑤ CPU owns buffer again<br><small>Đồng bộ/thu hồi mapping khi cần, rồi CPU xử lý</small></div></div>
+
+<p>Một lỗi thường gặp là dùng lại buffer quá sớm hoặc giải phóng buffer trong khi thiết bị vẫn còn truy cập.</p>
+<p>Trong kernel, lỗi kiểu này có thể dẫn đến memory corruption rất khó tái hiện.</p>
+<h2 id="section-11">11. I/O Scheduler khác CPU Scheduler như thế nào?</h2>
+<p>Bạn đã học CPU scheduling ở các bài trước.</p>
+<p>CPU scheduler quyết định <strong>task nào được chạy trên CPU</strong>.</p>
+<p>I/O scheduler quyết định <strong>các yêu cầu I/O ở block layer được tổ chức và phân phối như thế nào</strong>.</p>
+<p>Ví dụ có ba tiến trình cùng yêu cầu đọc dữ liệu:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">Process A → Read block 100
+Process B → Read block 900
+Process C → Read block 101
+</code></pre></div>
+<p>Với ổ cứng HDD, việc đọc các block gần nhau có thể giảm chi phí seek.</p>
+<p>Với SSD hoặc NVMe, không có cơ chế seek cơ học như HDD, nhưng queueing, fairness, latency và parallelism vẫn quan trọng.</p>
+<h3>11.1. Các scheduler thường gặp</h3>
+<table>
+<thead>
+<tr>
+  <th>Scheduler</th>
+  <th>Ý tưởng chính</th>
+  <th>Tình huống cân nhắc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>mq-deadline</code></td>
+  <td>Điều phối request với cơ chế deadline</td>
+  <td>Kiểm soát độ trễ chờ</td>
+</tr>
+<tr>
+  <td><code>bfq</code></td>
+  <td>Phân phối dịch vụ theo budget</td>
+  <td>Fairness, workload tương tác</td>
+</tr>
+<tr>
+  <td><code>none</code></td>
+  <td>Không thêm lớp I/O scheduling tại vị trí này</td>
+  <td>Thiết bị/stack có khả năng queueing tốt</td>
+</tr>
+</tbody>
+</table>
+<p>Không có scheduler tốt nhất cho mọi workload.</p>
+<h3>11.2. Quan sát scheduler đang dùng</h3>
+<p>Ví dụ:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">cat /sys/block/sda/queue/scheduler
+</code></pre></div>
+<p>Output giả định:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">[mq-deadline] kyber bfq none
+</code></pre></div>
+<p>Scheduler trong dấu ngoặc vuông là scheduler đang được chọn.</p>
+<p>Danh sách thực tế phụ thuộc kernel, thiết bị và các scheduler đã được biên dịch hoặc nạp.</p>
+<h3>11.3. Thử thay đổi scheduler</h3>
+<p>Trên thiết bị lab phù hợp, sau khi đánh giá rủi ro:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">echo none | sudo tee \
+  /sys/block/sdX/queue/scheduler
+</code></pre></div>
+<p>Chỉ thực hiện khi <code>none</code> xuất hiện trong danh sách khả dụng, thay <code>sdX</code> bằng đúng thiết bị và hiểu ảnh hưởng đến workload.</p>
+<p>Không nên thay scheduler trên ổ production chỉ vì thấy một bài benchmark khác có kết quả tốt hơn.</p>
+<h2 id="section-12">12. NVMe và Multi-Queue — Vì sao một thiết bị có thể xử lý nhiều I/O cùng lúc?</h2>
+<p>HDD truyền thống bị giới hạn mạnh bởi cơ cấu cơ khí.</p>
+<p>NVMe được thiết kế cho lưu trữ flash với nhiều queue và khả năng xử lý song song.</p>
+<div class="diagram"><h4>Mô hình đơn giản của NVMe multi-queue</h4><div class="horizontal"><div class="node">CPU 0<br>↓<br>Queue 0</div><div class="node">CPU 1<br>↓<br>Queue 1</div><div class="node">CPU 2<br>↓<br>Queue 2</div></div><div class="arrow">↓</div><div class="node">NVMe Controller<br><small>Nhận và xử lý nhiều request</small></div><div class="arrow">↓</div><div class="node green">Flash Storage</div></div>
+
+<p>Hình này chỉ mô tả ý tưởng. Số lượng hardware/software queue thực tế không nhất thiết bằng số CPU và phụ thuộc cấu hình driver, controller.</p>
+<p>Vì thế, khi quan sát NVMe, không nên diễn giải <code>%util</code> như một tỷ lệ &quot;thiết bị chỉ có thể làm một việc tại một thời điểm&quot;.</p>
+<p>Để phân tích performance, nên kết hợp throughput, latency, queue depth, IOPS và workload.</p>
+<h2 id="section-13">13. Buffered I/O — Vì sao <code>write()</code> thành công chưa chắc dữ liệu đã nằm trên ổ?</h2>
+<p>Đây là một trong những phần quan trọng nhất của bài.</p>
+<p>Giả sử bạn viết:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">write(fd, buffer, 4096);
+</code></pre></div>
+<p>Nhiều người nghĩ dữ liệu đã được ghi xuống SSD ngay khi <code>write()</code> trả về thành công.</p>
+<p>Điều này không đúng trong trường hợp buffered I/O thông thường.</p>
+<h3>13.1. Page cache là gì?</h3>
+<p>Page cache là vùng bộ nhớ mà kernel sử dụng để cache dữ liệu file.</p>
+<p>Nó giúp giảm số lần truy cập storage, đặc biệt khi nhiều lần đọc/ghi cùng dữ liệu.</p>
+<p>Đối với buffered write, dữ liệu có thể được chép vào page cache, đánh dấu dirty, rồi <code>write()</code> trả về.</p>
+<p>Sau đó kernel thực hiện writeback để đưa dữ liệu xuống tầng lưu trữ.</p>
+<div class="interactive" id="write-demo"><h4>▶ Mô phỏng vòng đời buffered write</h4><div class="node stage active">Application<br><small>Gọi write() để ghi dữ liệu</small></div><div class="arrow">↓</div><div class="node stage">Page Cache<br><small>Dữ liệu được cache, có thể ở trạng thái dirty</small></div><div class="arrow">↓</div><div class="node stage">Writeback / Filesystem<br><small>Kernel gửi dữ liệu và metadata liên quan xuống storage</small></div><div class="arrow">↓</div><div class="node stage">Storage Device<br><small>Thiết bị xử lý và lưu dữ liệu theo cơ chế riêng</small></div><div class="controls"><button id="write-prev">← Trước</button><button id="write-next">Tiếp theo →</button><button id="write-play">▶ Tự chạy</button></div><p class="note">Đây là luồng khái niệm. Thời điểm writeback có thể khác, và ngay cả khi thiết bị đã nhận lệnh ghi, bảo đảm chống mất điện còn phụ thuộc vào cơ chế flush và tính đúng đắn của thiết bị.</p></div>
+
+<h3>13.2. Dirty page là gì?</h3>
+<p>Một dirty page là trang cache chứa dữ liệu đã được sửa nhưng chưa được đồng bộ hoàn toàn tới backing storage tương ứng.</p>
+<p>Ví dụ:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">RAM Page Cache:
+[ Hello Linux ]  ← Dirty
+
+SSD:
+[ Old Content ]
+</code></pre></div>
+<p>Kernel có thể thực hiện writeback theo chính sách của hệ thống hoặc do ứng dụng yêu cầu đồng bộ.</p>
+<p>Bạn có thể quan sát tổng quan:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">grep -E 'Dirty|Writeback' /proc/meminfo
+</code></pre></div>
+<p>Lưu ý các giá trị này phản ánh trạng thái bộ nhớ toàn hệ thống, không phải riêng file đang nghiên cứu.</p>
+<h2 id="section-14">14. <code>flush()</code>, <code>fsync()</code> và <code>sync()</code> khác nhau thế nào?</h2>
+<p>Ba khái niệm này rất hay bị đánh đồng.</p>
+<h3>14.1. <code>flush()</code> của Python</h3>
+<p>Ví dụ:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-python">f = open(&quot;data.txt&quot;, &quot;w&quot;)
+f.write(&quot;Hello&quot;)
+f.flush()
+</code></pre></div>
+<p>Python có buffering riêng trong user space.</p>
+<p><code>flush()</code> đẩy dữ liệu từ buffer Python xuống tầng file descriptor/kernel.</p>
+<p>Nó không tự bảo đảm dữ liệu đã được lưu bền trên thiết bị.</p>
+<h3>14.2. <code>fsync()</code></h3>
+<p>Ví dụ:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-python">import os
+with open(&quot;data.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;Hello&quot;)
+    f.flush()
+    os.fsync(f.fileno())
+</code></pre></div>
+<p><code>fsync()</code> yêu cầu kernel đồng bộ dữ liệu và metadata cần thiết của file theo hợp đồng của syscall, filesystem và thiết bị.</p>
+<p>Trong stack lưu trữ bình thường, điều này có thể dẫn đến các thao tác flush/cache-control phù hợp ở tầng thấp hơn.</p>
+<p>Tuy nhiên, không thể dùng một lần <code>fsync()</code> thành công để chứng minh toàn bộ hệ thống phần cứng có khả năng chống mất điện tuyệt đối.</p>
+<h3>14.3. <code>sync()</code></h3>
+<p><code>sync()</code> yêu cầu đồng bộ các dữ liệu filesystem đang chờ trên phạm vi hệ thống.</p>
+<p>Nó không phải là phương án thay thế tốt cho một giao thức transaction được thiết kế đúng trong ứng dụng.</p>
+<h3>Bảng so sánh</h3>
+<table>
+<thead>
+<tr>
+  <th>Thao tác</th>
+  <th>Ý nghĩa chính</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Python <code>flush()</code></td>
+  <td>Đẩy buffer user space xuống OS</td>
+</tr>
+<tr>
+  <td><code>write()</code></td>
+  <td>Gửi dữ liệu tới kernel</td>
+</tr>
+<tr>
+  <td><code>fsync(fd)</code></td>
+  <td>Đồng bộ file theo bảo đảm filesystem</td>
+</tr>
+<tr>
+  <td><code>fdatasync(fd)</code></td>
+  <td>Đồng bộ dữ liệu và metadata cần thiết để đọc dữ liệu</td>
+</tr>
+<tr>
+  <td><code>sync()</code></td>
+  <td>Đồng bộ dữ liệu filesystem trên phạm vi hệ thống</td>
+</tr>
+<tr>
+  <td><code>O_DIRECT</code></td>
+  <td>Điều khiển đường đi cache của file I/O</td>
+</tr>
+<tr>
+  <td><code>O_SYNC</code></td>
+  <td>Yêu cầu ngữ nghĩa ghi đồng bộ</td>
+</tr>
+</tbody>
+</table>
+<p>Một câu hỏi quan trọng: <strong><code>O_DIRECT</code> có làm dữ liệu an toàn khi mất điện không?</strong></p>
+<p>Không. Direct I/O và durability là hai vấn đề khác nhau.</p>
+<h2 id="section-15">15. Direct I/O và Buffered I/O</h2>
+<p>Buffered I/O thường sử dụng page cache.</p>
+<p>Direct I/O thường giảm hoặc bỏ qua page cache cho phần dữ liệu file, tùy filesystem, loại I/O và các ràng buộc cụ thể.</p>
+<div class="diagram"><div class="cards"><div><h4>Buffered I/O</h4><div class="node">Application</div><div class="arrow">↓</div><div class="node highlight">Page Cache</div><div class="arrow">↓</div><div class="node">Storage</div></div><div><h4>Direct I/O</h4><div class="node">Application</div><div class="arrow">↓</div><div class="node">Filesystem / Block Layer</div><div class="arrow">↓</div><div class="node">Storage</div></div></div></div>
+
+<p>Vậy tại sao không sử dụng <code>O_DIRECT</code> cho mọi ứng dụng?</p>
+<p>Vì page cache rất hữu ích. Nó giúp tăng hiệu năng khi dữ liệu được tái sử dụng và giảm I/O vật lý.</p>
+<p>Direct I/O còn có những yêu cầu về alignment, kích thước, filesystem và xử lý đồng bộ với các hoạt động I/O khác.</p>
+<p>Một số database sử dụng direct I/O vì muốn tự quản lý cache hoặc tránh cache trùng lặp, nhưng điều này không có nghĩa direct I/O luôn nhanh hơn.</p>
+<h2 id="section-16">16. Crash Consistency — Vì sao ghi file xong vẫn có thể mất tên file?</h2>
+<p>Đây là tình huống thực tế rất quan trọng.</p>
+<p>Giả sử chương trình tạo một file mới:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">/config/settings.json
+</code></pre></div>
+<p>Chương trình ghi nội dung và gọi:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-c">fsync(fd);
+</code></pre></div>
+<p>Có thể dữ liệu file đã được đồng bộ, nhưng thay đổi directory entry liên quan tới tên file mới chưa được đồng bộ bền vững theo quy trình cần thiết.</p>
+<p>Để bảo đảm một cập nhật file bằng phương pháp ghi file tạm rồi rename, ứng dụng thường cần một giao thức phù hợp:</p>
+<ol>
+<li>Tạo file tạm trong cùng directory.</li>
+<li>Ghi đầy đủ nội dung.</li>
+<li>Gọi <code>fsync()</code> trên file tạm.</li>
+<li><code>rename()</code> file tạm thành tên chính thức.</li>
+<li>Gọi <code>fsync()</code> trên directory.</li>
+</ol>
+<p>Ví dụ Python:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-python">import os
+import tempfile
+
+directory = &quot;/tmp&quot;
+target = os.path.join(directory, &quot;settings.json&quot;)
+
+fd, temp_path = tempfile.mkstemp(
+    dir=directory,
+    prefix=&quot;.settings-&quot;
+)
+
+try:
+    with os.fdopen(fd, &quot;w&quot;) as f:
+        f.write('{&quot;mode&quot;: &quot;safe&quot;}\n')
+        f.flush()
+        os.fsync(f.fileno())
+
+    os.replace(temp_path, target)
+
+    dir_fd = os.open(
+        directory,
+        os.O_RDONLY | os.O_DIRECTORY
+    )
+
+    try:
+        os.fsync(dir_fd)
+    finally:
+        os.close(dir_fd)
+
+finally:
+    if os.path.exists(temp_path):
+        os.unlink(temp_path)
+</code></pre></div>
+<p>Đây là mẫu cơ bản cho local filesystem hỗ trợ các thao tác cần thiết. Các chi tiết về metadata, quyền, lỗi I/O, filesystem và thiết bị vẫn phải được xem xét khi dùng trong production.</p>
+<h3>Vì sao rename có ích?</h3>
+<p>Trên cùng filesystem, <code>rename()</code> có ngữ nghĩa atomic về việc thay đổi tên nhìn thấy bởi các process khác trong những điều kiện thích hợp.</p>
+<p>Điều này giúp tránh việc ứng dụng khác nhìn thấy file đích mới đang được ghi dở.</p>
+<p>Nhưng <strong>atomic visibility không đồng nghĩa với crash durability</strong>.</p>
+<p>Đó là lý do cần phân biệt rõ <code>rename()</code> và <code>fsync()</code>.</p>
+<h2 id="section-17">17. Lab 1 — Truy vết thiết bị từ <code>/dev</code> đến driver</h2>
+<p>Bây giờ hãy biến lý thuyết thành thao tác thực tế.</p>
+<p>Trên máy Linux:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">lsmod | head
+</code></pre></div>
+<p>Xem block devices:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">lsblk -o NAME,TYPE,MODEL,TRAN
+</code></pre></div>
+<p>Xem sysfs:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">ls /sys/class/block
+</code></pre></div>
+<p>Ví dụ output giả định:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">sda
+sda1
+sda2
+loop0
+</code></pre></div>
+<p>Giả sử bạn muốn kiểm tra <code>sda</code>.</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">udevadm info \
+    --query=all \
+    --name=/dev/sda
+</code></pre></div>
+<p>Tiếp theo:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">readlink -f \
+    /sys/class/block/sda/device
+</code></pre></div>
+<p>Và:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">readlink -f \
+    /sys/class/block/sda/device/driver
+</code></pre></div>
+<p>Tùy thiết bị, bạn có thể nhận được đường dẫn tới driver của bus/controller tương ứng, hoặc cần lần theo parent device.</p>
+<p>Xem scheduler:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">cat /sys/class/block/sda/queue/scheduler
+</code></pre></div>
+<p>Xem thuộc tính cha:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">udevadm info \
+    --attribute-walk \
+    --name=/dev/sda
+</code></pre></div>
+<h3>Bài tập tư duy</h3>
+<p>Giả sử <code>sda</code> nằm trên USB mass storage.</p>
+<p>Bạn có thể thấy nhiều tầng driver:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">USB Host Controller Driver
+        ↓
+USB Core
+        ↓
+USB Storage / UAS
+        ↓
+SCSI Midlayer
+        ↓
+SCSI Disk Driver
+        ↓
+Block Device: /dev/sda
+</code></pre></div>
+<p>Vậy câu hỏi &quot;driver của <code>/dev/sda</code> là gì?&quot; có thể chưa đủ chính xác.</p>
+<p>Bạn cần hỏi rõ đang muốn tìm driver của tầng USB, driver của giao thức storage hay driver block disk.</p>
+<p>Đây là cách tư duy theo stack thay vì chỉ tìm một tên module.</p>
+<h2 id="section-18">18. Lab 2 — Quan sát <code>fsync()</code> bằng strace</h2>
+<p>Bạn đã học system call ở Bài 16. Giờ chúng ta dùng <code>strace</code> để xem chương trình thực sự gọi syscall nào.</p>
+<p>Chạy:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">strace -e trace=openat,write,fsync,close \
+python3 -c '
+import os
+
+f = open(&quot;/tmp/linux-io-lab.txt&quot;, &quot;w&quot;)
+f.write(&quot;durability demo\n&quot;)
+f.flush()
+os.fsync(f.fileno())
+f.close()
+'
+</code></pre></div>
+<p>Bạn có thể thấy các dòng tương tự:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">openat(..., &quot;/tmp/linux-io-lab.txt&quot;, ...) = 3
+write(3, &quot;durability demo\n&quot;, 16) = 16
+fsync(3) = 0
+close(3) = 0
+</code></pre></div>
+<p>Đây là output minh họa, không phải bản ghi thực tế trên máy bạn. Python cũng có thể thực hiện nhiều syscall khác trong lúc khởi động.</p>
+<p>Giải thích:</p>
+<p><code>openat()</code> mở file và trả về file descriptor.</p>
+<p><code>write()</code> chuyển dữ liệu tới kernel.</p>
+<p><code>fsync()</code> yêu cầu đồng bộ file.</p>
+<p><code>close()</code> đóng file descriptor.</p>
+<h3>Câu hỏi phản biện</h3>
+<p>Nếu thấy:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">fsync(3) = 0
+</code></pre></div>
+<p>Có chứng minh rằng SSD chống được mọi trường hợp mất điện không?</p>
+<p>Không.</p>
+<p>Nó cho biết syscall trả về thành công theo hợp đồng của hệ thống. Để đánh giá độ bền thực tế cần xem filesystem, block layer, thiết bị, bộ nhớ đệm của controller và các bảo đảm về nguồn điện.</p>
+<p>Một số thiết bị có power-loss protection, nhưng không nên giả định mọi SSD hoặc eMMC đều có.</p>
+<h2 id="section-19">19. Liên hệ thực tế với Embedded Linux</h2>
+<p>Với board như ODROID XU4, Raspberry Pi hoặc các hệ thống Linux SoC, có thêm một vấn đề quan trọng: <strong>Device Tree</strong>.</p>
+<p>Trên PC, nhiều thiết bị PCI/USB có cơ chế enumeration tự động.</p>
+<p>Nhưng nhiều peripheral tích hợp trong SoC không thể tự mô tả đầy đủ bằng cơ chế như PCI.</p>
+<p>Kernel cần biết địa chỉ thanh ghi, interrupt, clock và những thông tin phần cứng khác.</p>
+<p>Device Tree cung cấp mô tả phần cứng để kernel có thể khởi tạo và ghép driver.</p>
+<p>Ví dụ minh họa:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-dts">uart0: serial@12340000 {
+    compatible = &quot;vendor,soc-uart&quot;;
+    reg = &lt;0x12340000 0x1000&gt;;
+    interrupts = &lt;42&gt;;
+    status = &quot;okay&quot;;
+};
+</code></pre></div>
+<p>Các giá trị này chỉ là giả định, không phải cấu hình thật của ODROID XU4.</p>
+<p>Ý nghĩa:</p>
+<ul>
+<li><code>compatible</code>: giúp xác định loại phần cứng để match driver.</li>
+<li><code>reg</code>: mô tả vùng tài nguyên thanh ghi.</li>
+<li><code>interrupts</code>: mô tả tài nguyên interrupt theo binding.</li>
+<li><code>status</code>: cho biết node có được bật hay không.</li>
+</ul>
+<p>Trong driver platform, thông tin Device Tree có thể được sử dụng để lấy resource, ánh xạ MMIO và đăng ký interrupt.</p>
+<p>Một lỗi thường gặp khi làm board bring-up là:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">Driver đã được build
+        ↓
+Module có thể đã nạp
+        ↓
+Nhưng không có thiết bị được match
+        ↓
+probe() không chạy
+</code></pre></div>
+<p>Nguyên nhân có thể nằm ở Device Tree, <code>compatible</code>, trạng thái node, bus hoặc cơ chế tạo platform device, chứ không nhất thiết ở mã driver.</p>
+<h2 id="section-20">20. Quy trình debug driver theo tư duy Senior</h2>
+<p>Khi thiết bị không hoạt động, đừng bắt đầu bằng việc sửa source code driver.</p>
+<p>Hãy xác định lỗi đang xảy ra ở tầng nào.</p>
+<div class="interactive" id="debug-checklist"><h4>☑ Quy trình phân tích sự cố</h4><p id="debug-count">0/7 bước đã kiểm tra</p><div class="checklist"><label><input type="checkbox"> Kernel có phát hiện thiết bị không?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>dmesg | tail -n 80</code></pre></div></label><label><input type="checkbox"> Thiết bị có xuất hiện trong sysfs không?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>ls /sys/bus/usb/devices</code></pre></div></label><label><input type="checkbox"> Driver đã được build hoặc nạp chưa?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>lsmod
+modinfo TEN_MODULE</code></pre></div></label><label><input type="checkbox"> Driver đã match và probe thành công chưa?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>dmesg | grep -Ei 'probe|error|fail'</code></pre></div></label><label><input type="checkbox"> Có thiếu firmware hoặc tài nguyên không?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>dmesg | grep -Ei 'firmware|clock|reset|regulator'</code></pre></div></label><label><input type="checkbox"> User space có quyền truy cập không?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>ls -l /dev/ttyUSB0
+id</code></pre></div></label><label><input type="checkbox"> Có lỗi trong quá trình I/O không?<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code>dmesg -w</code></pre></div></label></div><button id="debug-reset">Đặt lại checklist</button><p class="note">Các lệnh mang tính gợi ý; cần thay bus, tên module và device node cho phù hợp. Không phải mọi hệ thống đều có cùng cấu trúc thiết bị.</p></div>
+
+<p>Một số công cụ khác rất hữu ích:</p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-bash">lsusb
+lspci
+udevadm monitor
+cat /proc/interrupts
+cat /proc/meminfo
+</code></pre></div>
+<p>Tùy kernel và quyền truy cập, bạn còn có thể dùng ftrace, trace-cmd, perf hoặc các tracepoint để quan sát hoạt động sâu hơn.</p>
+<h2 id="section-21">21. Những câu hỏi phỏng vấn và tình huống thực tế</h2>
+<div class="interactive" id="quiz"><h4>❓ Tự kiểm tra kiến thức</h4><p id="quiz-count">0/7 đáp án đã mở</p><details><summary>Tại sao lsmod không hiển thị driver nhưng thiết bị vẫn hoạt động?</summary><p>Vì driver có thể được build trực tiếp vào kernel. Ngoài ra, thiết bị có thể được phục vụ qua một hoặc nhiều tầng driver khác, nên tên module bạn kỳ vọng không nhất thiết xuất hiện.</p></details><details><summary>Driver và firmware khác nhau thế nào?</summary><p>Driver là mã phía hệ điều hành để tích hợp và điều khiển thiết bị. Firmware là mã hoặc dữ liệu phục vụ hoạt động của thiết bị/nền tảng, đôi khi chạy trên bộ xử lý riêng bên trong thiết bị.</p></details><details><summary>DMA có phải luôn nhanh hơn CPU copy không?</summary><p>Không. DMA có chi phí setup, mapping, synchronization và completion. Với transfer nhỏ, CPU copy có thể hiệu quả hơn tùy nền tảng.</p></details><details><summary>Interrupt luôn tốt hơn polling?</summary><p>Không. Polling có thể giảm overhead và độ trễ trong những tình huống phù hợp, đặc biệt khi công việc đến liên tục. Interrupt thường có lợi khi không muốn CPU bận chờ.</p></details><details><summary>O_DIRECT có bảo đảm dữ liệu không mất khi mất điện?</summary><p>Không. O_DIRECT chủ yếu ảnh hưởng đường đi cache của dữ liệu. Durability là vấn đề riêng liên quan đến đồng bộ, filesystem và bảo đảm thiết bị.</p></details><details><summary>Tại sao fsync(file) đôi khi chưa đủ để bảo vệ một file mới tạo?</summary><p>Vì directory entry hoặc thao tác rename có thể cần được đồng bộ riêng. Quy trình crash-safe thường phải xem xét fsync directory.</p></details><details><summary>Tại sao /dev/ttyUSB0 thay đổi sau reboot?</summary><p>Tên được cấp theo cơ chế phát hiện và đăng ký thiết bị, nên thứ tự có thể thay đổi. Có thể dùng udev symlink theo serial hoặc physical path để có tên ổn định hơn.</p></details></div>
+
+<h2 id="section-22">22. Tổng kết — Ghép toàn bộ kiến thức thành một bức tranh</h2>
+<p>Sau bài này, hãy nhớ ba đường đi quan trọng.</p>
+<p><strong>Đường điều khiển thiết bị:</strong></p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">Device
+   ↓
+Bus / Device Model
+   ↓
+Driver Matching
+   ↓
+probe()
+   ↓
+Device Ready
+   ↓
+User-space Interface
+</code></pre></div>
+<p><strong>Đường truyền dữ liệu:</strong></p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">Application
+   ↓
+System Call
+   ↓
+Kernel Subsystem
+   ↓
+Driver
+   ↓
+Descriptor / DMA
+   ↓
+Hardware
+   ↓
+Interrupt / Completion
+</code></pre></div>
+<p><strong>Đường bảo đảm dữ liệu lưu trữ:</strong></p>
+<div class="code-wrap"><button class="copy" aria-label="Sao chép mã">Sao chép</button><pre><code class="language-text">Application Buffer
+   ↓ flush()
+Kernel Page Cache
+   ↓ writeback / fsync()
+Filesystem + Block Layer
+   ↓
+Storage Controller
+   ↓
+Persistent Media
+</code></pre></div>
+<p>Ba luồng này liên quan chặt chẽ nhưng giải quyết ba vấn đề khác nhau: thiết bị được nhận diện như thế nào, dữ liệu được truyền như thế nào và dữ liệu được lưu bền như thế nào.</p>
+<h2 id="section-23">23. Bài tập thực hành cuối bài</h2>
+<p>Tôi đề xuất ba bài lab theo độ khó tăng dần:</p>
+<table>
+<thead>
+<tr>
+  <th>Cấp độ</th>
+  <th>Bài tập</th>
+  <th>Kết quả cần đạt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Cơ bản</td>
+  <td>Truy vết một block device từ <code>/dev</code> đến sysfs</td>
+  <td>Xác định device, bus và driver liên quan</td>
+</tr>
+<tr>
+  <td>Trung bình</td>
+  <td>Cắm USB-UART và quan sát <code>udevadm monitor</code>, <code>dmesg</code></td>
+  <td>Hiểu hotplug, driver matching, udev</td>
+</tr>
+<tr>
+  <td>Nâng cao</td>
+  <td>Viết character driver đơn giản hoặc phân tích DMA driver có sẵn</td>
+  <td>Hiểu <code>probe()</code>, file operations, interrupt và buffer lifecycle</td>
+</tr>
+</tbody>
+</table>
+<p>Với hướng học Embedded Linux, bước tiếp theo có giá trị nhất là <strong>viết một Linux character device driver đơn giản</strong>, bắt đầu từ <code>open()</code>, <code>read()</code>, <code>write()</code>, <code>release()</code>, rồi tiến tới <code>platform_driver</code>, Device Tree, MMIO và interrupt.</p>
+<p>Khi làm được điều đó, bạn sẽ không còn chỉ biết sử dụng thiết bị qua <code>/dev</code>, mà bắt đầu hiểu cách Linux biến một phần cứng cụ thể thành giao diện mà mọi ứng dụng có thể sử dụng.</p>
+<p>Tài liệu tham khảo chính thức: <a href="https://docs.kernel.org/driver-api/driver-model/index.html">Linux Kernel Driver Model</a>, <a href="https://docs.kernel.org/core-api/dma-api.html">Linux DMA API</a> và <a href="https://man7.org/linux/man-pages/man2/fsync.2.html">fsync(2) manual</a>.</p>
+</main></div><a class="floating" href="#top" aria-label="Về đầu trang">↑</a><script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+$$('.copy').forEach(b=>b.onclick=async()=>{let t=b.parentElement.querySelector('code').innerText;try{await navigator.clipboard.writeText(t);b.textContent='Đã sao chép ✓'}catch(e){let r=document.createRange();r.selectNodeContents(b.parentElement.querySelector('code'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent='Đã chọn mã'}setTimeout(()=>b.textContent='Sao chép',1600)});
+let pollMode='interrupt',pollStep=0,pollTimer=null;const pollNames=['Gửi yêu cầu','Chờ thiết bị','Thiết bị hoàn thành','Lấy kết quả'];function renderPoll(){let cp=pollMode==='polling'?(pollStep<3?'Liên tục kiểm tra status':'Đọc kết quả'):['Gửi yêu cầu','Làm việc khác','Nhận interrupt','Xử lý completion'][pollStep];$('#cpu-status').textContent=cp;$('#device-status').textContent=pollStep<2?'Đang xử lý dữ liệu':pollStep===2?'Hoàn thành':'Sẵn sàng';$('#poll-step').textContent=`Bước ${pollStep+1}/4 — ${pollNames[pollStep]}`;$('#poll-progress').style.width=((pollStep+1)*25)+'%';$$('#polling-demo [data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===pollMode))}$$('#polling-demo [data-mode]').forEach(b=>b.onclick=()=>{pollMode=b.dataset.mode;pollStep=0;renderPoll()});$('#poll-prev').onclick=()=>{pollStep=Math.max(0,pollStep-1);renderPoll()};$('#poll-next').onclick=()=>{pollStep=(pollStep+1)%4;renderPoll()};$('#poll-play').onclick=()=>{if(pollTimer){clearInterval(pollTimer);pollTimer=null;$('#poll-play').textContent='▶ Tự chạy'}else{pollTimer=setInterval(()=>{pollStep=(pollStep+1)%4;renderPoll()},1100);$('#poll-play').textContent='⏸ Tạm dừng'}};
+$('#cache-sync').onchange=e=>{$('#cache-value').textContent=e.target.checked?'0xBB':'0xAA';$('#cache-note').textContent=e.target.checked?'Đọc được dữ liệu mới':'Có thể đang giữ dữ liệu cũ';$('#cache-value').style.color=e.target.checked?'#16824a':'#b93445'};
+let writeStep=0,writeTimer=null;function renderWrite(){$$('#write-demo .stage').forEach((e,i)=>{e.classList.toggle('active',i===writeStep);e.style.opacity=i<writeStep?'.7':'1'})}$('#write-prev').onclick=()=>{writeStep=Math.max(0,writeStep-1);renderWrite()};$('#write-next').onclick=()=>{writeStep=(writeStep+1)%4;renderWrite()};$('#write-play').onclick=()=>{if(writeTimer){clearInterval(writeTimer);writeTimer=null;$('#write-play').textContent='▶ Tự chạy'}else{writeTimer=setInterval(()=>{writeStep=(writeStep+1)%4;renderWrite()},1200);$('#write-play').textContent='⏸ Tạm dừng'}};
+const cb=$$('#debug-checklist input');function updateCount(){$('#debug-count').textContent=cb.filter(x=>x.checked).length+'/7 bước đã kiểm tra'}cb.forEach(x=>x.onchange=updateCount);$('#debug-reset').onclick=()=>{cb.forEach(x=>x.checked=false);updateCount()};const q=$$('#quiz details');function updateQuiz(){$('#quiz-count').textContent=q.filter(x=>x.open).length+'/7 đáp án đã mở'}q.forEach(x=>x.addEventListener('toggle',updateQuiz));
+const toc=$$('.sidebar a');const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){toc.forEach(a=>a.classList.toggle('active',a.hash==='#'+e.target.id))}})},{rootMargin:'-10% 0px -80% 0px'});$$('h2[id]').forEach(h=>obs.observe(h));
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

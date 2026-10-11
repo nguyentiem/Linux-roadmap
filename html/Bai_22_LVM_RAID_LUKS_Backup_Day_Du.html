@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Bài 22 — LVM, RAID, mã hóa và bảo vệ dữ liệu</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:#f7f9fc;color:#192637;line-height:1.75}main{max-width:1040px;margin:0 auto;padding:28px 38px 90px;background:white;box-shadow:0 8px 50px #1e293b0b}.hero{background:linear-gradient(125deg,#0f172a,#1e3a5f);color:white;padding:52px 45px;border-radius:20px;margin-bottom:35px}.hero h1{font-size:clamp(30px,4vw,47px);line-height:1.22;margin:18px 0}.eyebrow{font-size:12px;letter-spacing:2px;color:#a5d8ff}.hero p{color:#dbeafe}.chips{display:flex;flex-wrap:wrap;gap:8px}.chips span{border:1px solid #94a3b8;border-radius:30px;padding:3px 12px;font-size:12px}h2{font-size:29px;line-height:1.3;color:#102f55;margin:55px 0 20px;padding-bottom:10px;border-bottom:2px solid #e2e8f0}h3{font-size:21px;color:#174a7e;margin:32px 0 12px}h4{font-size:17px;margin:0 0 16px}p{margin:12px 0 18px}li{margin:7px 0}ul,ol{padding-left:27px}aside{border-left:4px solid #3b82f6;background:#eff6ff;padding:16px 21px;border-radius:0 10px 10px 0;margin:25px 0}.panel{border:1px solid #d8e2ef;border-radius:16px;padding:22px;margin:27px 0;background:#fcfdff;box-shadow:0 3px 13px #102f5508}.panel small{display:block;color:#64748b;font-size:12px;margin-top:14px}.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:center}.compare>div{background:#f1f5f9;border-radius:12px;padding:16px;min-width:0}.node{border-radius:8px;text-align:center;padding:10px 13px;font-weight:650;margin:6px auto;color:#1e293b}.node small{display:inline!important;margin:0!important}.blue{background:#dbeafe;color:#1d4ed8}.green{background:#d1fae5;color:#065f46}.gray{background:#e2e8f0;color:#334155}.purple{background:#ede9fe;color:#6d28d9}.yellow{background:#fef3c7;color:#92400e}.arrow{text-align:center;color:#64748b;font-size:21px}.stack{max-width:650px;margin:auto}.tablewrap{overflow:auto;margin:20px 0;border:1px solid #e2e8f0;border-radius:12px}table{border-collapse:collapse;width:100%;font-size:14px}th{background:#eaf2fb;text-align:left;color:#174a7e}td,th{padding:12px 14px;border-bottom:1px solid #e2e8f0}tr:nth-child(even){background:#f8fafc}.codebox{position:relative;margin:18px 0}.codebox pre,.datablock{background:#0e1b2e;color:#e2e8f0;border-radius:11px;padding:21px;overflow-x:auto;line-height:1.6;font-size:13px}.copy{position:absolute;right:10px;top:9px;font-size:11px;background:#334155;padding:5px 10px}.codebox pre{padding-top:45px}button{border:0;border-radius:9px;background:#2563eb;color:white;padding:10px 15px;cursor:pointer;font-weight:650;margin:4px 0;transition:transform .15s,background .2s}button:hover:not(:disabled){transform:translateY(-1px);background:#1d4ed8}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e2e8f0;color:#1e293b}.secondary:hover:not(:disabled){background:#cbd5e1}.buttonrow{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.buttonrow button.active{background:#059669}.pegrid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:7px 0 17px}.pe{border:1px solid #cbd5e1;background:#e2e8f0;padding:8px;text-align:center;border-radius:7px;font-size:12px}.pe.active{background:#a7f3d0;border-color:#059669}.mapping-result{padding:13px;text-align:center;font-weight:700;color:#047857}.muted{color:#64748b}.bar{display:flex;width:100%;height:37px;overflow:hidden;border-radius:8px;margin:9px 0 22px}.bar>div{display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:600;white-space:nowrap}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.simcard{padding:16px 12px;text-align:center;background:#f1f5f9;border-radius:12px}.simcard input{width:100%}.simcard button{font-size:12px}.meter{height:15px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:12px 0}.meter>div{height:100%;width:0;background:#10b981;transition:width .3s,background .3s}.bigblock{font-size:40px;font-weight:750;padding:16px;background:#dbeafe;color:#1d4ed8;border-radius:12px;margin:12px 0}.bigblock.snap{background:#e2e8f0;color:#64748b}.bigblock.snap.saved{background:#d1fae5;color:#047857}.digit{font-size:45px;font-weight:800;margin:12px 0;color:#174a7e}.formula{background:#eaf2fb;padding:14px;border-radius:9px;margin-top:15px;font-weight:700;text-align:center}select{padding:8px;border-radius:7px;border:1px solid #cbd5e1;margin:10px}.cryptdisplay{display:flex;gap:17px;align-items:center}.crypticon{font-size:34px}.datablock{white-space:pre-wrap}.sliderline{margin:20px 0}.sliderline label{display:flex;justify-content:space-between}.sliderline input{width:100%;accent-color:#2563eb}.svglabel{font-family:Arial,sans-serif;font-size:20px;fill:#164e63;font-weight:700;text-anchor:middle}.svgsmall{font-family:Arial,sans-serif;font-size:16px;fill:#334155;text-anchor:middle}svg{display:block;width:100%;height:auto;max-width:750px;margin:auto}.mindgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}.mindgrid>div{border:1px solid #dbe3ed;padding:17px;border-radius:10px}.mindgrid small{display:block}.checklist label{display:block;padding:9px 5px;border-bottom:1px solid #e2e8f0;cursor:pointer}.checklist input{margin-right:11px;accent-color:#059669}.quizquestion{padding:16px 0;border-bottom:1px solid #e2e8f0}.quizquestion label{display:block;padding:5px 0;cursor:pointer}.feedback{background:#f1f5f9;border-radius:9px;padding:12px;margin:10px 0}.ok{color:#047857}.bad{color:#b91c1c}.foot{padding:25px;text-align:center;color:#64748b;font-size:12px}.toolbar{position:sticky;top:0;background:#0f172a;color:white;z-index:5;padding:9px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}.toolbar button{font-size:12px;padding:6px 12px}.toolbar a{color:#c7e7ff;text-decoration:none}.progress{height:3px;background:#3b82f6;position:fixed;top:0;left:0;width:0;z-index:10}body.dark{background:#0b1220;color:#e2e8f0}body.dark main{background:#101c2d}body.dark .panel,body.dark .compare>div,body.dark .simcard{background:#192b40;border-color:#34445a}body.dark h2,body.dark h3{color:#93c5fd}body.dark aside{background:#18304b}body.dark table td{color:#1e293b}body.dark .tablewrap{background:#f8fafc}body.dark .muted{color:#a8bacd}body.dark .mindgrid>div{border-color:#3a4a60}body.dark .node{color:#17375e}@media(max-width:640px){main{padding:18px}.hero{padding:30px 22px}.compare,.three{gap:8px}.panel{padding:15px}.bar>div{font-size:9px}.svglabel{font-size:17px}.svgsmall{font-size:14px}}@media print{.toolbar,.progress,button,input,select{display:none!important}body,main{background:white!important;color:black!important;box-shadow:none!important}main{max-width:none}.panel{break-inside:avoid}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}h2{break-after:avoid}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="22"><div class="progress" id="progress"></div><nav class="toolbar"><a href="#top">↑ Bài 22 — Linux Storage</a><div><button class="secondary" onclick="toggleTheme()">Sáng / Tối</button><button class="secondary" onclick="window.print()">In / PDF</button></div></nav><main id="top"><header class="hero"><div class="eyebrow">LINUX SYSTEM ADMINISTRATION · STORAGE ENGINEERING · EMBEDDED LINUX</div><h1>Bài 22 — LVM, RAID, mã hóa và bảo vệ dữ liệu trong Linux</h1><p>Giải thích chuyên sâu theo tư duy kỹ sư hệ thống · Có lab, sơ đồ và mô phỏng tương tác</p><div class="chips"><span>PV / VG / LV</span><span>RAID 0/1/5/6/10</span><span>LUKS</span><span>Snapshot</span><span>Backup</span><span>RPO / RTO</span></div></header>
+<p>Ở Bài 21, chúng ta đã tìm hiểu cách Linux biến một thiết bị lưu trữ thành nơi chứa file: từ block device, partition, filesystem, inode cho đến VFS và page cache.</p>
+<p>Nhưng hãy tưởng tượng bạn đang quản lý một hệ thống Linux thực tế. Ban đầu, mọi thứ hoạt động tốt. Sau vài tháng, bạn gặp những vấn đề sau:</p>
+<ul><li>Ổ đĩa gần đầy, nhưng không muốn cài đặt lại hệ điều hành.</li><li>Một ổ cứng hỏng, nhưng hệ thống vẫn phải hoạt động.</li><li>Thiết bị bị đánh cắp, dữ liệu bên trong không được phép bị đọc.</li><li>Một lập trình viên vô tình xóa dữ liệu quan trọng.</li><li>Hệ thống cần khôi phục sau sự cố trong thời gian quy định.</li></ul>
+<aside><b>Điểm quan trọng:</b> Đây là năm bài toán khác nhau. Không có một công nghệ lưu trữ đơn lẻ nào giải quyết hoàn toàn cả năm. LVM, RAID, LUKS, snapshot và backup ra đời để giải quyết những vấn đề khác nhau đó.</aside>
+<p>Trong bài này, chúng ta sẽ đi từ tư duy thiết kế của một kỹ sư hệ thống, sau đó mới phân tích cơ chế bên trong và thực hành.</p>
+<h2>1. Đặt vấn đề: Tại sao partition truyền thống chưa đủ?</h2>
+<h3>1.1. Hãy bắt đầu bằng một tình huống thực tế</h3>
+<p>Giả sử bạn có một máy Linux với ổ SSD 500 GB. Bạn phân chia:</p>
+<div class="tablewrap"><table><thead><tr><th>Partition</th><th>Dung lượng</th><th>Mục đích</th></tr></thead><tbody>
+<tr><td>/dev/sda1</td><td>1 GB</td><td>Boot</td></tr>
+<tr><td>/dev/sda2</td><td>100 GB</td><td>Hệ điều hành /</td></tr>
+<tr><td>/dev/sda3</td><td>300 GB</td><td>Dữ liệu /data</td></tr>
+<tr><td>Còn lại</td><td>~99 GB</td><td>Chưa phân bổ</td></tr>
+</tbody></table></div>
+<p>Sau sáu tháng, /data gần đầy. Bạn mua thêm một SSD 500 GB. <b>Làm thế nào để /data tăng từ 300 GB lên 700 GB mà không phải di chuyển thủ công toàn bộ dữ liệu?</b></p>
+<p>Với partition truyền thống, mỗi partition mô tả một vùng block trên một thiết bị. Bạn có thể mở rộng nó nếu có không gian phù hợp trên cùng thiết bị, nhưng không thể đơn giản mở rộng một partition thông thường xuyên qua hai ổ đĩa độc lập. Đó chính là một trong những lý do LVM hữu ích.</p>
+<h3>1.2. Ý tưởng cốt lõi: Thêm một tầng trừu tượng</h3>
+<p>Bạn đã gặp khái niệm abstraction trong nhiều lĩnh vực: virtual memory che giấu cách RAM vật lý được phân bổ; virtual address giúp process không phải biết địa chỉ RAM thực; VFS giúp chương trình dùng cùng API để thao tác với ext4, XFS, tmpfs; virtual network interface che giấu một phần cấu trúc mạng vật lý. LVM áp dụng tư tưởng tương tự cho storage.</p>
+<section class="panel"><h4>So sánh storage truyền thống và LVM</h4><div class="compare"><div><b>Không có LVM</b><div class="node blue">Filesystem ext4</div><div class="arrow">↓</div><div class="node gray">Partition</div><div class="arrow">↓</div><div class="node gray">SSD 1</div></div><div><b>Có LVM</b><div class="node blue">Filesystem ext4</div><div class="arrow">↓</div><div class="node green">Logical Volume</div><div class="node green">Volume Group</div><div class="node gray">SSD 1　 +　 SSD 2</div></div></div><small>Minh họa logic: LVM tạo một lớp quản lý dung lượng nằm giữa filesystem và các thiết bị block.</small></section>
+<p>Vậy filesystem có cần biết bên dưới là một hay hai ổ cứng không? <b>Không.</b> Filesystem chủ yếu nhìn thấy một block device logic có kích thước và các sector có thể truy cập. Chính lớp LVM chịu trách nhiệm ánh xạ các block logic đó tới những vùng lưu trữ bên dưới.</p>
+<aside><b>LVM không tạo thêm dung lượng vật lý.</b> Nó tạo ra cách quản lý và phân bổ dung lượng linh hoạt hơn.</aside>
+<h2>2. LVM là gì? Hiểu PV, VG và LV từ bản chất</h2>
+<p>LVM viết tắt của Logical Volume Manager. Thay vì cấp filesystem trực tiếp trên partition, bạn đưa một hoặc nhiều block device vào một hệ thống quản lý dung lượng logic. Ba thành phần nền tảng là PV — Physical Volume; VG — Volume Group; LV — Logical Volume.</p>
+<h3>2.1. Ví dụ đời sống: Quản lý một khu đất</h3>
+<p>Hãy tưởng tượng bạn có hai mảnh đất, mỗi mảnh 1000 m². Bạn muốn phân chia thành nhà kho 600 m², nhà xưởng 900 m² và phần còn lại 500 m². Nếu quản lý theo từng mảnh đất riêng biệt, việc mở rộng một khu vực có thể khó khăn. Nhưng nếu coi cả hai mảnh là quỹ diện tích chung rồi phân bổ cho từng mục đích, việc quản lý linh hoạt hơn. LVM hoạt động gần giống vậy.</p>
+<section class="panel"><h4>Mô hình PV → VG → LV</h4><svg viewBox="0 0 700 340" role="img" aria-label="Hai physical volume gộp thành volume group và chia thành hai logical volume"><rect x="35" y="20" width="270" height="65" rx="12" fill="#dbeafe"/><rect x="395" y="20" width="270" height="65" rx="12" fill="#dbeafe"/><text x="170" y="47" class="svglabel">PV 1</text><text x="170" y="69" class="svgsmall">SSD 500 GB</text><text x="530" y="47" class="svglabel">PV 2</text><text x="530" y="69" class="svgsmall">SSD 500 GB</text><path d="M170 85V110H350V130 M530 85V110H350" stroke="#64748b" stroke-width="3" fill="none"/><rect x="35" y="130" width="630" height="90" rx="12" fill="#d1fae5"/><text x="350" y="162" class="svglabel">VG — Volume Group</text><text x="350" y="188" class="svgsmall">Tổng dung lượng khả dụng ~1000 GB</text><path d="M350 220V244 M175 244H525 M175 244V265 M525 244V265" stroke="#64748b" stroke-width="3" fill="none"/><rect x="35" y="265" width="280" height="55" rx="12" fill="#ede9fe"/><rect x="385" y="265" width="280" height="55" rx="12" fill="#ede9fe"/><text x="175" y="289" class="svglabel">LV data</text><text x="175" y="308" class="svgsmall">600 GB</text><text x="525" y="289" class="svglabel">LV backup</text><text x="525" y="308" class="svgsmall">300 GB</text></svg><small>~100 GB còn trống trong VG; con số đơn giản hóa, bỏ qua metadata và overhead.</small></section>
+<h3>PV — Physical Volume</h3>
+<p>PV là một block device được khởi tạo để LVM quản lý. Ví dụ:</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo pvcreate /dev/sdb
+sudo pvcreate /dev/sdc</code></pre></div>
+<p>Hai thiết bị /dev/sdb và /dev/sdc trở thành các PV. Lưu ý: pvcreate ghi metadata lên thiết bị. Không được chạy lên ổ có dữ liệu cần giữ mà chưa xác minh.</p>
+<h3>VG — Volume Group</h3>
+<p>VG là một tập hợp dung lượng được tạo từ một hoặc nhiều PV.</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo vgcreate datavg /dev/sdb /dev/sdc</code></pre></div>
+<p>Bạn vừa tạo một VG tên datavg. Lúc này, LVM có thể phân bổ dung lượng từ cả hai PV.</p>
+<h3>LV — Logical Volume</h3>
+<p>LV là thiết bị block logic được cấp từ VG. Ví dụ:</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvcreate -L 200G -n documents datavg
+sudo mkfs.ext4 /dev/datavg/documents
+sudo mkdir -p /mnt/documents
+sudo mount /dev/datavg/documents /mnt/documents</code></pre></div>
+<p>Thiết bị /dev/datavg/documents là block device mà chúng ta muốn cung cấp cho filesystem. PV và VG là những thành phần phục vụ quản lý và phân bổ block bên dưới.</p>
+<aside><b>Câu hỏi phản biện:</b> Tại sao mkfs.ext4 chạy trên LV mà không chạy trực tiếp trên PV? Vì LV là block device logic được cấp cho filesystem.</aside>
+<h3>2.2. Physical Extent và Logical Extent — LVM phân bổ dữ liệu như thế nào?</h3>
+<p>LVM thường không quản lý dung lượng bằng từng byte đơn lẻ. Nó chia dung lượng thành các đơn vị extent. Physical Extent (PE) là đơn vị phân bổ trên PV. Logical Extent (LE) là đơn vị phân bổ trong LV. Thông thường, PE và LE có cùng kích thước trong một VG, ví dụ 4 MiB. Nếu LV có 100 LE, mỗi LE 4 MiB thì LV có 400 MiB.</p>
+<section class="panel"><h4>Thử ánh xạ logical extent tới physical extent</h4><p class="muted">Chọn một logical extent để xem vị trí vật lý tương ứng.</p><div id="leButtons" class="buttonrow"></div><div id="mappingResult" class="mapping-result"></div><div class="muted">Physical Volume 1</div><div id="pe0" class="pegrid"></div><div class="muted">Physical Volume 2</div><div id="pe1" class="pegrid"></div><small>Ánh xạ minh họa. LVM có nhiều kiểu segment và chính sách phân bổ khác nhau.</small></section>
+<p>Hãy liên hệ với virtual memory ở Bài 17: Virtual Page → Physical Frame. Trong LVM tuyến tính: Logical Extent → Physical Extent. Hai cơ chế không hoàn toàn giống nhau, nhưng cùng sử dụng tư tưởng ánh xạ tài nguyên logic sang tài nguyên vật lý.</p>
+<p><b>Nếu LV nằm trên hai ổ đĩa và một ổ bị hỏng?</b> Nếu LV tuyến tính chứa dữ liệu trên cả hai ổ và không có dự phòng, một ổ hỏng có thể khiến LV bị hỏng hoặc không thể sử dụng đầy đủ. LVM thông thường không tự động tạo khả năng chịu lỗi. Đây là cầu nối sang RAID.</p>
+<h2>3. Mở rộng LV: Vì sao lvextend chưa đủ?</h2>
+<p>Giả sử LV 200 GB, bên trên là filesystem ext4. Bạn mở rộng LV thêm 100 GB:</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvextend -L +100G /dev/datavg/documents
+df -h /mnt/documents</code></pre></div>
+<p>Lệnh thành công nhưng df vẫn báo dung lượng cũ. Tại sao? LV là block device; filesystem là cấu trúc dữ liệu được xây dựng bên trên. Khi mở rộng LV, bạn chỉ làm cho thiết bị block logic lớn hơn. Filesystem vẫn có metadata mô tả kích thước và cách tổ chức block theo trạng thái cũ.</p>
+<section class="panel"><h4>Mô phỏng mở rộng LV</h4><p>Logical Volume: <b>300 GB</b></p><div class="bar"><div style="width:66.67%;background:#3b82f6">200 GB</div><div style="width:33.33%;background:#93c5fd;color:#17375e">+100 GB</div></div><p>Filesystem ext4: <b id="fsSize">200 GB</b></p><div class="bar"><div style="width:66.67%;background:#10b981">200 GB</div><div id="fsExtra" style="width:33.33%;background:#e2e8f0;color:#475569">Chưa dùng</div></div><button onclick="toggleFs(this)">Chạy resize2fs</button><small>Filesystem phải được grow riêng sau khi tăng kích thước block device.</small></section>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo resize2fs /dev/datavg/documents</code></pre></div>
+<p>Hoặc trong nhiều cấu hình LVM, có thể dùng -r để phối hợp resize filesystem:</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvextend -r -L +100G /dev/datavg/documents</code></pre></div>
+<div class="tablewrap"><table><thead><tr><th>Đặc điểm</th><th>ext4</th><th>XFS</th></tr></thead><tbody>
+<tr><td>Mở rộng khi đang mount</td><td>Có</td><td>Có</td></tr>
+<tr><td>Thu nhỏ filesystem</td><td>Có, thường phải unmount</td><td>Không hỗ trợ</td></tr>
+<tr><td>Công cụ grow</td><td>resize2fs</td><td>xfs_growfs</td></tr>
+<tr><td>Đối tượng grow</td><td>Block device</td><td>Mount point</td></tr>
+</tbody></table></div>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvextend -L +100G /dev/datavg/documents
+sudo xfs_growfs /mnt/documents
+findmnt -no SOURCE,FSTYPE,TARGET /mnt/documents</code></pre></div>
+<aside><b>Góc nhìn senior:</b> Trước khi resize trên production, xác nhận đúng LV, đúng filesystem và phương án khôi phục. lsblk nhìn cấu trúc/kích thước block device; df -h nhìn dung lượng filesystem đã mount.</aside>
+<h2>4. Thin Provisioning — Cấp phát dung lượng chưa thực sự tồn tại</h2>
+<p>Giả sử máy chủ chạy 10 máy ảo, mỗi máy có ổ logic 100 GB nhưng thực tế chỉ dùng 10 GB. Thick provisioning phân bổ dung lượng từ trước; thin provisioning cấp phát dung lượng vật lý khi dữ liệu được ghi vào vùng chưa được ánh xạ.</p>
+<p>Ví dụ thin pool 300 GB, tạo ba thin LV mỗi LV có kích thước logic 200 GB. Tổng cam kết 600 GB nhưng dung lượng vật lý vẫn chỉ 300 GB.</p>
+<section class="panel"><h4>Mô phỏng Thin Provisioning</h4><div class="three" id="thinCards"></div><div class="meter"><div id="thinFill"></div></div><p id="thinStatus"></p><button class="secondary" onclick="resetThin()">Đặt lại dung lượng</button><small>Mô phỏng chỉ tính data, chưa gồm metadata, overhead và cơ chế chia sẻ block.</small></section>
+<p>Nếu tổng dữ liệu thực tế tăng đến giới hạn pool, việc ghi mới có thể thất bại. Tùy cấu hình, I/O có thể bị queue hoặc trả lỗi. Nhiều LV có thể cùng chịu ảnh hưởng.</p>
+<h3>4.2. Thin pool có hai tài nguyên quan trọng</h3>
+<p>Data space lưu block dữ liệu. Metadata space lưu ánh xạ giữa block logic và block vật lý. Không chỉ data đầy mới nguy hiểm: metadata đầy cũng có thể gây sự cố.</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvs -a -o lv_name,lv_size,data_percent,metadata_percent</code></pre></div>
+<p>Trong production cần giám sát cả Data% và Meta%, đồng thời kiểm tra chính sách autoextend. Thin provisioning hữu ích với virtual machine, container storage, môi trường test và nhiều volume có mức sử dụng thay đổi. Với thiết bị embedded ghi liên tục, dung lượng dự đoán được, tính phức tạp này có thể không cần thiết.</p>
+<h2>5. Snapshot — Chụp trạng thái dữ liệu có phải backup không?</h2>
+<p>Trước khi nâng cấp ứng dụng, bạn muốn quay lại trạng thái cũ. Snapshot ghi nhận một trạng thái volume theo cơ chế của lớp lưu trữ. Cần phân biệt snapshot truyền thống và thin snapshot.</p>
+<h3>5.1. Copy-on-Write là gì?</h3>
+<p>Một ý tưởng phổ biến là Copy-on-Write (CoW). Block ban đầu chứa A. Khi snapshot tồn tại và origin muốn ghi B, cơ chế snapshot phải giữ khả năng đọc A từ snapshot. Với snapshot LVM truyền thống, dữ liệu cũ có thể được sao chép vào vùng snapshot trước khi origin bị ghi đè; với thin snapshot, block có thể được chia sẻ cho đến khi một nhánh cần ghi phiên bản mới.</p>
+<section class="panel"><h4>Mô phỏng snapshot và Copy-on-Write</h4><div class="compare"><div><b>Origin volume</b><div id="originBlock" class="bigblock">A</div><small>Block hiện tại</small></div><div><b>Snapshot</b><div id="snapBlock" class="bigblock snap">—</div><small id="snapLabel">Chưa tạo</small></div></div><div class="buttonrow"><button onclick="makeSnapshot()" id="makeSnap">1. Tạo snapshot</button><button onclick="writeSnapshot()" id="writeSnap" disabled>2. Ghi A → B</button><button class="secondary" onclick="resetSnapshot()">Đặt lại</button></div><p id="snapText" class="muted">Ban đầu origin chứa A. Hãy tạo snapshot.</p></section>
+<h3>5.2. Snapshot có thay thế backup không?</h3>
+<p><b>Không.</b> Nếu origin và snapshot nằm trên cùng SSD và SSD chết, cả hai có thể mất. Snapshot cũng không mặc nhiên đảm bảo dữ liệu ứng dụng nhất quán. Database đang cập nhật transaction khi snapshot được tạo có thể chỉ nhất quán tương đương một lần mất điện, hoặc cần quiesce/flush để đảm bảo hơn.</p>
+<p>Snapshot ghi nhận trạng thái tại một thời điểm. Backup là bản sao phục vụ khôi phục, tốt nhất nằm ở failure domain độc lập. Restore là quá trình thực sự đưa dữ liệu trở lại trạng thái sử dụng được.</p>
+<aside>Một snapshot chưa từng được kiểm tra khả năng khôi phục không phải bằng chứng rằng hệ thống có thể phục hồi.</aside>
+<h2>6. RAID — Khi một ổ cứng hỏng, hệ thống có nhất thiết phải dừng?</h2>
+<p>LVM giúp quản lý dung lượng linh hoạt nhưng không mặc nhiên bảo vệ dữ liệu khi thiết bị vật lý hỏng. RAID là Redundant Array of Independent Disks. Tuy nhiên không phải RAID level nào cũng có redundancy.</p>
+<h3>6.1. RAID 0 — Striping</h3>
+<p>RAID 0 chia dữ liệu thành các phần rồi phân bố qua nhiều disk. File gồm A B C D có thể được đặt Disk 1: A C, Disk 2: B D.</p>
+<section class="panel"><h4>RAID 0 — Striping</h4><div class="compare"><div><b>Disk 1</b><div class="node blue">Block A</div><div class="node green">Block C</div><div class="node blue">Block E</div><div class="node green">Block G</div></div><div><b>Disk 2</b><div class="node green">Block B</div><div class="node blue">Block D</div><div class="node green">Block F</div><div class="node blue">Block H</div></div></div><small>Một disk mất khiến nhiều stripe thiếu block và array thường không thể cung cấp dữ liệu hoàn chỉnh.</small></section>
+<p>RAID 0 có thể tăng throughput nhờ nhiều disk song song; dung lượng khả dụng xấp xỉ tổng dung lượng disk. Nhưng không có redundancy. RAID 0 không phải phương pháp bảo vệ dữ liệu.</p>
+<h3>6.2. RAID 1 — Mirroring</h3>
+<p>RAID 1 lưu bản sao dữ liệu trên nhiều disk. Với hai ổ 1 TB, dung lượng khả dụng thông thường khoảng 1 TB. Một ổ hỏng có thể vẫn đọc dữ liệu từ ổ còn lại.</p>
+<section class="panel"><h4>Mô phỏng RAID 1 khi một disk hỏng</h4><div class="compare"><div><b>Disk 1 <span class="ok">Active</span></b><div class="node green">A</div><div class="node green">B</div><div class="node green">C</div><div class="node green">D</div></div><div><b>Disk 2 <span id="raidBadge" class="ok">Active</span></b><div id="raidDisk"><div class="node green">A</div><div class="node green">B</div><div class="node green">C</div><div class="node green">D</div></div></div></div><button onclick="toggleRaid(this)">Giả lập Disk 2 bị hỏng</button><p id="raidText" class="muted">Hai disk đang lưu bản sao dữ liệu giống nhau.</p></section>
+<p>RAID 1 không đảm bảo không bao giờ mất dữ liệu: xóa nhầm file được phản ánh trên cả hai bản sao; ransomware có thể mã hóa dữ liệu trên mirror; lỗi ghi logic cũng có thể tác động cả hai.</p>
+<h3>6.3. RAID 5 — Parity hoạt động như thế nào?</h3>
+<p>Parity có thể được hiểu qua phép toán XOR trong lập trình nhúng: 0 XOR 0 = 0, 0 XOR 1 = 1, 1 XOR 0 = 1, 1 XOR 1 = 0. Tính chất quan trọng: A ⊕ B ⊕ B = A. Nếu P = A ⊕ B, mất A thì A = P ⊕ B.</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>0 ^ 0 = 0
+0 ^ 1 = 1
+1 ^ 0 = 1
+1 ^ 1 = 0</code></pre></div>
+<section class="panel"><h4>Mô phỏng parity bằng XOR</h4><div class="three"><div class="simcard"><b>Disk A</b><div id="xorA" class="digit">?</div><button class="secondary" onclick="flipXor('a')">Đổi bit A</button></div><div class="simcard"><b>Disk B</b><div id="xorB" class="digit">0</div><button class="secondary" onclick="flipXor('b')">Đổi bit B</button></div><div class="simcard"><b>Parity P</b><div id="xorP" class="digit">1</div><small>A XOR B</small></div></div><label>Chọn thành phần bị mất</label><select id="xorMissing" onchange="renderXor()"><option value="A">A</option><option value="B">B</option><option value="P">Parity</option></select><div id="xorEquation" class="formula"></div><small>Chỉ cần hai trong ba thành phần để tính lại thành phần còn thiếu.</small></section>
+<p>RAID 5 áp dụng parity trên các stripe và phân bố parity qua các disk.</p>
+<div class="tablewrap"><table><thead><tr><th>Stripe</th><th>Disk 1</th><th>Disk 2</th><th>Disk 3</th></tr></thead><tbody>
+<tr><td>1</td><td>Data A</td><td>Data B</td><td>Parity</td></tr>
+<tr><td>2</td><td>Data C</td><td>Parity</td><td>Data D</td></tr>
+<tr><td>3</td><td>Parity</td><td>Data E</td><td>Data F</td></tr>
+</tbody></table></div>
+<p>Nếu một disk hỏng, array có thể tái tạo dữ liệu từ các block còn lại và parity. Trong lúc rebuild, các disk còn sống phải chịu thêm I/O, kéo dài thời gian degraded. RAID 5 có chi phí read-modify-write với ghi nhỏ; rebuild lâu trên disk lớn; và nguy cơ lỗi đọc không thể sửa được. RAID 5 thường chỉ chịu được một disk hỏng.</p>
+<h3>6.4. RAID 6 và RAID 10</h3>
+<p>RAID 6 sử dụng hai bộ thông tin parity độc lập để chịu được tối đa hai disk hỏng. RAID 10 kết hợp mirroring và striping.</p>
+<section class="panel"><h4>Sơ đồ RAID 10 với bốn disk</h4><svg viewBox="0 0 700 265" role="img" aria-label="RAID 10 stripe giữa hai cặp mirror"><rect x="260" y="15" width="180" height="52" rx="12" fill="#dbeafe"/><text x="350" y="47" class="svglabel">RAID 10</text><path d="M350 67V95H180V115 M350 95H520V115" fill="none" stroke="#64748b" stroke-width="3"/><rect x="80" y="115" width="200" height="48" rx="10" fill="#d1fae5"/><rect x="420" y="115" width="200" height="48" rx="10" fill="#d1fae5"/><text x="180" y="145" class="svglabel">Mirror A</text><text x="520" y="145" class="svglabel">Mirror B</text><path d="M180 163V183H105V202 M180 183H255V202 M520 163V183H445V202 M520 183H595V202" fill="none" stroke="#64748b" stroke-width="3"/><g fill="#ede9fe"><rect x="50" y="202" width="110" height="43" rx="8"/><rect x="200" y="202" width="110" height="43" rx="8"/><rect x="390" y="202" width="110" height="43" rx="8"/><rect x="540" y="202" width="110" height="43" rx="8"/></g><text x="105" y="229" class="svgsmall">Disk 1</text><text x="255" y="229" class="svgsmall">Disk 2</text><text x="445" y="229" class="svgsmall">Disk 3</text><text x="595" y="229" class="svgsmall">Disk 4</text></svg></section>
+<p>RAID 10 có thể chịu nhiều disk hỏng nếu các disk hỏng thuộc các mirror khác nhau; nhưng có thể mất dữ liệu nếu cả hai thành viên của cùng một mirror bị hỏng.</p>
+<div class="tablewrap"><table><thead><tr><th>RAID</th><th>Số disk tối thiểu</th><th>Dung lượng khả dụng</th><th>Chịu lỗi</th></tr></thead><tbody>
+<tr><td>RAID 0</td><td>2</td><td>N × S</td><td>Không</td></tr>
+<tr><td>RAID 1</td><td>2</td><td>Thường S với mirror N bản sao</td><td>Tùy số bản sao</td></tr>
+<tr><td>RAID 5</td><td>3</td><td>(N−1) × S</td><td>1 disk</td></tr>
+<tr><td>RAID 6</td><td>4</td><td>(N−2) × S</td><td>2 disk</td></tr>
+<tr><td>RAID 10</td><td>4</td><td>Thường N × S / 2</td><td>Tùy cặp mirror</td></tr>
+</tbody></table></div>
+<p>N là số disk; S là dung lượng mỗi disk. Giả định các disk bằng nhau, không tính overhead.</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>cat /proc/mdstat
+sudo mdadm --detail /dev/md0</code></pre></div>
+<p>Ví dụ tạo RAID 1 trên hai thiết bị thử nghiệm trống:</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo mdadm --create /dev/md0 \
+    --level=1 \
+    --raid-devices=2 \
+    /dev/sdb /dev/sdc</code></pre></div>
+<aside><b>Cảnh báo:</b> mdadm --create có thể ghi đè metadata và dữ liệu trên thiết bị. Chỉ chạy khi đã xác minh hai ổ là thiết bị thử nghiệm được phép xóa.</aside>
+<h2>7. RAID và LVM kết hợp như thế nào?</h2>
+<p>Một cấu hình phổ biến đặt RAID dưới LVM: Application → Filesystem → LV → VG → PV → RAID array (/dev/md0) → Physical disks. RAID giải quyết chịu lỗi thiết bị, LVM quản lý dung lượng, filesystem quản lý file và directory. Linux cũng hỗ trợ RAID LV trực tiếp qua LVM, nên không phải lúc nào cũng cần mdadm.</p>
+<section class="panel"><h4>Storage stack RAID → LVM</h4><div class="stack"><div class="node blue">Application</div><div class="arrow">↓</div><div class="node blue">Filesystem</div><div class="arrow">↓</div><div class="node green">Logical Volume</div><div class="node green">Volume Group</div><div class="node green">Physical Volume</div><div class="arrow">↓</div><div class="node purple">RAID array (/dev/md0)</div><div class="arrow">↓</div><div class="node gray">Physical disks</div></div></section>
+<p>Ví dụ bốn SSD 1 TB dùng RAID 10 cho khoảng 2 TB khả dụng; trên đó tạo storagevg và chia LV database 800 GB, logs 300 GB, application 400 GB; phần còn lại dành mở rộng. RAID không thay backup vì không cứu được mọi lỗi logic, xóa nhầm hoặc thảm họa.</p>
+<h2>8. LUKS và dm-crypt — Mã hóa dữ liệu ở trạng thái lưu trữ</h2>
+<p>Nếu thiết bị bị đánh cắp và SSD được gắn sang máy khác, quyền file thông thường không đủ để bảo vệ dữ liệu trước người có quyền truy cập trực tiếp vào thiết bị. Cần encryption at rest.</p>
+<h3>8.1. dm-crypt là gì?</h3>
+<p>dm-crypt là thành phần Linux device-mapper thực hiện mã hóa và giải mã dữ liệu ở tầng block. Khi ghi: Application → Filesystem → dm-crypt → Encrypted blocks → SSD. Khi đọc, dm-crypt giải mã block trước khi filesystem xử lý.</p>
+<h3>8.2. LUKS là gì?</h3>
+<p>LUKS (Linux Unified Key Setup) cung cấp định dạng và cơ chế quản lý metadata, keyslot và thông tin mở khóa volume mã hóa. dm-crypt là cơ chế mã hóa block; LUKS là định dạng quản lý volume/khóa/metadata; cryptsetup là công cụ thiết lập và quản lý.</p>
+<section class="panel"><h4>Mô phỏng quá trình mã hóa</h4><div class="cryptdisplay"><div id="cryptIcon" class="crypticon">🔒</div><div><b id="cryptTitle">Dữ liệu lưu trữ là ciphertext</b><p class="muted">Dữ liệu ví dụ: SENSOR=25.5</p></div></div><pre id="cryptData" class="datablock">8f a2 3d 91 c0 7e ...
+4b 16 d8 2c 5f a1 ...</pre><button onclick="toggleCrypt(this)">Mở khóa bằng key (mô phỏng)</button><small>Không thực hiện mã hóa thật. Khi volume đã mở khóa, dữ liệu trên thiết bị vật lý vẫn là ciphertext.</small></section>
+<h3>8.4. Mã hóa có bảo vệ khi máy đang chạy không?</h3>
+<p>Nếu volume LUKS đã mở khóa và mount tại /mnt/secure, ứng dụng có quyền đọc file ở đó vẫn đọc được plaintext. Mã hóa ổ đĩa chủ yếu bảo vệ trước truy cập ngoại tuyến khi thiết bị ở trạng thái khóa; không thay thế quyền file, phân quyền ứng dụng, bảo vệ tài khoản hay kiểm soát tiến trình. Nếu kẻ tấn công chiếm quyền root trên hệ thống đang mở khóa, LUKS thường không ngăn được việc đọc dữ liệu.</p>
+<h3>8.5. Ví dụ thao tác LUKS</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo cryptsetup luksFormat /dev/sdb
+sudo cryptsetup open /dev/sdb securedata
+# Thiết bị xuất hiện: /dev/mapper/securedata
+sudo mkfs.ext4 /dev/mapper/securedata
+sudo mkdir -p /mnt/secure
+sudo mount /dev/mapper/securedata /mnt/secure
+# Khi hoàn thành:
+sudo umount /mnt/secure
+sudo cryptsetup close securedata</code></pre></div>
+<aside><b>Cảnh báo:</b> luksFormat có thể khiến dữ liệu cũ không thể truy cập được. Không chạy trên ổ chứa dữ liệu thật nếu chưa có phương án bảo vệ và khôi phục.</aside>
+<h3>8.6. Kết hợp LUKS, LVM và RAID</h3>
+<section class="panel"><h4>Ví dụ storage stack mã hóa</h4><div class="stack"><div class="node blue">Application <small>— Đọc và ghi file</small></div><div class="arrow">↓</div><div class="node blue">Filesystem ext4 <small>— File, inode, block</small></div><div class="arrow">↓</div><div class="node green">LVM <small>— Dung lượng logic</small></div><div class="arrow">↓</div><div class="node yellow">LUKS / dm-crypt <small>— Mã hóa block</small></div><div class="arrow">↓</div><div class="node purple">RAID 1 <small>— Mirror</small></div><div class="arrow">↓</div><div class="node gray">SSD 1 + SSD 2</div></div><small>Đây là một cấu hình có thể sử dụng, không phải thứ tự bắt buộc. LUKS cũng có thể đặt trên LV.</small></section>
+<h2>9. Lab thực hành — Tạo và mở rộng LV ext4 trên file image</h2>
+<p>Mục tiêu: tạo image giả lập block device, gắn loop, tạo PV/VG/LV, mkfs.ext4, mount, mở rộng LV và filesystem, kiểm tra trước/sau, cleanup.</p>
+<h3>9.1. Loop device là gì?</h3>
+<p>Loop device cho phép Linux sử dụng một file thông thường như block device: /home/user/disk.img → losetup → /dev/loop5 → LVM → ext4. Cách này giúp học storage mà không thao tác trực tiếp lên SSD thật, dù không mô phỏng đầy đủ hành vi, hiệu năng và lỗi của ổ vật lý.</p>
+<section class="panel"><h4>Đường đi của image file</h4><div class="stack"><div class="node gray">/home/user/disk.img</div><div class="arrow">↓ losetup</div><div class="node blue">/dev/loop5</div><div class="arrow">↓</div><div class="node green">LVM: PV → VG → LV</div><div class="arrow">↓</div><div class="node purple">ext4 filesystem</div></div></section>
+<h3>9.2. Chuẩn bị môi trường</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo apt update
+sudo apt install lvm2 e2fsprogs util-linux
+sudo vgs
+sudo pvs
+sudo lvs</code></pre></div>
+<p>Xác nhận VG coursevg chưa tồn tại. Không tiếp tục nếu tên này đang được dùng bởi dữ liệu thật.</p>
+<h3>9.3. Tạo file image 768 MiB</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>mkdir -p &quot;$HOME/linux-lab/lvm&quot;
+pv_image=$(mktemp &quot;$HOME/linux-lab/lvm/pv.XXXXXX.img&quot;)
+truncate -s 768M &quot;$pv_image&quot;
+ls -lh &quot;$pv_image&quot;
+du -h &quot;$pv_image&quot;</code></pre></div>
+<p>truncate đặt kích thước logic của file thành 768 MiB. File sparse có thể có kích thước logic lớn hơn dung lượng block vật lý đã cấp phát. ls -lh hiển thị logical size, còn du phản ánh dung lượng thực được phân bổ theo filesystem.</p>
+<h3>9.4. Gắn file vào loop device</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>pv_loop=$(sudo losetup --find --show &quot;$pv_image&quot;)
+echo &quot;$pv_loop&quot;
+sudo losetup &quot;$pv_loop&quot;
+lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS,BACK-FILE &quot;$pv_loop&quot;</code></pre></div>
+<p>Ví dụ /dev/loop5. Phải kiểm tra đúng backing file. Nếu losetup --find --show đã thành công thì không cần gắn lần thứ hai; sudo losetup "$pv_loop" chỉ kiểm tra thông tin thiết bị.</p>
+<h3>9.5. Tạo PV và VG</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo pvcreate &quot;$pv_loop&quot;
+sudo vgcreate coursevg &quot;$pv_loop&quot;
+sudo pvs
+sudo vgs</code></pre></div>
+<h3>9.6. Tạo LV 192 MiB</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvcreate -L 192M -n data coursevg
+sudo lvs</code></pre></div>
+<p>Thiết bị /dev/coursevg/data giờ là một block device logic.</p>
+<h3>9.7. Tạo filesystem ext4</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo mkfs.ext4 /dev/coursevg/data
+lv_mount=$(mktemp -d /tmp/linux-lvm.XXXXXX)
+sudo mount /dev/coursevg/data &quot;$lv_mount&quot;
+df -h &quot;$lv_mount&quot;
+findmnt &quot;$lv_mount&quot;</code></pre></div>
+<p>Dung lượng khả dụng và kích thước hiển thị có thể khác 192 MiB do metadata, reserved blocks và cách làm tròn.</p>
+<h3>9.8. Mở rộng LV thêm 128 MiB</h3>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo lvs
+df -h &quot;$lv_mount&quot;
+sudo lvextend -L +128M /dev/coursevg/data
+sudo lvs
+df -h &quot;$lv_mount&quot;
+sudo resize2fs /dev/coursevg/data
+df -h &quot;$lv_mount&quot;
+sudo lvs</code></pre></div>
+<p>LV tăng từ khoảng 192 MiB lên 320 MiB. Trước resize2fs, filesystem có thể vẫn báo kích thước cũ. Sau resize2fs, filesystem tăng tương ứng.</p>
+<section class="panel"><h4>Trước và sau resize</h4><b>Trước</b><div class="bar"><div style="width:25%;background:#3b82f6">LV 192 MiB</div><div style="width:75%;background:#e2e8f0;color:#475569">VG free 576 MiB</div></div><b>Sau</b><div class="bar"><div style="width:25%;background:#3b82f6">192 MiB</div><div style="width:16.67%;background:#10b981">+128 MiB</div><div style="width:58.33%;background:#e2e8f0;color:#475569">VG free</div></div><small>Minh họa theo kích thước logic; dung lượng thực phụ thuộc extent và metadata.</small></section>
+<h3>9.9. Cleanup</h3>
+<p>Chỉ cleanup sau khi chắc chắn không có dữ liệu cần giữ.</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>sudo umount &quot;$lv_mount&quot;
+sudo lvremove /dev/coursevg/data
+sudo vgremove coursevg
+sudo pvremove &quot;$pv_loop&quot;
+sudo losetup -d &quot;$pv_loop&quot;
+rmdir &quot;$lv_mount&quot;
+rm -- &quot;$pv_image&quot;</code></pre></div>
+<p>Nếu lvremove báo LV còn được sử dụng, không ép xóa ngay. Hãy kiểm tra tiến trình, mount và thiết bị đang tham chiếu.</p>
+<div class="tablewrap"><table><thead><tr><th>Triệu chứng</th><th>Nguyên nhân có thể</th><th>Hướng kiểm tra</th></tr></thead><tbody>
+<tr><td>pvcreate không thấy loop</td><td>LVM device filter hoặc devices file</td><td>lvmdevices, pvs, cấu hình LVM</td></tr>
+<tr><td>lvcreate thiếu extent</td><td>VG không đủ free extent</td><td>vgs, vgdisplay</td></tr>
+<tr><td>mount thất bại</td><td>Chưa mkfs hoặc sai thiết bị</td><td>blkid, lsblk -f</td></tr>
+<tr><td>LV tăng nhưng df không tăng</td><td>Filesystem chưa grow</td><td>resize2fs, findmnt</td></tr>
+<tr><td>Không detach được loop</td><td>Thiết bị đang được dùng</td><td>lsblk, findmnt, lvs</td></tr>
+</tbody></table></div>
+<aside>Một kỹ sư có kinh nghiệm xác định lỗi nằm ở tầng nào của storage stack trước khi can thiệp, thay vì chỉ ghi nhớ lệnh sửa lỗi.</aside>
+<h2>10. Backup — Vì sao RAID và snapshot đều chưa đủ?</h2>
+<p>Giả sử database lưu 10.000 đơn hàng lúc 10:00; lúc 10:05 một thao tác nhầm xóa toàn bộ bảng. RAID 1 không cứu vì xóa được ghi lên cả hai disk. LUKS không cứu vì database đang chạy trên volume đã mở khóa. LVM không tự lưu lịch sử nội dung. Snapshot có thể giúp nếu có snapshot phù hợp và còn nguyên vẹn, nhưng không thay thế backup độc lập.</p>
+<h3>10.1. Backup là gì?</h3>
+<p>Backup là bản sao dữ liệu được lưu để phục vụ khôi phục sau mất mát, hỏng hóc hoặc sai sót. Cần xác định dữ liệu cần backup, tần suất, retention, vị trí, quyền xóa/thay đổi, thời gian restore và đã thử restore hay chưa.</p>
+<h3>Quy tắc 3-2-1</h3>
+<ul><li>3 bản sao dữ liệu, tính cả bản gốc.</li><li>2 loại phương tiện hoặc miền lưu trữ phù hợp.</li><li>Ít nhất 1 bản sao ở địa điểm hoặc failure domain độc lập.</li></ul>
+<p>Trong môi trường hiện đại, nên xem xét thêm bản sao immutable hoặc offline để giảm nguy cơ ransomware phá hủy backup.</p>
+<h2>11. RPO và RTO — Hai chỉ số quyết định chiến lược backup</h2>
+<p>Hai hệ thống cùng dung lượng nhưng cần chiến lược backup khác nhau vì yêu cầu kinh doanh khác nhau.</p>
+<h3>11.1. RPO — Recovery Point Objective</h3>
+<p>RPO là mức mất dữ liệu tối đa có thể chấp nhận, thường biểu diễn theo thời gian. RPO 24 giờ: có thể mất tới khoảng một ngày dữ liệu trong kịch bản thiết kế. RPO 1 giờ: cần điểm khôi phục gần sự cố hơn. RPO gần 0: cần bảo vệ và đồng bộ chặt chẽ hơn. RPO là mục tiêu, không phải bảo đảm tự động của lịch backup.</p>
+<h3>11.2. RTO — Recovery Time Objective</h3>
+<p>RTO là thời gian tối đa mục tiêu để phục hồi dịch vụ sau sự cố. RTO 24 giờ có thể chấp nhận gián đoạn dài; RTO 1 giờ cần restore nhanh; RTO 5 phút thường cần dự phòng, tự động hóa và kiểm thử nghiêm ngặt.</p>
+<section class="panel"><h4>Mô phỏng RPO và RTO</h4><div class="sliderline"><label>RPO: <b id="rpoValue">60 phút</b></label><input id="rpo" type="range" min="0" max="240" step="15" value="60" oninput="renderObjectives()"/></div><p class="muted">Mục tiêu giới hạn lượng dữ liệu bị mất sau sự cố.</p><div class="sliderline"><label>RTO: <b id="rtoValue">120 phút</b></label><input id="rto" type="range" min="5" max="480" step="5" value="120" oninput="renderObjectives()"/></div><p class="muted">Mục tiêu giới hạn thời gian gián đoạn dịch vụ.</p><svg viewBox="0 0 700 170" role="img" aria-label="Timeline thể hiện điểm backup, thời điểm sự cố và thời điểm khôi phục"><line x1="35" y1="90" x2="665" y2="90" stroke="#94a3b8" stroke-width="3"/><line id="rpoSpan" x1="250" y1="74" x2="350" y2="74" stroke="#3b82f6" stroke-width="10"/><line id="rtoSpan" x1="350" y1="106" x2="450" y2="106" stroke="#10b981" stroke-width="10"/><line id="backupMark" x1="250" y1="45" x2="250" y2="135" stroke="#3b82f6" stroke-width="3"/><line x1="350" y1="35" x2="350" y2="140" stroke="#dc2626" stroke-width="3" stroke-dasharray="6 5"/><line id="restoreMark" x1="450" y1="45" x2="450" y2="135" stroke="#10b981" stroke-width="3"/><text id="backupLabel" x="250" y="25" class="svgsmall">Backup</text><text x="350" y="160" class="svgsmall">Sự cố</text><text id="restoreLabel" x="450" y="25" class="svgsmall">Restore</text></svg><small>Sơ đồ thể hiện mục tiêu thời gian, không phải kết quả đo thực tế.</small></section>
+<p>Ví dụ gateway ghi dữ liệu cảm biến mỗi giây: RPO 24 giờ có thể khiến mất một ngày dữ liệu đo; RPO 1 phút đòi hỏi cơ chế bảo vệ đủ thường xuyên. Nếu RTO 8 giờ thì dịch vụ có thể ngừng lâu hơn để khôi phục. RPO và RTO độc lập.</p>
+<h2>12. Tình huống thực tế trong Embedded Linux</h2>
+<p>Giả sử bạn xây dựng gateway công nghiệp chạy Linux: eMMC 32 GB, ứng dụng đọc CAN bus, database lưu cảm biến, kết nối mạng gửi dữ liệu lên server, yêu cầu chạy liên tục. Có cần tất cả LVM, RAID, LUKS và snapshot? Không nhất thiết.</p>
+<h3>12.1. Dung lượng eMMC giới hạn</h3>
+<p>Nếu chỉ có một eMMC 32 GB với layout cố định, LVM có thể không đáng với độ phức tạp thêm. Có thể dùng các partition boot, rootfs, data. Với OTA, cân nhắc A/B root filesystem.</p>
+<div class="codebox"><button class="copy" onclick="copyCode(this)">Sao chép</button><pre><code>boot
+rootfs
+data</code></pre></div>
+<h3>12.2. Mất điện đột ngột</h3>
+<p>Cần xem xét filesystem journaling, fsync() và độ bền dữ liệu, database transaction, cơ chế ghi an toàn, hành vi eMMC khi mất điện và khả năng khôi phục sau reboot. RAID không tự giải quyết tính nhất quán ứng dụng khi mất điện.</p>
+<h3>12.3. Thiết bị bị đánh cắp</h3>
+<p>Nếu dữ liệu cảm biến/cấu hình bí mật, mã hóa có thể cần. Nhưng thiết bị khởi động tự động lấy khóa từ đâu? Khóa plaintext trên cùng thiết bị có thể làm giảm lợi ích bảo mật. Có thể cần TPM, secure boot, measured boot, quản lý khóa và recovery key. LUKS chỉ là một phần của thiết kế bảo mật.</p>
+<h3>12.4. Mất dữ liệu cảm biến</h3>
+<p>Một phương án: lưu dữ liệu tạm trên eMMC; gửi batch lên server; chỉ xóa local khi có xác nhận phù hợp; retry và chống ghi trùng; backup dữ liệu quan trọng trên server. Độ tin cậy trải dài từ storage đến giao thức ứng dụng.</p>
+<h2>13. Cách một senior chọn giải pháp storage</h2>
+<p>Đừng bắt đầu bằng câu hỏi “Nên dùng RAID 5 hay RAID 10?”. Hãy xác định yêu cầu hệ thống trước.</p>
+<div class="tablewrap"><table><thead><tr><th>Vấn đề</th><th>Giải pháp thường xem xét</th></tr></thead><tbody>
+<tr><td>Mở rộng dung lượng linh hoạt</td><td>LVM</td></tr>
+<tr><td>Cấp phát theo nhu cầu</td><td>Thin provisioning</td></tr>
+<tr><td>Trạng thái trước nâng cấp</td><td>Snapshot</td></tr>
+<tr><td>Chịu lỗi disk</td><td>RAID</td></tr>
+<tr><td>Bảo vệ dữ liệu khi bị lấy cắp</td><td>LUKS/dm-crypt</td></tr>
+<tr><td>Khôi phục file đã xóa</td><td>Backup có phiên bản</td></tr>
+<tr><td>Khôi phục nhanh sau thảm họa</td><td>Backup, replication, HA, DR</td></tr>
+<tr><td>Bảo vệ khi mất điện</td><td>Filesystem, ứng dụng, phần cứng và quy trình ghi</td></tr>
+</tbody></table></div>
+<h3>13.2. Failure domain là gì?</h3>
+<p>Failure domain là phạm vi tài nguyên có thể bị ảnh hưởng bởi cùng một nguyên nhân lỗi. Hai SSD trong cùng máy vẫn chung nguồn điện, mainboard, controller, nhiệt độ, nguy cơ cháy/ngập và lỗi cấu hình. Backup trong cùng máy vẫn chung nhiều failure domain với dữ liệu gốc. Thiết kế tốt cần bản sao đủ độc lập.</p>
+<h3>13.3. Checklist thiết kế storage</h3>
+<section class="panel"><h4>Checklist trước khi triển khai <span id="checkCount" class="muted">0/10</span></h4><div class="meter"><div id="checkFill"></div></div><div id="checklist" class="checklist"></div><button class="secondary" onclick="resetChecks()">Đặt lại checklist</button></section>
+<h2>14. Tự kiểm tra kiến thức bằng tình huống</h2>
+<p>Thay vì chỉ học thuộc định nghĩa, hãy thử suy luận từ tình huống. Chọn đáp án để xem giải thích ngay lập tức.</p>
+<section class="panel"><h4>5 câu hỏi tình huống <span id="quizProgress" class="muted">0/5 đã trả lời</span></h4><div id="quiz"></div><div id="quizResult"></div><button class="secondary" onclick="resetQuiz()">Làm lại bài kiểm tra</button></section>
+<h2>15. Tổng kết: Hãy nhìn storage như một hệ thống nhiều lớp</h2>
+<p>Sau bài học này, điều quan trọng không phải nhớ bao nhiêu câu lệnh, mà là biết mỗi công nghệ giải quyết vấn đề nào, hoạt động ở tầng nào và không giải quyết được vấn đề nào.</p>
+<section class="panel"><h4>Bản đồ tư duy Bài 22</h4><div class="node blue">BẢO VỆ VÀ QUẢN LÝ DỮ LIỆU</div><div class="mindgrid"><div><b>LVM</b><small>Linh hoạt dung lượng</small></div><div><b>RAID</b><small>Chịu lỗi thiết bị</small></div><div><b>LUKS</b><small>Bảo mật dữ liệu lưu trữ</small></div><div><b>Snapshot</b><small>Giữ trạng thái tại thời điểm</small></div><div><b>Backup</b><small>Khôi phục dữ liệu</small></div><div><b>RPO / RTO</b><small>Mục tiêu phục hồi</small></div></div></section>
+<ol><li><b>LVM không mặc nhiên cung cấp redundancy.</b> Nó chủ yếu giúp quản lý và phân bổ dung lượng.</li><li><b>RAID không phải backup.</b> Nó chỉ giúp hệ thống chịu một số dạng hỏng thiết bị.</li><li><b>Snapshot không phải bản sao độc lập.</b> Nó có thể mất cùng dữ liệu gốc nếu chung failure domain.</li><li><b>Mã hóa không thay thế phân quyền.</b> Dữ liệu đã mở khóa vẫn có thể bị đọc bởi tiến trình có quyền.</li><li><b>Backup chỉ thực sự đáng tin khi đã thử restore.</b> Có bản sao chưa đồng nghĩa với khả năng khôi phục đúng RPO và RTO.</li></ol>
+<h3>Liên hệ sang Bài 23 — Driver và I/O</h3>
+<p>Chúng ta đã biết LVM, RAID và dm-crypt đều hoạt động với block device. Nhưng khi ứng dụng gọi write(), dữ liệu đi qua filesystem, device-mapper, block layer, driver và cuối cùng tới SSD như thế nào? Khi I/O chậm, làm sao biết nguyên nhân ở filesystem, RAID, thiết bị hay driver? Đây là lý do Bài 23 — Driver và I/O là bước tiếp theo tự nhiên. Khi hiểu toàn bộ đường đi, bạn không chỉ cấu hình storage mà còn phân tích hiệu năng, độ trễ và lỗi I/O như một kỹ sư Linux hệ thống.</p><div class="foot">Bài 22 · Tài liệu HTML độc lập · Sơ đồ SVG và tương tác JavaScript chạy offline</div></main><script>function copyCode(b){navigator.clipboard.writeText(b.parentElement.querySelector('code').innerText).then(()=>{b.textContent='Đã sao chép';setTimeout(()=>b.textContent='Sao chép',1500)}).catch(()=>alert('Trình duyệt không cho phép sao chép tự động.'))}
+const mappings=[[0,0],[0,1],[1,0],[0,2],[1,1],[1,2]];let chosen=3;
+function renderMapping(){document.getElementById('leButtons').innerHTML=mappings.map((_,i)=>`<button class="${i===chosen?'active':'secondary'}" onclick="chosen=${i};renderMapping()">LE ${i}</button>`).join('');document.getElementById('mappingResult').textContent=`LE ${chosen} → PV ${mappings[chosen][0]+1}, PE ${mappings[chosen][1]}`;for(let d=0;d<2;d++)document.getElementById('pe'+d).innerHTML=Array.from({length:6},(_,i)=>`<div class="pe ${mappings[chosen][0]===d&&mappings[chosen][1]===i?'active':''}">PE ${i}</div>`).join('')}
+let fsGrown=false;function toggleFs(b){fsGrown=!fsGrown;document.getElementById('fsSize').textContent=fsGrown?'300 GB':'200 GB';let e=document.getElementById('fsExtra');e.style.background=fsGrown?'#10b981':'#e2e8f0';e.style.color=fsGrown?'white':'#475569';e.textContent=fsGrown?'+100 GB':'Chưa dùng';b.textContent=fsGrown?'Đặt lại mô phỏng':'Chạy resize2fs'}
+let thin=[35,45,20];function renderThin(){document.getElementById('thinCards').innerHTML=thin.map((v,i)=>`<div class="simcard"><b>Thin LV ${i+1}</b><div><strong>${v} GB</strong> / 200 GB logic</div><div class="meter"><div style="width:${v/2}%;background:#3b82f6"></div></div><input type="range" min="0" max="200" step="5" value="${v}" oninput="thin[${i}]=+this.value;renderThin()"></div>`).join('');let t=thin.reduce((a,b)=>a+b,0),f=document.getElementById('thinFill');f.style.width=Math.min(100,t/3)+'%';f.style.background=t>=300?'#dc2626':t>240?'#f59e0b':'#10b981';document.getElementById('thinStatus').textContent=t+' / 300 GB vật lý — '+(t>=300?'Pool đã đầy hoặc vượt giới hạn: ghi mới có thể thất bại.':t>240?'Dung lượng còn ít, cần theo dõi và mở rộng pool.':'Pool còn dung lượng để cấp phát khi ghi.')}function resetThin(){thin=[35,45,20];renderThin()}
+let snap=false,written=false;function renderSnap(){document.getElementById('originBlock').textContent=written?'B':'A';let s=document.getElementById('snapBlock');s.textContent=snap?'A':'—';s.classList.toggle('saved',snap);document.getElementById('snapLabel').textContent=snap?'Trạng thái được giữ lại':'Chưa tạo';document.getElementById('makeSnap').disabled=snap;document.getElementById('writeSnap').disabled=!snap||written;document.getElementById('snapText').textContent=!snap?'Ban đầu origin chứa A. Hãy tạo snapshot.':!written?'Snapshot ghi nhận A. Hãy thay đổi origin.':'Origin đã thành B, nhưng snapshot vẫn đọc A.'}function makeSnapshot(){snap=true;renderSnap()}function writeSnapshot(){written=true;renderSnap()}function resetSnapshot(){snap=false;written=false;renderSnap()}
+let raidFailed=false;function toggleRaid(b){raidFailed=!raidFailed;document.getElementById('raidBadge').textContent=raidFailed?'Failed':'Active';document.getElementById('raidBadge').className=raidFailed?'bad':'ok';document.getElementById('raidDisk').innerHTML=['A','B','C','D'].map(x=>`<div class="node ${raidFailed?'gray':'green'}">${raidFailed?'×':x}</div>`).join('');b.textContent=raidFailed?'Khôi phục mô phỏng':'Giả lập Disk 2 bị hỏng';document.getElementById('raidText').textContent=raidFailed?'RAID 1 degraded: dữ liệu còn đọc được từ Disk 1 nhưng không còn dự phòng đầy đủ.':'Hai disk đang lưu bản sao dữ liệu giống nhau.'}
+let xa=1,xb=0;function flipXor(which){if(which==='a')xa^=1;else xb^=1;renderXor()}function renderXor(){let m=document.getElementById('xorMissing').value,p=xa^xb;document.getElementById('xorA').textContent=m==='A'?'?':xa;document.getElementById('xorB').textContent=m==='B'?'?':xb;document.getElementById('xorP').textContent=m==='P'?'?':p;document.getElementById('xorEquation').textContent=m==='A'?`A = P ⊕ B = ${p} ⊕ ${xb} = ${xa}`:m==='B'?`B = P ⊕ A = ${p} ⊕ ${xa} = ${xb}`:`P = A ⊕ B = ${xa} ⊕ ${xb} = ${p}`}
+let crypt=false;function toggleCrypt(b){crypt=!crypt;document.getElementById('cryptIcon').textContent=crypt?'🔓':'🔒';document.getElementById('cryptTitle').textContent=crypt?'Filesystem có thể đọc plaintext':'Dữ liệu lưu trữ là ciphertext';document.getElementById('cryptData').textContent=crypt?'SENSOR=25.5\nSTATUS=OK':'8f a2 3d 91 c0 7e ...\n4b 16 d8 2c 5f a1 ...';b.textContent=crypt?'Khóa volume':'Mở khóa bằng key (mô phỏng)'}
+function renderObjectives(){let rpo=+document.getElementById('rpo').value,rto=+document.getElementById('rto').value,bx=350-rpo/240*260,rx=350+rto/480*280;document.getElementById('rpoValue').textContent=rpo+' phút';document.getElementById('rtoValue').textContent=rto+' phút';for(let id of ['backupMark','backupLabel'])document.getElementById(id).setAttribute('x',bx);document.getElementById('backupMark').setAttribute('x1',bx);document.getElementById('backupMark').setAttribute('x2',bx);document.getElementById('rpoSpan').setAttribute('x1',bx);document.getElementById('restoreMark').setAttribute('x1',rx);document.getElementById('restoreMark').setAttribute('x2',rx);document.getElementById('restoreLabel').setAttribute('x',rx);document.getElementById('rtoSpan').setAttribute('x2',rx)}
+const checks=['Đã xác định loại dữ liệu và mức độ quan trọng','Đã xác định yêu cầu dung lượng và tốc độ tăng trưởng','Đã xác định RPO và RTO','Đã chọn filesystem phù hợp','Đã đánh giá yêu cầu RAID hoặc cơ chế dự phòng','Đã xác định yêu cầu mã hóa và quản lý khóa','Đã thiết kế backup độc lập với dữ liệu gốc','Đã cấu hình giám sát dung lượng và lỗi thiết bị','Đã kiểm thử restore trong môi trường phù hợp','Đã có runbook xử lý sự cố'];let checked=new Set();function renderChecks(){document.getElementById('checklist').innerHTML=checks.map((s,i)=>`<label><input type="checkbox" ${checked.has(i)?'checked':''} onchange="changeCheck(${i},this.checked)">${s}</label>`).join('');document.getElementById('checkCount').textContent=checked.size+'/10';document.getElementById('checkFill').style.width=checked.size*10+'%'}function changeCheck(i,on){on?checked.add(i):checked.delete(i);renderChecks()}function resetChecks(){checked.clear();renderChecks()}
+const questions=[['Bạn chạy lvextend thành công, nhưng df -h vẫn hiển thị dung lượng cũ. Nguyên nhân hợp lý nhất?',['RAID đang rebuild','Filesystem chưa được grow','LUKS chưa được mở khóa'],1,'LV và filesystem là hai lớp khác nhau. Mở rộng LV không mặc nhiên làm metadata của filesystem thay đổi.'],['Hai ổ SSD chạy RAID 1. Một nhân viên xóa nhầm toàn bộ thư mục dữ liệu. RAID 1 có tự khôi phục thư mục không?',['Có, lấy từ SSD còn lại','Không, thao tác xóa được phản ánh trên mirror','Có, nếu dùng ext4'],1,'RAID 1 nhân bản các thao tác ghi, bao gồm cả việc xóa file. Cần snapshot hoặc backup phù hợp để phục hồi.'],['Một thin pool có dung lượng vật lý 300 GB nhưng tổng thin LV là 600 GB. Điều gì đúng?',['Đã tạo thêm 300 GB vật lý','Không bao giờ xảy ra lỗi hết dung lượng','Có nguy cơ pool đầy khi dữ liệu thực tế tăng'],2,'Thin provisioning cho phép overcommit dung lượng logic, nhưng dung lượng vật lý vẫn hữu hạn.'],['Ổ LUKS đang được mở khóa và mount. Một tiến trình có quyền đọc file trong volume. LUKS có ngăn tiến trình đó không?',['Có, vì ổ được mã hóa','Không, tiến trình có thể đọc plaintext qua filesystem','Chỉ khi dùng RAID'],1,'dm-crypt giải mã block cho hệ thống khi volume đã được mở khóa. Quyền truy cập lúc này do các cơ chế khác quyết định.'],['RPO = 15 phút nghĩa là gì?',['Dịch vụ phải chạy lại sau 15 phút','Mục tiêu mất tối đa khoảng 15 phút dữ liệu','Backup phải được giữ đúng 15 phút'],1,'RPO là mục tiêu giới hạn lượng dữ liệu mất theo thời gian. RTO mới là mục tiêu thời gian phục hồi dịch vụ.']];let answers={};function choose(i,j){answers[i]=j;renderQuiz()}function renderQuiz(){document.getElementById('quiz').innerHTML=questions.map((q,i)=>`<div class="quizquestion"><b>${i+1}. ${q[0]}</b>${q[1].map((o,j)=>`<label><input type="radio" name="q${i}" ${answers[i]===j?'checked':''} onchange="choose(${i},${j})"> ${o}</label>`).join('')}${answers[i]!==undefined?`<div class="feedback"><b class="${answers[i]===q[2]?'ok':'bad'}">${answers[i]===q[2]?'✓ Chính xác':'✗ Chưa chính xác'}</b><div>${q[3]}</div></div>`:''}</div>`).join('');let count=Object.keys(answers).length;document.getElementById('quizProgress').textContent=count+'/5 đã trả lời';document.getElementById('quizResult').innerHTML=count===5?`<h4>Kết quả: ${questions.filter((q,i)=>answers[i]===q[2]).length}/5 câu đúng</h4>`:''}function resetQuiz(){answers={};renderQuiz()}
+function toggleTheme(){document.body.classList.toggle('dark')}function updateProgress(){let d=document.documentElement;document.getElementById('progress').style.width=(100*d.scrollTop/Math.max(1,d.scrollHeight-d.clientHeight))+'%'}window.addEventListener('scroll',updateProgress,{passive:true});renderMapping();renderThin();renderSnap();renderXor();renderObjectives();renderChecks();renderQuiz();</script><script src="assets/lesson-theme.js" defer></script></body></html>

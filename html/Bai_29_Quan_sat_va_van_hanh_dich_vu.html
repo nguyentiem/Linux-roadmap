@@ -1,0 +1,281 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Bài 29 — Quan sát và vận hành dịch vụ Linux</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f7fb;color:#182333;font:16px/1.78 system-ui,-apple-system,"Segoe UI",sans-serif}.layout{display:grid;grid-template-columns:245px minmax(0,900px);gap:38px;max-width:1260px;margin:auto;padding:32px 22px}.sidebar{position:sticky;top:18px;align-self:start;max-height:94vh;overflow:auto;padding:20px;border-radius:16px;background:#fff;border:1px solid #e1e6ee}.sidebar a{display:block;color:#43556e;text-decoration:none;font-size:12px;padding:5px 0}.sidebar a:hover{color:#2563eb}.article{background:white;padding:44px 54px;border:1px solid #e1e6ee;border-radius:20px;box-shadow:0 8px 35px #17243c0a}h1{font-size:2.35rem;line-height:1.25;color:#10233f;margin:0 0 22px}h2{font-size:1.7rem;color:#123d70;border-top:1px solid #e7edf5;padding-top:36px;margin-top:55px}h3{font-size:1.28rem;color:#173f62;margin-top:30px}h4{font-size:1.06rem;color:#1f5275;margin-top:24px}p{margin:13px 0}ul{padding-left:25px}li{margin:5px 0}.muted{color:#64748b;font-size:.91rem}.math{font-weight:700;color:#2563eb}.codehead{background:#233246;color:#cbd5e1;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center;padding:6px 14px;font-size:12px;margin-top:18px}.copy{background:#475569;color:white;border:0;padding:5px 12px;border-radius:6px;cursor:pointer}pre{background:#101c2b;color:#e2e8f0;padding:17px 20px;border-radius:0 0 10px 10px;overflow-x:auto;margin:0 0 18px;line-height:1.6;font-size:13px}code{font-family:ui-monospace,Consolas,monospace}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #e2e8f0;padding:10px 13px;text-align:left}th{background:#eff6ff;color:#164675}.interactive{border:1px solid #d9e4f1;background:#fafcff;border-radius:16px;padding:22px;margin:22px 0}.interactive label:not(.check){display:block;margin:15px 0}.interactive input[type=range]{display:block;width:100%;accent-color:#2563eb;margin-top:7px}.interactive select{border:1px solid #cbd5e1;border-radius:7px;padding:7px;background:white}.flex{display:flex;justify-content:space-between;align-items:center;gap:15px}.pill{background:#e2e8f0;padding:3px 10px;border-radius:20px;font-size:12px}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}.stats.four{grid-template-columns:repeat(4,1fr)}.stats>div{padding:14px;background:#eaf1f9;border-radius:10px}.stats strong{font-size:25px;display:block;color:#164675}.stats small{display:block;color:#64748b}.diagram{display:flex;align-items:center;flex-direction:column;margin:20px auto;padding:18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;max-width:570px}.diagramnode{width:90%;text-align:center;border:1.5px solid #3b82f6;background:#eaf3ff;border-radius:9px;padding:10px;font-weight:600}.arrow{font-size:23px;color:#64748b;line-height:1.3}.timeline{border-left:3px solid #2563eb;margin:20px 0 20px 12px}.timeline>div{position:relative;margin-left:20px;padding:4px 0 15px}.timeline>div:before{content:"";position:absolute;left:-28px;top:10px;width:11px;height:11px;background:#2563eb;border-radius:50%}.timeline p{margin:2px 0;color:#64748b}details{border:1px solid #dce4ed;border-radius:10px;margin:10px 0;padding:12px 15px}summary{cursor:pointer;font-weight:600}.check{display:flex;align-items:center;gap:10px;padding:5px 0}.check input{width:18px;height:18px;accent-color:#0d9488}.progress{height:10px;background:#e2e8f0;border-radius:10px;overflow:hidden;margin:12px 0}.progress div{width:0;height:100%;background:#0d9488;transition:width .25s}svg{max-width:100%;background:white;border-radius:9px}svg text{font-family:system-ui,sans-serif;fill:#526276;font-size:12px}svg .gridline{stroke:#e2e8f0;stroke-width:1}footer{margin-top:50px;border-top:1px solid #e2e8f0;padding-top:16px;color:#64748b;font-size:13px}@media(max-width:950px){.layout{display:block;padding:10px}.sidebar{position:relative;max-height:160px;margin-bottom:12px}.article{padding:22px 18px}.stats.four{grid-template-columns:repeat(2,1fr)}h1{font-size:1.8rem}}@media print{body{background:white}.layout{display:block}.sidebar,.copy{display:none}.article{box-shadow:none;border:none;padding:0}details{break-inside:avoid}pre{white-space:pre-wrap}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="29"><div class="layout"><nav class="sidebar"><strong>MỤC LỤC — BÀI 29</strong><a href="#sec0">Phần IX — Alert: Cảnh báo phải dẫn tới hành động</a><a href="#sec1">26. Một Alert tốt là gì?</a><a href="#sec2">27. Thiết kế Alert theo SLO</a><a href="#sec3">28. Viết Alert Rule trong Prometheus</a><a href="#sec4">Phần X — Runbook: Khi Alert xuất hiện, phải làm gì?</a><a href="#sec5">29. Runbook là gì?</a><a href="#sec6">30. Ví dụ Runbook: Nginx trả HTTP 502</a><a href="#sec7">Phần XI — Cảnh báo Disk: Không chỉ nhìn phần trăm</a><a href="#sec8">31. Tại sao disk 90% chưa chắc nguy hiểm?</a><a href="#sec9">32. Dự đoán Disk bằng Prometheus</a><a href="#sec10">Phần XII — Wall Clock, Monotonic Clock và đo thời gian</a><a href="#sec11">33. Hai khái niệm thời gian khác nhau</a><a href="#sec12">34. Đồng bộ thời gian với NTP</a><a href="#sec13">Phần XIII — Graceful Shutdown</a><a href="#sec14">35. Tại sao không nên dừng process ngay lập tức?</a><a href="#sec15">36. Quy trình Graceful Shutdown</a><a href="#sec16">37. Cấu hình systemd</a><a href="#sec17">Phần XIV — Tư duy điều tra sự cố của Senior Engineer</a><a href="#sec18">38. Một tình huống thực tế: Latency tăng nhưng CPU thấp</a><a href="#sec19">Phần XV — Những tình huống tương tự thường gặp</a><a href="#sec20">39. RAM gần đầy nhưng hệ thống vẫn ổn</a><a href="#sec21">40. Process active nhưng service không trả lời</a><a href="#sec22">41. Network hoạt động nhưng request timeout</a><a href="#sec23">Phần XVI — Dashboard và bốn Golden Signals</a><a href="#sec24">42. Bốn Golden Signals</a><a href="#sec25">Payment API — Dashboard minh họa</a><a href="#sec26">Phần XVII — Lab tổng hợp: Backend dừng và phục hồi</a><a href="#sec27">43. Kịch bản</a><a href="#sec28">44. Timeline sự cố</a><a href="#sec29">Phần XVIII — Những kiến thức nâng cao cần bổ sung</a><a href="#sec30">45. Black-box và White-box Monitoring</a><a href="#sec31">46. RED Method</a><a href="#sec32">47. USE Method</a><a href="#sec33">48. Observability Pipeline</a><a href="#sec34">49. Alert Delivery phải được kiểm tra</a><a href="#sec35">Phần XIX — Kiểm tra kiến thức và tổng kết</a><a href="#sec36">50. Câu hỏi phản biện dành cho Senior Linux Engineer</a><a href="#sec37">51. Checklist hoàn thành Bài 29</a><a href="#sec38">52. Kết luận Bài 29</a></nav><main class="article"><h1>Bài 29 — Quan sát và vận hành dịch vụ Linux</h1>
+<p><strong>Phần tiếp theo từ mục 25.1 — Mô phỏng Cardinality.</strong> Nội dung chuyên sâu về cảnh báo, xử lý sự cố, Prometheus, runbook và vận hành production. Đây là trang HTML độc lập, có biểu đồ và mô phỏng tương tác.</p>
+<h2 id="sec0">Phần IX — Alert: Cảnh báo phải dẫn tới hành động</h2>
+<h3 id="sec1">26. Một Alert tốt là gì?</h3>
+<h4>26.1. Đặt vấn đề: Hệ thống gửi 500 cảnh báo mỗi ngày</h4>
+<p>Giả sử bạn đang vận hành 50 Linux server. Mỗi server có các cảnh báo:</p>
+<ul><li>CPU vượt 80%.</li><li>RAM vượt 85%.</li><li>Disk vượt 90%.</li><li>Process restart.</li><li>Network traffic tăng.</li><li>Số connection tăng.</li></ul>
+<p>Một ngày, bạn nhận được 500 cảnh báo. <strong>Câu hỏi: Hệ thống giám sát như vậy có tốt không?</strong> Chưa chắc. Nếu phần lớn cảnh báo không yêu cầu hành động, người trực sẽ dần bỏ qua chúng. Hiện tượng này gọi là <em>alert fatigue</em>. Điều nguy hiểm là khi có sự cố thật, cảnh báo quan trọng bị chìm giữa hàng trăm cảnh báo không cần thiết.</p>
+<h4>26.2. Alert khác Dashboard thế nào?</h4>
+<p><strong>Dashboard</strong> trả lời: Hệ thống hiện đang hoạt động như thế nào? <strong>Alert</strong> trả lời: Có vấn đề nào cần con người hoặc hệ thống tự động hành động ngay không?</p>
+<p>Một dashboard có thể chứa hàng chục metric, nhưng không phải metric nào cũng cần tạo alert.</p>
+<div class="tablewrap"><table><thead><tr><th>Hiện tượng</th><th>Có nên đánh thức người trực?</th></tr></thead><tbody><tr><td>CPU 95% trong 30 giây khi chạy batch</td><td>Thường không</td></tr><tr><td>HTTP 5xx tăng 20% trong 10 phút</td><td>Có thể cần</td></tr><tr><td>Disk còn 10% nhưng đủ dùng 3 tháng</td><td>Thường chưa</td></tr><tr><td>Disk dự kiến đầy trong 2 giờ</td><td>Có thể cần</td></tr><tr><td>Một process phụ restart rồi phục hồi</td><td>Tùy mức ảnh hưởng</td></tr><tr><td>Thanh toán thất bại trên diện rộng</td><td>Có</td></tr></tbody></table></div>
+<p><strong>Nguyên tắc:</strong> Alert nên gắn với ảnh hưởng tới người dùng hoặc một rủi ro cần can thiệp trong thời gian cụ thể.</p>
+<h3 id="sec2">27. Thiết kế Alert theo SLO</h3>
+<p>Ở phần trước, chúng ta đã học: <span class="math">SLI = GoodRequests / EligibleRequests</span>. Giả sử mục tiêu của Payment API là <strong>SLO = 99,9%</strong>. Tỷ lệ lỗi cho phép là 1 − 0,999 = 0,001. Nếu tỷ lệ lỗi hiện tại là 1% thì <strong>Burn Rate = 0,01 / 0,001 = 10</strong>, tức hệ thống tiêu thụ error budget nhanh gấp 10 lần tốc độ trung bình cho phép.</p>
+<h4>27.1. Mô phỏng Burn Rate</h4>
+<div class="interactive"><div class="flex"><strong>Mô phỏng tốc độ tiêu thụ Error Budget</strong><span id="burnBadge" class="pill">Bình thường</span></div><label>SLO mục tiêu <select id="slo"><option>99</option><option selected>99.9</option><option>99.99</option></select></label><label>Tỷ lệ lỗi thực tế: <b id="errorOut">1.0%</b><input id="errorRate" type="range" min="0" max="5" step="0.1" value="1"></label><div class="stats"><div><small>Burn rate</small><strong id="burnOut">10.0×</strong></div><div><small>Error budget cho phép</small><strong id="allowOut">0.10%</strong></div></div><p class="muted">Burn rate được tính từ tỷ lệ lỗi quan sát so với tỷ lệ lỗi cho phép. Để quyết định cảnh báo cần xét thêm cửa sổ thời gian và mức traffic.</p></div>
+<p><strong>Câu hỏi phản biện:</strong> Nếu tỷ lệ lỗi 50% nhưng chỉ có hai request trong 10 phút, có nên đánh thức người trực? Không thể kết luận chỉ từ tỷ lệ lỗi. Cần xem cả lưu lượng, mức độ quan trọng của request, thời gian kéo dài và phạm vi ảnh hưởng. Với hệ thống ít traffic nhưng giao dịch cực kỳ quan trọng, ngay cả một lỗi cũng có thể cần điều tra.</p>
+<h3 id="sec3">28. Viết Alert Rule trong Prometheus</h3>
+<p>Giả sử ứng dụng xuất metric:</p>
+<div class="codehead"><span>promql</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>http_requests_total{service=&quot;payment-api&quot;,status=&quot;200&quot;}
+http_requests_total{service=&quot;payment-api&quot;,status=&quot;500&quot;}</code></pre>
+<p>Chúng ta muốn cảnh báo khi tỷ lệ HTTP 5xx vượt 5%, traffic trung bình lớn hơn 1 request/giây và điều kiện kéo dài ít nhất 10 phút.</p>
+<div class="codehead"><span>yaml</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>groups:
+  - name: payment-alerts
+    rules:
+      - alert: PaymentHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{
+              service=&quot;payment-api&quot;,
+              status=~&quot;5..&quot;
+            }[5m]))
+            /
+            clamp_min(
+              sum(rate(http_requests_total{
+                service=&quot;payment-api&quot;
+              }[5m])),
+              0.001
+            )
+          ) &gt; 0.05
+          and
+          sum(rate(http_requests_total{
+            service=&quot;payment-api&quot;
+          }[5m])) &gt; 1
+
+        for: 10m
+
+        labels:
+          severity: critical
+          team: backend
+
+        annotations:
+          summary: &quot;Payment API error rate high&quot;
+          description: &quot;HTTP 5xx rate exceeded 5% for 10 minutes&quot;</code></pre>
+<h4>Phân tích từng thành phần</h4>
+<ul><li><code>rate(...[5m])</code>: Tính tốc độ tăng trung bình mỗi giây của counter trong cửa sổ 5 phút.</li><li><code>sum(...)</code>: Tổng hợp time series, chẳng hạn trên 5 instance Payment API.</li><li><code>status=~"5.."</code>: Lọc HTTP status 500–599 nếu label status chứa mã HTTP ba chữ số.</li><li><code>clamp_min(..., 0.001)</code>: Tránh chia cho 0 hoặc mẫu số quá nhỏ.</li><li><code>for: 10m</code>: Biểu thức cảnh báo phải liên tục đúng trong thời gian quy định.</li><li><code>labels</code>: Phân loại và định tuyến alert.</li><li><code>annotations</code>: Thông tin cho người đọc cảnh báo.</li></ul>
+<h4>28.1. Vì sao không cảnh báo ngay khi thấy một lỗi?</h4>
+<p>Một request thất bại có thể do sự cố thoáng qua. Nếu mỗi lỗi tạo một alert, hệ thống sẽ nhiễu. Nhưng với hệ thống giao dịch quan trọng, lỗi đơn lẻ vẫn có thể cần ghi nhận hoặc điều tra. Phân biệt cảnh báo thông tin với cảnh báo cần đánh thức người trực.</p>
+<h4>28.2. Multi-window Alerting</h4>
+<p>Kỹ thuật SRE phổ biến là kết hợp cửa sổ ngắn và dài. Cửa sổ ngắn phát hiện sự cố đang diễn ra, cửa sổ dài tránh phản ứng quá mức với spike ngắn; burn rate cao được ưu tiên hơn. Không nên dùng duy nhất một rule error_rate > 5% cho mọi dịch vụ.</p>
+<h2 id="sec4">Phần X — Runbook: Khi Alert xuất hiện, phải làm gì?</h2>
+<h3 id="sec5">29. Runbook là gì?</h3>
+<p>Runbook là tài liệu hướng dẫn xử lý một tình huống vận hành cụ thể. Giống phi công dùng checklist khi có cảnh báo động cơ, kỹ sư Linux dùng runbook để xử lý an toàn, có hệ thống.</p>
+<ul><li>Triệu chứng và phạm vi ảnh hưởng.</li><li>Cách xác nhận cảnh báo.</li><li>Các lệnh kiểm tra đầu tiên.</li><li>Những nguyên nhân thường gặp.</li><li>Phương án khôi phục.</li><li>Điều kiện xác nhận phục hồi.</li><li>Cách escalation khi không giải quyết được.</li></ul>
+<h3 id="sec6">30. Ví dụ Runbook: Nginx trả HTTP 502</h3>
+<h4>Bước 1 — Xác nhận lỗi từ phía client</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -v http://127.0.0.1/</code></pre>
+<div class="codehead"><span>http</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>HTTP/1.1 502 Bad Gateway</code></pre>
+<p>Proxy/gateway không nhận được phản hồi upstream hợp lệ, nhưng chưa đủ để kết luận backend đã chết.</p>
+<h4>Bước 2 — Kiểm tra Nginx</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl status nginx</code></pre>
+<div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Active: active (running)</code></pre>
+<p>Nginx đang chạy không đảm bảo upstream hoạt động.</p>
+<h4>Bước 3 — Kiểm tra backend</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl status linux-lab-http</code></pre>
+<p>Nếu service dừng, đây là một giả thuyết hợp lý. Nếu vẫn active, cần kiểm tra tiếp.</p>
+<h4>Bước 4 — Kiểm tra port</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo ss -lntp</code></pre>
+<div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>LISTEN 0 128 127.0.0.1:8081</code></pre>
+<p>Nếu không có process listen port 8081, Nginx không thể kết nối tới backend ở địa chỉ đó. Phải đối chiếu với proxy_pass thực tế.</p>
+<h4>Bước 5 — Kiểm tra log</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>journalctl -u nginx \
+  --since &quot;10 minutes ago&quot; \
+  --no-pager
+
+journalctl -u linux-lab-http \
+  --since &quot;10 minutes ago&quot; \
+  --no-pager</code></pre>
+<p>Trên nhiều distribution, Nginx error log được ghi vào file /var/log/nginx/error.log, không nhất thiết có đủ trong journald.</p>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo tail -n 100 /var/log/nginx/error.log</code></pre>
+<h4>Bước 6 — Kiểm tra trực tiếp upstream</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -v --max-time 3 \
+  http://127.0.0.1:8081/</code></pre>
+<ul><li>Cấu hình upstream.</li><li>Địa chỉ và port.</li><li>Unix socket permissions.</li><li>TLS giữa proxy và upstream.</li><li>Kết nối bị đóng bất thường.</li><li>Sự khác biệt giữa môi trường chạy Nginx và môi trường thử nghiệm.</li></ul>
+<h4>Bước 7 — Khôi phục</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo systemctl start linux-lab-http</code></pre>
+<p>Nếu xác định backend dừng ngoài ý muốn, khởi động và kiểm tra lại qua proxy. <strong>Tại sao không restart cả Nginx và backend ngay từ đầu?</strong> Restart có thể che triệu chứng, xóa trạng thái điều tra và tạo gián đoạn. Cần cân nhắc giữa khôi phục khẩn cấp và thu thập bằng chứng.</p>
+<h2 id="sec7">Phần XI — Cảnh báo Disk: Không chỉ nhìn phần trăm</h2>
+<h3 id="sec8">31. Tại sao disk 90% chưa chắc nguy hiểm?</h3>
+<div class="tablewrap"><table><thead><tr><th>Server</th><th>Dung lượng còn</th><th>Tốc độ ghi</th></tr></thead><tbody><tr><td>Server A</td><td>10 GB</td><td>1 GB/ngày</td></tr><tr><td>Server B</td><td>100 GB</td><td>50 GB/giờ</td></tr></tbody></table></div>
+<p>Server A có thể còn khoảng 10 ngày; Server B có thể chỉ còn 2 giờ. Vì vậy cần theo dõi xu hướng và thời gian còn lại trước khi hết tài nguyên, không chỉ utilization.</p>
+<h3 id="sec9">32. Dự đoán Disk bằng Prometheus</h3>
+<div class="codehead"><span>promql</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>predict_linear(
+  node_filesystem_avail_bytes[6h],
+  24 * 3600
+) &lt; 0</code></pre>
+<p>Lấy dữ liệu dung lượng khả dụng trong 6 giờ, ước lượng xu hướng tuyến tính và dự đoán sau 24 giờ. Đây không phải cam kết chắc chắn.</p>
+<h4>32.1. Mô phỏng tốc độ đầy disk</h4>
+<div class="interactive"><h4>Disk Capacity Forecast</h4><label>Dung lượng còn lại: <b id="diskFreeOut">100 GB</b><input type="range" id="diskFree" min="10" max="500" step="10" value="100"></label><label>Tốc độ tăng dữ liệu: <b id="diskGrowthOut">10 GB/giờ</b><input type="range" id="diskGrowth" min="1" max="100" step="1" value="10"></label><div class="stats"><div><small>Thời gian ước tính đến khi đầy</small><strong id="diskHours">10.0 giờ</strong></div></div><svg id="diskChart" viewBox="0 0 700 230" role="img" aria-label="Biểu đồ dung lượng còn lại theo thời gian"></svg><p class="muted">Mô hình giả định tốc độ ghi không đổi và không có hoạt động xóa dữ liệu.</p></div>
+<h4>32.2. Hết inode</h4>
+<p>Filesystem có thể còn data blocks nhưng không còn inode để tạo file mới, đặc biệt khi có quá nhiều file nhỏ như cache hoặc file tạm.</p>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>df -h
+touch test.txt
+df -i</code></pre>
+<p>Lỗi có thể là <code>No space left on device</code> dù df -h cho thấy còn dung lượng.</p>
+<h2 id="sec10">Phần XII — Wall Clock, Monotonic Clock và đo thời gian</h2>
+<h3 id="sec11">33. Hai khái niệm thời gian khác nhau</h3>
+<p><strong>Câu hỏi A:</strong> Request xảy ra lúc mấy giờ? <strong>Câu hỏi B:</strong> Request mất bao lâu để hoàn thành? Hai nhu cầu yêu cầu hai loại clock khác nhau.</p>
+<h4>33.1. Wall Clock</h4>
+<div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>2026-10-10T10:15:30Z</code></pre>
+<p>Wall clock dùng cho log timestamp, audit, correlation giữa service và lịch tác vụ. Nó có thể bị điều chỉnh bởi đồng bộ thời gian.</p>
+<h4>33.2. Monotonic Clock</h4>
+<p>Monotonic clock phù hợp để đo elapsed time.</p>
+<div class="codehead"><span>c</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>#include &lt;stdio.h&gt;
+#include &lt;time.h&gt;
+
+int main(void)
+{
+    struct timespec start, end;
+
+    clock_gettime(CLOCK_MONOTONIC, &amp;start);
+
+    /* Simulate work */
+    struct timespec delay = {
+        .tv_sec = 0,
+        .tv_nsec = 200000000
+    };
+
+    nanosleep(&amp;delay, NULL);
+
+    clock_gettime(CLOCK_MONOTONIC, &amp;end);
+
+    double elapsed =
+        (end.tv_sec - start.tv_sec) +
+        (end.tv_nsec - start.tv_nsec) / 1e9;
+
+    printf(&quot;Elapsed: %.6f seconds\n&quot;, elapsed);
+
+    return 0;
+}</code></pre>
+<div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>Elapsed: 0.200xxx seconds</code></pre>
+<p>Không đảm bảo đúng tuyệt đối 200 ms vì scheduler có thể làm thread chạy muộn.</p>
+<h4>33.3. Tại sao không dùng CLOCK_REALTIME?</h4>
+<p>Wall clock có thể bị điều chỉnh lùi 5 giây giữa hai lần đọc, khiến duration sai hoặc âm. CLOCK_MONOTONIC không chịu bước nhảy rời rạc của wall clock nhưng vẫn có thể chịu điều chỉnh tần số. CLOCK_MONOTONIC không tính suspend, khác CLOCK_BOOTTIME.</p>
+<h3 id="sec12">34. Đồng bộ thời gian với NTP</h3>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>timedatectl status</code></pre>
+<div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>System clock synchronized: yes
+NTP service: active</code></pre>
+<p>Linux có thể dùng systemd-timesyncd, chrony hoặc dịch vụ khác. Nếu server A ghi log 10:00:05 và server B ghi 10:00:02 trong cùng một request A → B, đồng hồ lệch có thể khiến thứ tự sự kiện trông vô lý.</p>
+<h2 id="sec13">Phần XIII — Graceful Shutdown</h2>
+<h3 id="sec14">35. Tại sao không nên dừng process ngay lập tức?</h3>
+<p>Giả sử backend xử lý thanh toán:</p>
+<div class="diagram"><div class="diagramnode">Client gửi request</div> <div class="arrow">↓</div> <div class="diagramnode">Backend xác thực</div> <div class="arrow">↓</div> <div class="diagramnode">Backend ghi giao dịch</div> <div class="arrow">↓</div> <div class="diagramnode">Backend gửi response</div></div>
+<p>Nếu backend bị kill sau khi ghi giao dịch nhưng trước khi trả response, client có thể retry và tạo giao dịch trùng. Vấn đề liên quan đến <strong>idempotency</strong>. Graceful shutdown giảm gián đoạn nhưng không tự đảm bảo exactly-once.</p>
+<h3 id="sec15">36. Quy trình Graceful Shutdown</h3>
+<div class="diagram"><div class="diagramnode">Nhận SIGTERM</div> <div class="arrow">↓</div> <div class="diagramnode">Ngừng nhận request mới</div> <div class="arrow">↓</div> <div class="diagramnode">Chờ request đang xử lý</div> <div class="arrow">↓</div> <div class="diagramnode">Giải phóng tài nguyên</div> <div class="arrow">↓</div> <div class="diagramnode">Thoát process</div></div>
+<p>Ứng dụng nhận yêu cầu kết thúc, phối hợp với load balancer/routing, chờ công việc trong giới hạn thời gian, đóng connection và thoát có kiểm soát.</p>
+<h3 id="sec16">37. Cấu hình systemd</h3>
+<div class="codehead"><span>ini</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>[Unit]
+Description=Payment Backend
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/payment-server
+
+Restart=on-failure
+KillSignal=SIGTERM
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo systemctl stop payment-backend</code></pre>
+<p><strong>Systemd không tự biến một ứng dụng thành graceful.</strong> Ứng dụng phải xử lý tín hiệu, ngừng nhận việc mới và giải phóng tài nguyên. Hết timeout, systemd có thể kết thúc mạnh hơn tùy kill policy.</p>
+<h2 id="sec17">Phần XIV — Tư duy điều tra sự cố của Senior Engineer</h2>
+<h3 id="sec18">38. Một tình huống thực tế: Latency tăng nhưng CPU thấp</h3>
+<div class="codehead"><span>text</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>CPU usage:          18%
+Memory usage:       52%
+HTTP p99 latency:   8000 ms
+HTTP error rate:    12%</code></pre>
+<p>Restart backend ngay không phải cách điều tra có hệ thống. Hãy đặt giả thuyết và kiểm chứng.</p>
+<h4>Giả thuyết 1 — Database chậm</h4>
+<ul><li>Query duration.</li><li>Slow query log.</li><li>Database locks.</li><li>Connection pool.</li><li>Disk latency.</li></ul>
+<h4>Giả thuyết 2 — Network chậm</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ss -s
+ip -s link</code></pre>
+<p>Có thể dùng tcpdump khi cần điều tra sâu hơn trong phạm vi được phép.</p>
+<h4>Giả thuyết 3 — Thread pool bị nghẽn</h4>
+<p>CPU thấp vì thread đang chờ I/O hoặc lock. Kiểm tra active/waiting threads, queue depth, thread dump và metric ứng dụng.</p>
+<h4>Giả thuyết 4 — External API chậm</h4>
+<p>Nếu external payment API mất 8 giây, request nội bộ cũng có thể mất gần 8 giây dù CPU rất thấp. Trace xác định span tiêu tốn nhiều thời gian.</p>
+<h4>Quy trình điều tra</h4>
+<div class="diagram"><div class="diagramnode">Xác nhận triệu chứng</div> <div class="arrow">↓</div> <div class="diagramnode">Kiểm tra thay đổi gần đây</div> <div class="arrow">↓</div> <div class="diagramnode">Phân tích Metric + Log + Trace</div> <div class="arrow">↓</div> <div class="diagramnode">Đặt và kiểm chứng giả thuyết</div> <div class="arrow">↓</div> <div class="diagramnode">Khôi phục và xác minh</div></div>
+<p><strong>Câu hỏi phản biện:</strong> Nếu rollback giúp hệ thống bình thường, có thể chắc chắn lỗi do code mới không? Chưa chắc. Rollback có thể thay đổi connection, cache, traffic routing hoặc runtime. Đây là bằng chứng nhưng chưa đủ để kết luận nguyên nhân gốc.</p>
+<h2 id="sec19">Phần XV — Những tình huống tương tự thường gặp</h2>
+<h3 id="sec20">39. RAM gần đầy nhưng hệ thống vẫn ổn</h3>
+<p>Linux sử dụng RAM để cache. Không kết luận thiếu RAM chỉ vì cột used cao.</p>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>free -h
+cat /proc/meminfo
+cat /proc/pressure/memory</code></pre>
+<p>Memory PSI nếu kernel hỗ trợ cho biết thời gian các task bị đình trệ do áp lực tài nguyên.</p>
+<h3 id="sec21">40. Process active nhưng service không trả lời</h3>
+<ul><li>Deadlock.</li><li>Thread pool exhaustion.</li><li>Blocking I/O.</li><li>Event loop bị chặn.</li><li>Connection pool hết.</li><li>Dependency timeout.</li></ul>
+<p>Process count không đủ. Cần external probe, metric ứng dụng và log.</p>
+<h3 id="sec22">41. Network hoạt động nhưng request timeout</h3>
+<p>Ping thành công không chứng minh HTTP thành công vì ICMP và HTTP đi qua các đường xử lý khác nhau.</p>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>ping 192.168.1.10
+curl --max-time 3 http://192.168.1.10:8080/</code></pre>
+<p>Có thể do firewall, service không listen, lỗi ứng dụng hoặc kết nối bị chặn ở tầng khác.</p>
+<h2 id="sec23">Phần XVI — Dashboard và bốn Golden Signals</h2>
+<h3 id="sec24">42. Bốn Golden Signals</h3>
+<div class="tablewrap"><table><thead><tr><th>Signal</th><th>Câu hỏi</th></tr></thead><tbody><tr><td>Latency</td><td>Request mất bao lâu?</td></tr><tr><td>Traffic</td><td>Hệ thống nhận bao nhiêu công việc?</td></tr><tr><td>Errors</td><td>Bao nhiêu công việc thất bại?</td></tr><tr><td>Saturation</td><td>Hệ thống gần giới hạn tài nguyên chưa?</td></tr></tbody></table></div>
+<div class="interactive"><h3 id="sec25">Payment API — Dashboard minh họa</h3><p class="muted">Dữ liệu giả lập</p><div class="stats four"><div><small>Traffic</small><strong>1.2k</strong><small>req/s</small></div><div><small>Error rate</small><strong>0.2%</strong><small>5xx</small></div><div><small>p99 latency</small><strong>285</strong><small>ms</small></div><div><small>CPU</small><strong>42%</strong><small>busy</small></div></div><h4>Requests/s</h4><svg id="rpsChart" viewBox="0 0 700 230" role="img" aria-label="Biểu đồ Requests trên giây"></svg><h4>Latency (ms)</h4><svg id="latencyChart" viewBox="0 0 700 230" role="img" aria-label="Biểu đồ p50 p95 p99"></svg></div>
+<p>Dashboard phải giúp trả lời câu hỏi vận hành, không chỉ hiển thị biểu đồ đẹp.</p>
+<h2 id="sec26">Phần XVII — Lab tổng hợp: Backend dừng và phục hồi</h2>
+<h3 id="sec27">43. Kịch bản</h3>
+<div class="diagram"><div class="diagramnode">Client</div> <div class="arrow">↓</div> <div class="diagramnode">Nginx</div> <div class="arrow">↓</div> <div class="diagramnode">Backend API</div></div>
+<p>Quan sát backend ngừng hoạt động. Thực hiện trong VM hoặc môi trường lab, không làm trực tiếp trên production.</p>
+<h4>Bước 1 — Kiểm tra ban đầu</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl status linux-lab-http
+curl -i http://127.0.0.1:8081/</code></pre>
+<h4>Bước 2 — Dừng backend</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo systemctl stop linux-lab-http</code></pre>
+<h4>Bước 3 — Kiểm tra lại</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -v --max-time 2 \
+  http://127.0.0.1:8081/</code></pre>
+<p>Nếu không còn process listen, có thể nhận Connection refused.</p>
+<h4>Bước 4 — Kiểm tra Nginx</h4>
+<p>Gửi request tới endpoint Nginx đã cấu hình proxy tới backend. Nếu upstream không khả dụng, Nginx có thể trả 502 hoặc 504 tùy tình huống.</p>
+<h4>Bước 5 — Phục hồi</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>sudo systemctl start linux-lab-http</code></pre>
+<h4>Bước 6 — Xác nhận</h4>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl is-active linux-lab-http
+curl -i http://127.0.0.1:8081/</code></pre>
+<p>Chỉ xác nhận phục hồi sau khi request thực tế thành công, không chỉ dựa vào active.</p>
+<h3 id="sec28">44. Timeline sự cố</h3>
+<div class="timeline"><div><b>10:00 — Healthy</b><p>Backend và proxy hoạt động bình thường.</p></div><div><b>10:05 — Failure</b><p>Backend dừng.</p></div><div><b>10:07 — User impact</b><p>Client bắt đầu gặp lỗi.</p></div><div><b>10:10 — Detection</b><p>Alert được gửi tới người trực.</p></div><div><b>10:12 — Recovery action</b><p>Backend được khởi động lại.</p></div><div><b>10:13 — Verified recovery</b><p>External probe thành công.</p></div></div>
+<p><em>Timeline giả định. Thời gian phát hiện và phục hồi cần đo từ sự kiện thực tế khi làm lab.</em></p>
+<p><strong>Câu hỏi:</strong> Nếu backend đã restart nhưng tỷ lệ lỗi vẫn cao thì sao? Service có thể chưa ready, cache chưa khởi tạo, database vẫn lỗi hoặc traffic chưa định tuyến trở lại. Phục hồi phải được xác minh từ phía người dùng.</p>
+<h2 id="sec29">Phần XVIII — Những kiến thức nâng cao cần bổ sung</h2>
+<h3 id="sec30">45. Black-box và White-box Monitoring</h3>
+<p><strong>Black-box monitoring</strong> kiểm tra từ bên ngoài mà không cần biết chi tiết triển khai.</p>
+<div class="codehead"><span>bash</span><button class="copy" onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -f --max-time 3 \
+  https://service.example.com/health</code></pre>
+<p><strong>White-box monitoring</strong> thu thập thông tin bên trong: CPU usage, thread count, database connection pool, queue depth, cache hit ratio và request duration histogram. Black-box cho biết triệu chứng từ một điểm quan sát; white-box giúp giải thích nguyên nhân bên trong. Cần kết hợp cả hai.</p>
+<h3 id="sec31">46. RED Method</h3>
+<ul><li><strong>Rate:</strong> Số request mỗi giây.</li><li><strong>Errors:</strong> Số lượng hoặc tỷ lệ request thất bại.</li><li><strong>Duration:</strong> Thời gian xử lý request.</li></ul>
+<h3 id="sec32">47. USE Method</h3>
+<ul><li><strong>Utilization:</strong> Mức độ sử dụng tài nguyên.</li><li><strong>Saturation:</strong> Mức độ chờ hoặc quá tải.</li><li><strong>Errors:</strong> Các lỗi liên quan tới tài nguyên.</li></ul>
+<p>CPU utilization cao không nhất thiết CPU saturation cao. Workload có thể bị CPU quota hoặc contention dù CPU tổng host không cao.</p>
+<h3 id="sec33">48. Observability Pipeline</h3>
+<div class="diagram"><div class="diagramnode">Application / Linux Host</div> <div class="arrow">↓</div> <div class="diagramnode">Instrumentation / Exporter</div> <div class="arrow">↓</div> <div class="diagramnode">Collector / Agent</div> <div class="arrow">↓</div> <div class="diagramnode">Storage Backend</div> <div class="arrow">↓</div> <div class="diagramnode">Dashboard / Alert / Query</div></div>
+<p>Pipeline có thể thực hiện sampling, batching, lọc dữ liệu nhạy cảm và định tuyến telemetry. Nhưng collector cũng có thể nghẽn, làm mất metric hoặc trace. Cần giám sát chính hệ thống giám sát.</p>
+<h3 id="sec34">49. Alert Delivery phải được kiểm tra</h3>
+<p>Rule tồn tại không chứng minh người trực đã nhận cảnh báo. Quy trình diễn tập:</p>
+<ul><li>Tạo sự cố có kiểm soát.</li><li>Xác minh metric thay đổi.</li><li>Xác minh alert chuyển sang firing.</li><li>Xác minh Alertmanager xử lý alert.</li><li>Xác minh kênh thông báo nhận được.</li><li>Xác minh runbook hoạt động.</li><li>Phục hồi hệ thống.</li></ul>
+<h2 id="sec35">Phần XIX — Kiểm tra kiến thức và tổng kết</h2>
+<h3 id="sec36">50. Câu hỏi phản biện dành cho Senior Linux Engineer</h3>
+<details><summary>1. Vì sao systemctl active không chứng minh service healthy?</summary><p>Vì process có thể tồn tại nhưng bị deadlock, trả lỗi, timeout hoặc xử lý sai nghiệp vụ. Cần kiểm tra hành vi thực tế từ phía client.</p></details>
+<details><summary>2. Vì sao không lấy trung bình p99 giữa các server?</summary><p>Percentile không có tính cộng gộp như tổng hoặc trung bình. Phải tổng hợp phân bố dữ liệu phù hợp rồi mới tính percentile.</p></details>
+<details><summary>3. Vì sao request_id không nên là Prometheus label?</summary><p>Vì request_id thường gần như duy nhất, tạo số lượng time series rất lớn. Nên sử dụng trong log hoặc trace.</p></details>
+<details><summary>4. CPU thấp nhưng latency cao thì kiểm tra gì?</summary><p>Kiểm tra I/O, network, database, lock contention, queue, thread pool, connection pool và external dependencies.</p></details>
+<details><summary>5. Vì sao liveness không nên phụ thuộc tất cả dependency?</summary><p>Vì một dependency gặp lỗi có thể khiến mọi instance restart đồng loạt, gây thêm tải và làm sự cố nghiêm trọng hơn.</p></details>
+<details><summary>6. Graceful shutdown có đảm bảo không mất request không?</summary><p>Không tuyệt đối. Nó giảm gián đoạn nhưng vẫn cần timeout, retry an toàn, idempotency và cơ chế phục hồi trạng thái.</p></details>
+<h3 id="sec37">51. Checklist hoàn thành Bài 29</h3>
+<div class="interactive"><div class="flex"><strong>Tiến độ</strong><strong id="progressText">0/15</strong></div><div class="progress"><div id="progressFill"></div></div><label class="check"><input type="checkbox" class="learningCheck">Phân biệt Log, Metric và Trace</label><label class="check"><input type="checkbox" class="learningCheck">Hiểu Counter, Gauge, Histogram</label><label class="check"><input type="checkbox" class="learningCheck">Giải thích p95 và p99</label><label class="check"><input type="checkbox" class="learningCheck">Phân biệt Liveness và Readiness</label><label class="check"><input type="checkbox" class="learningCheck">Định nghĩa SLI và SLO có mẫu số rõ</label><label class="check"><input type="checkbox" class="learningCheck">Tính Error Budget và Burn Rate</label><label class="check"><input type="checkbox" class="learningCheck">Sử dụng curl để đo latency</label><label class="check"><input type="checkbox" class="learningCheck">Đọc log bằng journalctl</label><label class="check"><input type="checkbox" class="learningCheck">Hiểu Node Exporter và Prometheus</label><label class="check"><input type="checkbox" class="learningCheck">Giải thích Cardinality</label><label class="check"><input type="checkbox" class="learningCheck">Viết alert có hành động</label><label class="check"><input type="checkbox" class="learningCheck">Thiết kế Runbook</label><label class="check"><input type="checkbox" class="learningCheck">Phân biệt Wall Clock và Monotonic Clock</label><label class="check"><input type="checkbox" class="learningCheck">Hiểu Graceful Shutdown</label><label class="check"><input type="checkbox" class="learningCheck">Viết timeline backend dừng và phục hồi</label></div>
+<h3 id="sec38">52. Kết luận Bài 29</h3>
+<p>Điều quan trọng nhất không phải thuộc lòng lệnh Prometheus, journalctl hay systemctl. Đó là khả năng xây dựng chuỗi suy luận:</p>
+<div class="diagram"><div class="diagramnode">Triệu chứng người dùng</div> <div class="arrow">↓</div> <div class="diagramnode">SLI</div> <div class="arrow">↓</div> <div class="diagramnode">Metric</div> <div class="arrow">↓</div> <div class="diagramnode">Trace</div> <div class="arrow">↓</div> <div class="diagramnode">Log</div> <div class="arrow">↓</div> <div class="diagramnode">Giả thuyết</div> <div class="arrow">↓</div> <div class="diagramnode">Kiểm chứng</div> <div class="arrow">↓</div> <div class="diagramnode">Phục hồi</div> <div class="arrow">↓</div> <div class="diagramnode">Xác nhận</div></div>
+<p>Đây là khác biệt giữa người chỉ biết quản lý server và người vận hành production đáng tin cậy. Tiếp theo là <strong>Bài 30 — Backup, Recovery và quản lý thay đổi</strong>: Nếu dữ liệu mất, cấu hình hỏng hoặc triển khai thất bại, khôi phục trạng thái nào và trong bao lâu?</p><footer>HTML độc lập — CSS, SVG và JavaScript nhúng trong cùng một file. Không yêu cầu kết nối mạng.</footer></main></div><script>function copyCode(b){navigator.clipboard.writeText(b.parentElement.nextElementSibling.innerText).then(()=>{b.textContent='Đã sao chép';setTimeout(()=>b.textContent='Sao chép',1400)})}function burnUpdate(){const e=+document.getElementById('errorRate').value,s=+document.getElementById('slo').value,a=1-s/100,b=e/100/a;document.getElementById('errorOut').textContent=e.toFixed(1)+'%';document.getElementById('burnOut').textContent=b.toFixed(1)+'×';document.getElementById('allowOut').textContent=(a*100).toFixed(2)+'%';const badge=document.getElementById('burnBadge');badge.textContent=b>=10?'Nguy cơ cao':b>=2?'Cần theo dõi':'Bình thường';badge.style.background=b>=10?'#fee2e2':b>=2?'#fef3c7':'#d1fae5'}document.getElementById('errorRate').oninput=burnUpdate;document.getElementById('slo').onchange=burnUpdate;burnUpdate();function plot(id,series,labels,colors){const svg=document.getElementById(id),NS='http://www.w3.org/2000/svg',W=700,H=230,L=52,R=18,T=14,B=35;svg.replaceChildren();const n=series[0].length,max=Math.max(1,...series.flat())*1.12;function add(tag,attrs,txt){let el=document.createElementNS(NS,tag);for(let k in attrs)el.setAttribute(k,attrs[k]);if(txt!==undefined)el.textContent=txt;svg.append(el)}for(let j=0;j<=4;j++){let y=T+(H-T-B)*j/4;add('line',{x1:L,y1:y,x2:W-R,y2:y,class:'gridline'});add('text',{x:6,y:y+4},(max*(1-j/4)).toFixed(max>50?0:1))}series.forEach((vals,k)=>{let pts=vals.map((v,i)=>[L+i*(W-L-R)/(n-1),T+(H-T-B)*(1-v/max)]);add('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:colors[k], 'stroke-width':3,'stroke-linejoin':'round','stroke-linecap':'round'});pts.forEach(([x,y])=>add('circle',{cx:x,cy:y,r:3,fill:colors[k]}))});labels.forEach((x,i)=>add('text',{x:L+i*(W-L-R)/(n-1),y:H-13,'text-anchor':'middle'},x))}function diskUpdate(){let f=+document.getElementById('diskFree').value,g=+document.getElementById('diskGrowth').value,h=f/g;document.getElementById('diskFreeOut').textContent=f+' GB';document.getElementById('diskGrowthOut').textContent=g+' GB/giờ';document.getElementById('diskHours').textContent=h.toFixed(1)+' giờ';document.getElementById('diskHours').style.color=h<4?'#dc2626':'#164675';let values=Array.from({length:9},(_,i)=>Math.max(0,f*(1-i/8)));plot('diskChart',[values],Array.from({length:9},(_,i)=>(h*i/8).toFixed(1)+'h'),['#2563eb'])}document.getElementById('diskFree').oninput=diskUpdate;document.getElementById('diskGrowth').oninput=diskUpdate;diskUpdate();plot('rpsChart',[[850,940,1100,1250,1200,1180,1240]],['10:00','10:10','10:20','10:30','10:40','10:50','11:00'],['#2563eb']);plot('latencyChart',[[35,37,40,42,40,38,39],[110,115,130,140,135,128,130],[210,225,245,285,260,250,270]],['10:00','10:10','10:20','10:30','10:40','10:50','11:00'],['#0d9488','#9333ea','#ef4444']);let cs=[...document.querySelectorAll('.learningCheck')];cs.forEach(c=>c.onchange=()=>{let n=cs.filter(x=>x.checked).length;document.getElementById('progressText').textContent=n+'/'+cs.length;document.getElementById('progressFill').style.width=(100*n/cs.length)+'%'})</script><script src="assets/lesson-theme.js" defer></script></body></html>

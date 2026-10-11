@@ -1,0 +1,380 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><title>Bài 39 — Thiết kế hệ thống và xử lý sự cố ở mức Senior Linux Engineer</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0b1220;color:#e2e8f0;font:16px/1.76 system-ui,-apple-system,'Segoe UI',Arial,sans-serif;--bg:#0b1220;--panel:#111e30;--border:#304157;--text:#e2e8f0;--muted:#9caec2;--accent:#5eead4;--code:#09111d}body.light{--bg:#f7fafc;--panel:#fff;--border:#d9e1ea;--text:#17253a;--muted:#53657b;--accent:#0d766c;--code:#f0f4f8;background:var(--bg);color:var(--text)}body:not(.light){background:var(--bg);color:var(--text)}a{color:var(--accent)}.layout{display:grid;grid-template-columns:280px minmax(0,900px);gap:42px;max-width:1300px;margin:auto;padding:30px 26px}.sidebar{position:sticky;top:20px;align-self:start;height:calc(100vh - 40px);overflow:auto;border:1px solid var(--border);background:var(--panel);border-radius:15px;padding:20px}.sidebar h2{font-size:17px;margin:0 0 14px}.sidebar nav{display:grid;gap:3px}.sidebar a{font-size:13px;color:var(--muted);text-decoration:none;line-height:1.35;padding:6px 9px;border-radius:7px}.sidebar a:hover{background:rgba(94,234,212,.12);color:var(--accent)}.sidebar a.sub{padding-left:22px;font-size:12px}.main{min-width:0;padding-bottom:100px}.hero{padding:35px 0 30px;border-bottom:1px solid var(--border)}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.12em}h1{font-size:clamp(30px,4vw,46px);line-height:1.2;margin:16px 0 28px}h2{font-size:clamp(24px,3vw,31px);line-height:1.3;margin:60px 0 20px;padding-bottom:12px;border-bottom:1px solid var(--border);color:var(--accent)}h3{font-size:22px;line-height:1.4;margin:36px 0 14px}h4{font-size:18px;margin:23px 0 12px}p{margin:12px 0 18px}strong,b{color:var(--text)}li{padding-left:3px;margin:7px 0}ul,ol{padding-left:25px}code{font:0.91em ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--panel);padding:2px 5px;border-radius:4px;color:var(--accent)}.code{margin:22px 0;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--code)}.codebar{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--panel);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}button{cursor:pointer;border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);background:var(--panel);font:inherit}button:hover:not(:disabled){border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}.codebar button{padding:3px 9px;font-size:12px}pre{margin:0;overflow:auto;padding:18px 20px;line-height:1.6;font-size:13px}pre code{padding:0;background:none;color:var(--text);font-size:inherit}.tablewrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:12px}table{border-collapse:collapse;width:100%;font-size:14px;min-width:530px}th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}th{background:var(--panel);font-weight:750}tr:last-child td{border-bottom:0}aside{margin:25px 0;padding:18px 22px;border-left:4px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0}.diagram{border:1px solid var(--border);border-radius:13px;padding:16px;background:var(--panel);margin:22px 0;text-align:center}.diagram svg{display:block;max-width:440px;width:100%;max-height:400px;margin:auto}.diagram figcaption{font-size:13px;color:var(--muted)}svg text{font-family:system-ui,sans-serif;font-size:11px;fill:var(--text)}svg text.small{font-size:9px}svg .node{fill:#64748b22;stroke:#94a3b8}svg .teal{fill:#0d948822;stroke:#0d9488}svg .blue{fill:#3b82f622;stroke:#3b82f6}svg .orange{fill:#f59e0b22;stroke:#d97706}svg .red{fill:#ef444422;stroke:#ef4444}svg .line{fill:none;stroke:#94a3b8;stroke-width:1.8}svg .return{fill:none;stroke:#0d9488;stroke-width:1.5;stroke-dasharray:5 3}svg .connected{fill:none;stroke:#0d9488;stroke-width:2.5;transition:.25s}svg .disconnected{fill:none;stroke:#ef4444;stroke-width:1.5;stroke-dasharray:4 4}.twodiagram{display:grid;grid-template-columns:1fr 1fr;gap:15px}.twodiagram .diagram{margin:0}.widget{margin:24px 0;padding:22px;border:1px solid var(--border);border-radius:14px;background:var(--panel)}.widget h4{margin:0 0 16px}.widget label{display:block;margin:14px 0;font-size:14px}.widget input[type=range]{display:block;width:100%;accent-color:#0d9488;margin-top:10px}.widget output{font-weight:800}.result{padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:9px;margin:12px 0;font-size:14px}.result strong{display:block;font-size:23px}.result small,.widget small{display:block;color:var(--muted)}.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.warning{border-color:#ef8e63;color:#f6a989}.formula{text-align:center;padding:20px;background:var(--panel);border:1px solid var(--border);border-radius:10px;font-size:24px;margin:22px 0}.steps{border-left:2px solid var(--accent);margin:20px 0 20px 14px;padding-left:25px}.steps>div{position:relative;margin:20px 0}.steps>div:before{content:'';position:absolute;left:-33px;top:7px;background:var(--accent);border-radius:50%;width:14px;height:14px}.steps p{margin:3px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button.active{background:#0d9488;color:white;border-color:#0d9488}.widget>svg{max-width:520px;width:100%;display:block;margin:auto}.quiztop{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:13px}.quiztop h4{margin:0}.progress{height:6px;border-radius:10px;background:var(--border);overflow:hidden;margin:12px 0 20px}.progress>div{height:100%;background:#0d9488;transition:width .2s}.choice{padding:10px 12px;border:1px solid var(--border);border-radius:9px;cursor:pointer}.choice:has(input:checked){border-color:#0d9488}.choice input,.checkitems input{accent-color:#0d9488}.actions{display:flex;justify-content:space-between;gap:10px}.checkitems label{display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border);padding:9px 0;margin:0}.checkitems label:last-child{border:0}.checkitems input{margin-top:6px}.toolbar{display:flex;gap:8px;margin:10px 0}.toolbar button{font-size:12px;padding:7px 10px}.mobiletop{display:none}.footer{text-align:center;color:var(--muted);border-top:1px solid var(--border);padding:25px}h2,h3{scroll-margin-top:25px}@media(max-width:920px){.layout{display:block;padding:16px}.sidebar{display:none;position:fixed;z-index:9;top:60px;left:12px;right:12px;height:75vh;box-shadow:0 12px 60px #0009}.showtoc .sidebar{display:block}.mobiletop{display:flex;position:sticky;top:0;z-index:8;gap:8px;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--border)}.hero{padding-top:15px}}@media(max-width:500px){.twodiagram,.stats{grid-template-columns:1fr}.widget{padding:15px}table{font-size:13px}h1{font-size:29px}}@media print{body,body.light{background:white;color:black;--text:#111;--panel:#fff;--border:#ddd;--accent:#086c62;--code:#f5f5f5}.sidebar,.mobiletop,.toolbar,.codebar button{display:none!important}.layout{display:block;max-width:100%;padding:0}.main{padding:0}.widget,.diagram,.code,table{break-inside:avoid}h2,h3{break-after:avoid}pre{white-space:pre-wrap;word-break:break-word}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="39"><div class="mobiletop"><button id="tocBtn">☰ Mục lục</button><button onclick="window.print()">🖨 In / PDF</button></div><div class="layout"><aside class="sidebar"><h2>📘 Bài 39 · Mục lục</h2><div class="toolbar"><button id="themeBtn">☀ Chế độ sáng</button><button onclick="window.print()">🖨 In</button></div><nav id="toc"></nav></aside><main class="main"><header class="hero"><div class="eyebrow">CHUYÊN ĐỀ NÂNG CAO · LINUX · SYSTEM DESIGN · INCIDENT RESPONSE · SRE</div><h1>Bài 39 — Thiết kế hệ thống và xử lý sự cố ở mức Senior Linux Engineer</h1><p>Bài 39 là nơi chúng ta kết nối gần như toàn bộ kiến thức đã học về Linux: process, thread, memory, filesystem, network, systemd, container, virtualization, performance, debugging và kernel.</p><p>Ở những bài trước, chúng ta chủ yếu trả lời câu hỏi: <strong>“Linux hoạt động như thế nào?”</strong></p><p>Nhưng khi làm việc ở mức Senior, câu hỏi quan trọng hơn là: <strong>“Khi một hệ thống phức tạp gặp sự cố, làm thế nào xác định đúng nguyên nhân, giảm thiểu ảnh hưởng, khôi phục an toàn và ngăn sự cố lặp lại?”</strong></p><p>Đây là hai năng lực khác nhau. Một kỹ sư có thể biết hàng trăm lệnh Linux nhưng vẫn xử lý incident kém nếu không biết xây dựng giả thuyết, phân tích bằng chứng và kiểm soát rủi ro.</p></header>
+<h2>Phần I — Tư duy của Senior Engineer</h2>
+<h3>1. Vì sao biết nhiều lệnh Linux vẫn chưa đủ?</h3>
+<p>Hãy tưởng tượng bạn đang quản lý hệ thống bán hàng trực tuyến. Hệ thống có kiến trúc như sau:</p>
+<div class="diagram"><svg viewBox="0 0 340 350" role="img" aria-label="Users đến Nginx, hai backend, database và disk"><rect x="104" y="8" width="132" height="39" rx="8" class="node"/><text x="170" y="24" text-anchor="middle">Users</text><text x="170" y="37" text-anchor="middle" class="small">HTTP requests</text><path d="M170 47 V78" class="line"/><rect x="91" y="78" width="158" height="43" rx="8" class="teal"/><text x="170" y="95" text-anchor="middle">Nginx Reverse Proxy</text><text x="170" y="109" text-anchor="middle" class="small">Routing / Timeout</text><path d="M170 121 V141 M85 141 H255 M85 141 V164 M255 141 V164" class="line"/><rect x="18" y="164" width="134" height="51" rx="8" class="blue"/><rect x="188" y="164" width="134" height="51" rx="8" class="blue"/><text x="85" y="184" text-anchor="middle">Backend A</text><text x="85" y="198" text-anchor="middle" class="small">API Instance</text><text x="255" y="184" text-anchor="middle">Backend B</text><text x="255" y="198" text-anchor="middle" class="small">API Instance</text><path d="M85 215 V238 H170 M255 215 V238 H170 V261" class="line"/><rect x="91" y="262" width="158" height="43" rx="8" class="orange"/><text x="170" y="279" text-anchor="middle">Database</text><text x="170" y="292" text-anchor="middle" class="small">Connections / Storage</text><path d="M170 305 V324" class="line"/><rect x="116" y="324" width="108" height="22" rx="6" class="red"/><text x="170" y="339" text-anchor="middle" class="small">Disk / Volume</text></svg><figcaption>Sơ đồ logic đơn giản hóa: một request có thể phụ thuộc vào nhiều thành phần.</figcaption></div>
+<p>Một ngày, người dùng báo: “Website không thanh toán được. Có lúc báo 502, có lúc đợi rất lâu rồi timeout.”</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>top
+free -h
+df -h
+systemctl status backend</code></pre></div>
+<ul><li>CPU sử dụng 95%.</li><li>RAM sử dụng 80%.</li><li>Disk sử dụng 98%.</li><li>Backend vẫn đang <code>active (running)</code>.</li><li>Nginx xuất hiện nhiều lỗi <code>502 Bad Gateway</code>.</li></ul>
+<p><strong>Câu hỏi: Nguyên nhân là gì?</strong> Có thể là CPU quá tải, disk gần đầy, backend bị treo, database phản hồi chậm, Nginx cấu hình sai hoặc deployment mới. Nhưng tất cả mới chỉ là <strong>giả thuyết</strong>.</p>
+<p>CPU 95% không tự chứng minh CPU là nguyên nhân. Disk 98% không chứng minh thao tác ghi đã thất bại. Backend <code>active</code> không chứng minh backend còn phục vụ request. Đây là điểm phân biệt rất quan trọng giữa quan sát và kết luận.</p>
+<h3>2. Phân biệt triệu chứng, nguyên nhân và bằng chứng</h3>
+<div class="tablewrap"><table><thead><tr><th>Khái niệm</th><th>Ý nghĩa</th><th>Ví dụ</th></tr></thead><tbody><tr><td>Symptom</td><td>Triệu chứng người dùng hoặc hệ thống quan sát được</td><td>HTTP 502</td></tr><tr><td>Evidence</td><td>Dữ liệu có thể kiểm chứng</td><td><code>connect() failed (111: Connection refused)</code></td></tr><tr><td>Cause</td><td>Cơ chế dẫn tới lỗi</td><td>Backend không còn listener trên cổng 8080</td></tr><tr><td>Contributing factor</td><td>Yếu tố làm tăng khả năng hoặc mức độ sự cố</td><td>Không có readiness probe</td></tr><tr><td>Root cause</td><td>Nguyên nhân nền tảng được xác định trong phạm vi phân tích</td><td>Deploy lỗi khiến backend không khởi động, kiểm tra trước deploy không phát hiện</td></tr></tbody></table></div>
+<p>Ví dụ đời sống: một chiếc xe không khởi động. Triệu chứng: đề máy không nổ. Bằng chứng: điện áp ắc quy tụt mạnh khi đề. Nguyên nhân trực tiếp: nguồn điện không đủ để quay motor đề. Nguyên nhân nền tảng có thể là: ắc quy suy giảm hoặc hệ thống sạc bị lỗi.</p>
+<p>Nếu chỉ thay ắc quy mà không kiểm tra máy phát điện, lỗi có thể quay lại. Trong production cũng vậy. <strong>Senior Engineer không dừng lại ở việc làm lỗi biến mất. Họ tìm hiểu vì sao lỗi xuất hiện và vì sao hệ thống không ngăn chặn hoặc phát hiện sớm được lỗi đó.</strong></p>
+<h3>3. Tư duy hypothesis-driven troubleshooting</h3>
+<p>Thay vì chạy lệnh một cách ngẫu nhiên, hãy sử dụng chu trình:</p>
+<div class="diagram"><svg viewBox="0 0 340 115" role="img" aria-label="Quan sát đến giả thuyết, kiểm chứng, kết luận rồi lặp lại"><g><rect x="5" y="20" width="73" height="52" rx="8" class="node"/><text x="41" y="41" text-anchor="middle">Quan sát</text><text x="41" y="55" text-anchor="middle" class="small">Symptoms</text><rect x="90" y="20" width="73" height="52" rx="8" class="node"/><text x="126" y="41" text-anchor="middle">Giả thuyết</text><text x="126" y="55" text-anchor="middle" class="small">Hypothesis</text><rect x="175" y="20" width="73" height="52" rx="8" class="node"/><text x="211" y="41" text-anchor="middle">Kiểm chứng</text><text x="211" y="55" text-anchor="middle" class="small">Test</text><rect x="260" y="20" width="73" height="52" rx="8" class="teal"/><text x="296" y="41" text-anchor="middle">Kết luận</text><text x="296" y="55" text-anchor="middle" class="small">Decision</text><path d="M78 46 H90 M163 46 H175 M248 46 H260" class="line"/><path d="M296 72 V99 H41 V72" class="return"/><text x="170" y="92" text-anchor="middle" class="small">Lặp lại nếu chưa đủ bằng chứng</text></g></svg></div>
+<p><strong>Quan sát:</strong> Nginx trả 502. <strong>Giả thuyết A:</strong> Backend đã dừng. <strong>Kiểm chứng:</strong></p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl status backend
+ss -lntp
+curl -v http://127.0.0.1:8080/health</code></pre></div>
+<p>Nếu backend không có socket LISTEN và log cho thấy lỗi khởi động, giả thuyết được củng cố. <strong>Giả thuyết B:</strong> Backend vẫn chạy nhưng xử lý request quá chậm.</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -sS -o /dev/null \
+  -w &#x27;HTTP=%{http_code} TIME=%{time_total}\n&#x27; \
+  --max-time 10 \
+  http://127.0.0.1:8080/health</code></pre></div>
+<p>Nếu endpoint trả 200 trong 10 ms, ta vẫn chưa thể kết luận toàn bộ backend khỏe mạnh. Endpoint <code>/health</code> có thể không truy cập database, trong khi <code>/checkout</code> lại phụ thuộc database.</p>
+<aside><strong>Câu hỏi phản biện:</strong> Nếu <code>/health</code> trả 200, nhưng <code>/checkout</code> trả 500, bạn sẽ kết luận backend khỏe hay lỗi?<p>Backend có thể khỏe ở một số chức năng nhưng không đáp ứng đúng chức năng nghiệp vụ cần thiết.</p></aside>
+<ul><li>Liveness: process có còn sống không?</li><li>Readiness: instance có sẵn sàng nhận traffic không?</li><li>Functional health: chức năng nghiệp vụ quan trọng có hoạt động không?</li><li>User-facing SLI: trải nghiệm thực tế của người dùng có đạt yêu cầu không?</li></ul>
+<h2>Phần II — System Design và Failure Domain</h2>
+<h3>4. Failure domain là gì?</h3>
+<p>Failure domain là phạm vi những thành phần có thể cùng bị ảnh hưởng bởi một sự cố chung. Hãy tưởng tượng một tòa chung cư có hai thang máy. Một motor thang máy hỏng thì thang còn lại có thể hoạt động. Nhưng nếu cả hai dùng chung nguồn điện và tòa nhà mất điện, cả hai cùng ngừng. Hai thang không độc lập đối với failure domain là nguồn điện.</p>
+<h3>5. Hai instance không nhất thiết tạo ra High Availability</h3>
+<div class="twodiagram"><div class="diagram"><b>Thiết kế A</b><svg viewBox="0 0 150 142"><rect x="8" y="8" width="134" height="122" rx="10" class="red" stroke-dasharray="5 4"/><text x="75" y="26" text-anchor="middle">Host 1</text><rect x="22" y="38" width="106" height="31" rx="6" class="blue"/><text x="75" y="57" text-anchor="middle">Backend A</text><rect x="22" y="77" width="106" height="31" rx="6" class="blue"/><text x="75" y="96" text-anchor="middle">Backend B</text></svg><figcaption>Host hỏng → cả hai instance mất.</figcaption></div><div class="diagram"><b>Thiết kế B</b><svg viewBox="0 0 150 142"><rect x="4" y="8" width="67" height="122" rx="8" class="teal" stroke-dasharray="4 3"/><rect x="79" y="8" width="67" height="122" rx="8" class="teal" stroke-dasharray="4 3"/><text x="37" y="30" text-anchor="middle">Host 1</text><text x="112" y="30" text-anchor="middle">Host 2</text><rect x="9" y="46" width="57" height="49" rx="5" class="blue"/><rect x="84" y="46" width="57" height="49" rx="5" class="blue"/><text x="37" y="65" text-anchor="middle">Backend</text><text x="37" y="78" text-anchor="middle">A</text><text x="112" y="65" text-anchor="middle">Backend</text><text x="112" y="78" text-anchor="middle">B</text></svg><figcaption>Chịu được lỗi một host, nếu đủ capacity.</figcaption></div></div>
+<p>Nhưng thiết kế B vẫn có thể có các điểm hỏng chung:</p>
+<ul><li>Hai host nằm trên cùng nguồn điện.</li><li>Hai VM dùng chung storage backend.</li><li>Cả hai backend truy cập một database duy nhất.</li><li>Cùng sử dụng một DNS hoặc load balancer.</li><li>Cùng nhận một bản deployment lỗi.</li><li>Cùng phụ thuộc một hệ thống xác thực.</li></ul>
+<p><strong>Software deployment cũng có thể tạo ra một failure domain.</strong> Bạn có 20 replica trên 20 server, nhưng triển khai đồng thời một cấu hình sai lên cả 20: toàn bộ hệ thống lỗi. Về phần cứng đã phân tán rủi ro; về thay đổi phần mềm thì chưa.</p>
+<h3>6. Phân biệt High Availability, Fault Tolerance và Disaster Recovery</h3>
+<div class="tablewrap"><table><thead><tr><th>Thuật ngữ</th><th>Mục tiêu</th><th>Ví dụ</th></tr></thead><tbody><tr><td>High Availability (HA)</td><td>Giảm downtime khi thành phần hỏng</td><td>Backend có nhiều replica</td></tr><tr><td>Fault Tolerance (FT)</td><td>Tiếp tục đáp ứng yêu cầu khi một số lỗi xảy ra</td><td>Hệ thống chịu được mất một node theo thiết kế</td></tr><tr><td>Disaster Recovery (DR)</td><td>Khôi phục sau thảm họa lớn</td><td>Restore sang region khác</td></tr><tr><td>Backup</td><td>Lưu bản dữ liệu có thể khôi phục</td><td>Snapshot và bản backup định kỳ</td></tr><tr><td>Replication</td><td>Duy trì bản sao dữ liệu</td><td>Primary và replica database</td></tr></tbody></table></div>
+<h4>Tại sao replication không thay thế backup?</h4>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Primary DB  ───────replication──────▶ Replica DB</code></pre></div>
+<p>Một lập trình viên vô tình chạy:</p>
+<div class="code"><div class="codebar"><span>sql</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>DELETE FROM orders;</code></pre></div>
+<p>Nếu replication hoạt động bình thường, thao tác xóa có thể được truyền sang replica. Bạn có hai database cùng mất dữ liệu. Replication giúp xử lý một số lỗi hạ tầng, nhưng không mặc nhiên bảo vệ trước xóa nhầm, corruption logic hoặc ransomware. Backup cần retention, tính độc lập và khả năng restore đã kiểm chứng.</p>
+<h3>7. RPO và RTO — Hai thông số không thể bỏ qua</h3>
+<p><strong>RPO (Recovery Point Objective)</strong> là mức mất dữ liệu tối đa tổ chức chấp nhận theo mục tiêu thiết kế. <strong>RTO (Recovery Time Objective)</strong> là thời gian mục tiêu để khôi phục dịch vụ sau sự cố. Ví dụ RPO = 5 phút, RTO = 30 phút: mục tiêu không mất quá 5 phút dữ liệu và khôi phục trong 30 phút đối với kịch bản được xác định. Đây là mục tiêu, không phải cam kết hệ thống chắc chắn đáp ứng.</p>
+<div class="widget"><h4>🎛 Mô phỏng RPO / RTO</h4><label>RPO — Mất dữ liệu tối đa theo mục tiêu: <output id="rpoVal">5</output> phút<input id="rpo" type="range" min="0" max="60" step="5" value="5"></label><label>RTO — Thời gian khôi phục mục tiêu: <output id="rtoVal">30</output> phút<input id="rto" type="range" min="5" max="240" step="5" value="30"></label><div class="result" id="rpoResult"></div><small>Minh họa đơn giản cho sự cố tại 12:00, không phải kết quả đo thực tế.</small></div>
+<aside><strong>Câu hỏi senior:</strong> Nếu business yêu cầu RPO bằng 0, chỉ backup mỗi giờ có đáp ứng được không? <strong>Không.</strong> Cần thiết kế bổ sung, ví dụ đồng bộ bền vững theo mô hình phù hợp, và xem xét trade-off latency, availability và chi phí.</aside>
+<h2>Phần III — Capacity Planning và Headroom</h2>
+<h3>8. Vì sao hệ thống hoạt động tốt hôm nay vẫn có thể sập ngày mai?</h3>
+<p>Giả sử hệ thống có 4 backend instance, mỗi instance xử lý bền vững 250 request/giây trong điều kiện đã kiểm thử, peak traffic 800 request/giây.</p>
+<div class="formula">C<sub>total</sub> = 4 × 250 = 1000 RPS<br>U = (800 / 1000) × 100% = 80%</div>
+<p>Bạn có thể nghĩ 80% là an toàn. Nhưng nếu một instance hỏng?</p>
+<div class="formula">C<sub>remaining</sub> = 3 × 250 = 750 RPS</div>
+<p>Trong khi peak traffic vẫn là 800 RPS, hệ thống không còn đủ capacity theo mô hình.</p>
+<h3>9. Mô phỏng N-1 Capacity</h3>
+<p>N-1 nghĩa là hệ thống phải chịu được việc mất một đơn vị tài nguyên được chọn, chẳng hạn một backend instance.</p>
+<div class="widget"><h4>🎛 Capacity Simulator — Mất một backend</h4><label>Số instance: <output id="replicasVal">4</output><input id="replicas" type="range" min="2" max="12" value="4"></label><label>Capacity mỗi instance: <output id="perNodeVal">250</output> RPS<input id="perNode" type="range" min="100" max="500" step="50" value="250"></label><label>Peak traffic: <output id="trafficVal">800</output> RPS<input id="traffic" type="range" min="100" max="2500" step="50" value="800"></label><div class="stats"><div class="result">Capacity bình thường<strong id="normalCap">1000 RPS</strong><small id="normalPct">80% tải</small></div><div class="result">Capacity khi mất 1 node<strong id="failCap">750 RPS</strong><small id="failPct">107% tải</small></div></div><div class="result" id="capacityVerdict"></div><small>Mô hình giả định capacity tuyến tính, load balancing đều và không có bottleneck chung. Thực tế cần kiểm thử tải và giới hạn latency.</small></div>
+<h4>Vấn đề sâu hơn: Vì sao tăng replica có thể không giải quyết được lỗi?</h4>
+<p>Giả sử backend tăng từ 4 lên 10 instance, mỗi instance mở tối đa 50 connection tới database. Trước scale: 4 × 50 = 200 connections. Sau scale: 10 × 50 = 500 connections. Nhưng database chỉ cho phép 300 connections. Bạn đã tăng năng lực xử lý ở tầng backend nhưng có thể làm database chịu áp lực lớn hơn.</p>
+<p>Đây là <strong>bottleneck migration</strong> — điểm nghẽn chuyển từ thành phần này sang thành phần khác. Nó liên quan đến Little’s Law, queueing theory, connection pooling, backpressure, load shedding và rate limiting.</p>
+<h3>10. Little’s Law và hàng đợi</h3>
+<div class="formula">L = λW</div>
+<p>Trong đó L là số request trung bình đang nằm trong hệ thống, λ là throughput trung bình, W là thời gian trung bình mỗi request ở trong hệ thống.</p>
+<p>Nếu throughput 100 request/giây và thời gian trung bình 0,2 giây, L = 100 × 0,2 = 20 request. Nếu latency tăng lên 2 giây nhưng throughput vẫn là 100 request/giây, L = 100 × 2 = 200 request. Trong điều kiện ổn định phù hợp với định luật, số request đồng thời tăng gấp 10.</p>
+<ul><li>Nhiều connection bị giữ lâu.</li><li>Bộ nhớ cho request tăng.</li><li>Thread pool đầy.</li><li>Queue tăng.</li><li>Timeout xuất hiện.</li><li>Retry làm tải tăng thêm.</li></ul>
+<p>Điều này giải thích vì sao một hệ thống có thể chuyển từ chậm sang sập rất nhanh khi tiến gần ngưỡng bão hòa.</p>
+<h2>Phần IV — Incident Management</h2>
+<h3>11. Incident là gì?</h3>
+<p>Incident là sự kiện làm gián đoạn hoặc suy giảm chất lượng dịch vụ, hoặc tạo ra rủi ro đáng kể đối với mục tiêu vận hành. Không phải mọi lỗi trong log đều là incident.</p>
+<ul><li>Một request lỗi do người dùng gửi dữ liệu không hợp lệ: thường chưa phải incident.</li><li>40% request thanh toán thất bại: rõ ràng là incident.</li><li>Một disk có lỗi SMART nhưng chưa ảnh hưởng dịch vụ: có thể cần xử lý phòng ngừa tùy chính sách.</li><li>Toàn bộ authentication service ngừng hoạt động: incident nghiêm trọng.</li></ul>
+<p>Điểm mấu chốt là <strong>ảnh hưởng và rủi ro</strong>, không chỉ sự tồn tại của error log.</p>
+<h3>12. Các giai đoạn xử lý incident</h3>
+<div class="steps"><div><b>1. Detect — Phát hiện</b><p>Alert, người dùng báo lỗi, synthetic monitoring hoặc metric vượt ngưỡng.</p></div><div><b>2. Assess — Đánh giá ảnh hưởng</b><p>Chức năng nào lỗi, bao nhiêu người dùng bị ảnh hưởng, bắt đầu khi nào?</p></div><div><b>3. Mitigate — Giảm ảnh hưởng</b><p>Rollback, chuyển traffic, giảm tải hoặc cô lập thành phần lỗi.</p></div><div><b>4. Investigate — Điều tra</b><p>Thu thập bằng chứng, kiểm chứng giả thuyết và dựng timeline.</p></div><div><b>5. Recover — Khôi phục</b><p>Kiểm tra chức năng người dùng, latency, error rate và tính nhất quán dữ liệu.</p></div><div><b>6. Learn — Rút kinh nghiệm</b><p>Postmortem, action items, cải tiến runbook và kiểm chứng.</p></div></div>
+<p>Các bước không nhất thiết tuần tự tuyệt đối. Mitigation và investigation có thể chạy song song.</p>
+<h3>13. Vì sao phải ưu tiên mitigation trước root cause?</h3>
+<p>Giả sử hệ thống thanh toán đang lỗi, mỗi phút ảnh hưởng hàng nghìn giao dịch. A: phân tích source code trong 2 giờ để tìm lỗi chính xác. B: rollback deployment vừa phát hành, đã xác minh bản cũ tương thích, và khôi phục trong 5 phút. B thường hợp lý hơn nếu rollback có rủi ro chấp nhận được.</p>
+<aside><strong>Câu hỏi phản biện: Rollback có luôn an toàn không?</strong> Không. Nếu deployment mới đã thay đổi schema database, backend cũ có thể không còn tương thích.</aside>
+<div class="code"><div class="codebar"><span>sql</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ALTER TABLE orders DROP COLUMN legacy_status;</code></pre></div>
+<p>Nếu bản backend cũ vẫn cần <code>legacy_status</code>, rollback code có thể khiến lỗi nặng hơn. Một hệ thống production tốt cần chiến lược database migration tương thích ngược, ví dụ expand-and-contract, và kế hoạch rollback đã kiểm tra.</p>
+<h2>Phần V — Evidence-Driven Debugging</h2>
+<h3>14. Vì sao không nên restart ngay khi thấy lỗi?</h3>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>systemctl restart backend</code></pre></div>
+<p>Sau restart, backend chạy lại bình thường. Nhưng bạn có thể vừa xóa mất một phần bằng chứng quan trọng:</p>
+<ul><li>Heap memory bị leak trước restart.</li><li>Thread đang deadlock.</li><li>FD đang giữ file đã unlink.</li><li>Socket backlog tăng bất thường.</li><li>Process có trạng thái đặc biệt trong <code>/proc</code>.</li><li>Các counter trong process được reset.</li></ul>
+<p>Restart có thể là mitigation hợp lý, nhưng không tự chứng minh nguyên nhân. <strong>Thu thập bằng chứng tối thiểu có giá trị trước hành động phá hủy trạng thái, miễn là việc thu thập không làm chậm quá mức giảm ảnh hưởng.</strong></p>
+<h3>15. Evidence bundle gồm những gì?</h3>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>incident-2026-10-11/
+├── timeline.md
+├── service-status.txt
+├── journal.log
+├── kernel.log
+├── processes.txt
+├── sockets.txt
+├── disk.txt
+├── memory.txt
+├── cgroup.txt
+├── versions.txt
+├── deployment-info.txt
+└── postmortem.md</code></pre></div>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>date --iso-8601=seconds
+uptime
+free -h
+df -h
+df -i
+ps aux --sort=-%cpu | head -20
+ss -lntp
+journalctl -b -n 200 --no-pager
+dmesg -T | tail -100</code></pre></div>
+<ul><li>Một số lệnh cần quyền phù hợp.</li><li><code>dmesg -T</code> có thể không phù hợp để dựng timeline chính xác khi đồng hồ thay đổi.</li><li>Log có thể chứa token, thông tin cá nhân và bí mật.</li><li>Không thu thập hoặc chia sẻ toàn bộ dữ liệu nhạy cảm một cách tùy tiện.</li><li>Lệnh quan sát cũng tiêu thụ tài nguyên; trên hệ thống quá tải, cần giới hạn phạm vi và chi phí thu thập.</li></ul>
+<h3>16. Timeline quan trọng hơn trí nhớ</h3>
+<div class="tablewrap"><table><thead><tr><th>Thời điểm</th><th>Sự kiện</th></tr></thead><tbody><tr><td>10:00:00</td><td>Deploy backend version 2.4</td></tr><tr><td>10:02:15</td><td>Error rate bắt đầu tăng</td></tr><tr><td>10:03:20</td><td>Alert được kích hoạt</td></tr><tr><td>10:05:00</td><td>On-call bắt đầu điều tra</td></tr><tr><td>10:08:00</td><td>Phát hiện database connection pool đầy</td></tr><tr><td>10:10:00</td><td>Giảm traffic vào phiên bản mới</td></tr><tr><td>10:13:00</td><td>Error rate giảm</td></tr><tr><td>10:20:00</td><td>Xác minh các giao dịch quan trọng hoạt động</td></tr></tbody></table></div>
+<p>Nhìn timeline, deployment là một nghi vấn mạnh. Nhưng tương quan thời gian không đủ chứng minh nhân quả. Cần hỏi: version mới có đổi connection pool không? Có tăng query trên mỗi request không? Database log cho thấy gì? Rollback có thực sự làm pool trở lại bình thường không? Có sự kiện khác cùng thời điểm không?</p>
+<p>Đây là cách tránh <strong>confirmation bias</strong> — chỉ tìm bằng chứng ủng hộ điều mình đã tin.</p>
+<h2>Phần VI — Lab: File đã xóa nhưng disk vẫn đầy</h2>
+<h3>17. Bài toán thực tế</h3>
+<p>Một server Linux có disk gần đầy. Bạn kiểm tra:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>df -h</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Filesystem   Size  Used  Avail Use% Mounted on
+/dev/sda1     20G   19G   1.0G  95% /</code></pre></div>
+<p>Bạn dùng:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>du -sh /var/log</code></pre></div>
+<p>Nhưng dung lượng các file đang thấy trong <code>/var/log</code> không giải thích được toàn bộ dung lượng <code>df</code> báo đã dùng. Bạn xóa log lớn, nhưng <code>df -h</code> vẫn gần như không đổi. <strong>Tại sao?</strong></p>
+<h3>18. File trong Linux không đơn giản là tên file</h3>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Filename
+   |
+   v
+Directory Entry
+   |
+   v
+Inode
+   |
+   v
+Data Blocks</code></pre></div>
+<p>Tên file là entry trong directory tham chiếu tới inode. Inode chứa metadata và thông tin liên quan dữ liệu file. Khi process mở file, kernel tạo hoặc sử dụng cấu trúc quản lý file đang mở, process giữ file descriptor trỏ tới open file description. File có thể không còn tên trong directory nhưng vẫn được process sử dụng.</p>
+<h3>19. Điều gì xảy ra khi unlink?</h3>
+<div class="code"><div class="codebar"><span>c</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>int fd = open(&quot;app.log&quot;, O_WRONLY);
+unlink(&quot;app.log&quot;);</code></pre></div>
+<ul><li>Directory entry <code>app.log</code> bị loại bỏ.</li><li>Nếu không còn hard link khác, link count của inode về 0.</li><li>Process vẫn có thể ghi qua <code>fd</code>.</li><li>Dữ liệu chưa nhất thiết được giải phóng vì file vẫn còn được mở.</li></ul>
+<p>Đây không phải lỗi Linux mà là hành vi được thiết kế. Ví dụ đời sống: bạn đang đọc sách mượn từ thư viện. Nhân viên xóa tên sách khỏi danh mục, nhưng quyển sách trên tay bạn không biến mất. Chỉ khi không còn ai giữ và thư viện không còn lý do lưu, không gian mới có thể thu hồi.</p>
+<h3>20. Mô phỏng vòng đời file</h3>
+<div class="widget"><h4>🎛 Mô phỏng inode và file descriptor</h4><div class="tabs" role="group" aria-label="Trạng thái file"><button class="active" data-stage="open">File đang mở</button><button data-stage="unlinked">Đã unlink</button><button data-stage="closed">Đóng FD</button></div><svg viewBox="0 0 330 182" role="img" aria-label="Process FD, inode, data blocks và directory entry"><rect x="9" y="16" width="92" height="47" rx="7" class="blue"/><text x="55" y="34" text-anchor="middle">Process</text><text x="55" y="49" text-anchor="middle">FD = 3</text><rect x="120" y="16" width="91" height="47" rx="7" class="node"/><text x="165" y="34" text-anchor="middle">Inode</text><text x="165" y="49" text-anchor="middle">#12345</text><rect x="229" y="16" width="92" height="47" rx="7" class="orange"/><text x="275" y="34" text-anchor="middle">Data blocks</text><text x="275" y="49" text-anchor="middle">32 MiB</text><path id="fdLinks" d="M101 39 H120 M211 39 H229" class="connected"/><path id="deletedCross" d="M239 20 L312 59 M312 20 L239 59" stroke="#ef4444" stroke-width="2" style="display:none"/><rect x="87" y="102" width="156" height="39" rx="7" class="node"/><text x="165" y="119" text-anchor="middle">Directory entry</text><text id="dirName" x="165" y="132" text-anchor="middle">deleted-open.bin</text><path id="dirLink" d="M165 102 V63" class="connected"/><text id="stageCaption" x="165" y="166" text-anchor="middle" class="small">Tên file và FD cùng tham chiếu dữ liệu</text></svg><p class="result" id="stageDescription"></p></div>
+<h3>21. Lab thực hành an toàn</h3>
+<aside>Chỉ thực hiện trong VM hoặc môi trường lab. Không dùng phân vùng production đang thiếu dung lượng.</aside>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>mkdir -p ~/linux-lab</code></pre></div>
+<p>Tạo file <code>deleted_open.py</code>:</p>
+<div class="code"><div class="codebar"><span>python</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>from pathlib import Path
+import os
+
+path = Path.home() / &quot;linux-lab&quot; / &quot;deleted-open.bin&quot;
+
+with path.open(&quot;wb&quot;) as f:
+    for _ in range(32):
+        f.write(b&quot;x&quot; * (1024 * 1024))
+
+    f.flush()
+    os.fsync(f.fileno())
+
+    print(
+        &quot;PID&quot;, os.getpid(),
+        &quot;path&quot;, path,
+        flush=True
+    )
+
+    path.unlink()
+
+    input(
+        &quot;File unlinked, FD still open. &quot;
+        &quot;Enter to close...&quot;
+    )</code></pre></div>
+<p>Chạy ở terminal thứ nhất:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>python3 deleted_open.py</code></pre></div>
+<p>Lưu PID được in ra. Ở terminal thứ hai:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>lsof +L1</code></pre></div>
+<p>Hoặc:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ls -l /proc/&lt;PID&gt;/fd</code></pre></div>
+<p>Thay <code>&lt;PID&gt;</code> bằng PID thực tế. Bạn có thể thấy FD trỏ đến file với hậu tố <code>(deleted)</code>. So sánh:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>du -sh ~/linux-lab
+df -h ~</code></pre></div>
+<p>Khi nhấn Enter ở terminal thứ nhất, file được đóng và dung lượng có thể được thu hồi.</p>
+<h4>Một điểm kỹ thuật cần hiểu sâu</h4>
+<div class="tablewrap"><table><thead><tr><th>Công cụ</th><th>Đo gì?</th></tr></thead><tbody><tr><td><code>du</code></td><td>Dung lượng được quy cho các file có thể duyệt qua đường dẫn</td></tr><tr><td><code>df</code></td><td>Thông tin sử dụng và còn trống của filesystem</td></tr><tr><td><code>lsof +L1</code></td><td>File đang mở có link count nhỏ hơn 1, thường là file đã unlink</td></tr><tr><td><code>/proc/PID/fd</code></td><td>Các FD process đang giữ</td></tr></tbody></table></div>
+<p>Không phải mọi chênh lệch <code>df</code> và <code>du</code> đều do deleted-open file. Nguyên nhân khác: reserved blocks, filesystem metadata, snapshot, mount che khuất directory, filesystem accounting, delayed allocation hoặc COW.</p>
+<aside><strong>Câu hỏi phản biện:</strong> Nếu <code>lsof +L1</code> không có kết quả, có thể kết luận filesystem không có vấn đề không? <strong>Không.</strong> Bạn mới chỉ loại trừ được một nhóm nguyên nhân trong phạm vi quan sát và quyền truy cập hiện tại.</aside>
+<h3>22. Xử lý sự cố deleted-open file trong production</h3>
+<p>Không nên lập tức:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>kill -9 &lt;PID&gt;</code></pre></div>
+<p>Process đó có thể là database, application quan trọng hoặc daemon đang phục vụ người dùng.</p>
+<ol><li>Xác định process sở hữu FD.</li><li>Xác định file thuộc loại dữ liệu gì.</li><li>Kiểm tra process có hỗ trợ reopen log không.</li><li>Xác định tác động nếu restart.</li><li>Chọn biện pháp giảm ảnh hưởng có kiểm soát.</li><li>Xác minh disk usage và tình trạng dịch vụ sau thao tác.</li></ol>
+<p>Một số daemon có cơ chế reopen log bằng signal, nhưng signal và hành vi cụ thể phụ thuộc ứng dụng. Không được giả định mọi process hỗ trợ <code>SIGHUP</code> giống nhau.</p>
+<h2>Phần VII — Phân tích tình huống 502, CPU cao và disk đầy</h2>
+<h3>23. Một sự cố, nhiều triệu chứng</h3>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Nginx → Backend → Database</code></pre></div>
+<p>Dashboard cho thấy HTTP 502 tăng mạnh, CPU load cao, disk gần đầy, backend process vẫn tồn tại. Kết luận “Disk đầy gây 502, xóa log là xong” chưa được chứng minh.</p>
+<h3>24. Ba giả thuyết chính</h3>
+<div class="tablewrap"><table><thead><tr><th>Giả thuyết</th><th>Dự đoán nếu đúng</th><th>Kiểm chứng</th></tr></thead><tbody><tr><td>Backend không chạy hoặc không listen</td><td>Kết nối trực tiếp bị refused</td><td><code>ss</code>, <code>curl</code>, <code>journalctl</code></td></tr><tr><td>Backend còn chạy nhưng bị timeout hoặc quota</td><td>Socket có thể tồn tại nhưng request chậm hoặc lỗi</td><td><code>curl</code>, cgroup, log</td></tr><tr><td>Nginx trỏ sai upstream</td><td>Backend trực tiếp khỏe nhưng qua proxy lỗi</td><td><code>nginx -T</code>, proxy error log</td></tr></tbody></table></div>
+<p>Ngoài ra có thể có DNS resolution lỗi, backend OOM, file descriptor exhaustion, connection pool exhaustion, disk inode exhaustion, database lock contention, network packet loss, CPU throttling hoặc TLS handshake lỗi ở upstream.</p>
+<h3>25. Cách kiểm tra có hệ thống</h3>
+<h4>Bước 1 — Xác nhận lỗi từ góc nhìn người dùng</h4>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -v \
+  --connect-timeout 3 \
+  --max-time 10 \
+  http://127.0.0.1/</code></pre></div>
+<p>Kiểm tra status code và latency.</p>
+<h4>Bước 2 — Kiểm tra trực tiếp backend</h4>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>curl -v \
+  --connect-timeout 3 \
+  --max-time 10 \
+  http://127.0.0.1:8080/health</code></pre></div>
+<p>Nếu proxy lỗi nhưng backend trực tiếp hoạt động, tập trung vào đường kết nối proxy–backend và các khác biệt về Host header, route, timeout, TLS, DNS hoặc cấu hình.</p>
+<h4>Bước 3 — Kiểm tra socket</h4>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>ss -lntp</code></pre></div>
+<p>Nếu backend dự kiến listen ở <code>127.0.0.1:8080</code> nhưng không có listener, kiểm tra service và log.</p>
+<h4>Bước 4 — Kiểm tra disk và inode</h4>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>df -h
+df -i</code></pre></div>
+<p>Filesystem có thể còn dung lượng dữ liệu nhưng hết inode khả dụng, khiến không tạo được file mới.</p>
+<h4>Bước 5 — Kiểm tra memory và cgroup</h4>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>free -h
+cat /proc/pressure/memory
+cat /proc/pressure/cpu</code></pre></div>
+<p>Trong cgroup v2, kiểm tra tại đúng đường dẫn cgroup của service:</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>cat memory.current
+cat memory.max
+cat memory.events
+cat cpu.stat
+cat cpu.max</code></pre></div>
+<p>Các file trên nằm trong thư mục cgroup tương ứng, không mặc định nằm trong working directory.</p>
+<h4>Bước 6 — Kiểm tra log</h4>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>journalctl -u backend \
+  --since &quot;10 minutes ago&quot; \
+  --no-pager</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>No space left on device
+Too many open files
+Connection refused
+Connection timed out
+Out of memory
+Permission denied</code></pre></div>
+<p>Không phải mọi thông điệp đều là nguyên nhân. Phải đặt chúng vào đúng thời gian và đường đi request.</p>
+<h2>Phần VIII — Phân biệt Load Average, CPU Usage và CPU Pressure</h2>
+<h3>26. Load cao có nghĩa CPU quá tải không?</h3>
+<p>Không nhất thiết. Load average phản ánh số task trung bình đang runnable hoặc ở trạng thái uninterruptible sleep trong khoảng thời gian tương ứng. Load cao có thể do CPU contention, I/O wait liên quan task ở trạng thái D, storage chậm hoặc task kẹt trong kernel.</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>uptime</code></pre></div>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>load average: 16.0, 15.5, 14.8</code></pre></div>
+<p>Nếu máy có 16 logical CPU, load 16 không tự chứng minh quá tải. Nếu máy chỉ có 2 logical CPU, load 16 là dấu hiệu cần điều tra nghiêm túc. Vẫn phải xem task đang làm gì.</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>vmstat 1</code></pre></div>
+<ul><li><code>r</code>: số task runnable.</li><li><code>b</code>: số task blocked.</li><li><code>us</code>: user CPU.</li><li><code>sy</code>: system CPU.</li><li><code>id</code>: idle CPU.</li><li><code>wa</code>: I/O wait.</li></ul>
+<p>Diễn giải các số liệu trong ngữ cảnh, không dùng một ngưỡng duy nhất cho mọi workload.</p>
+<h3>27. CPU throttling trong container</h3>
+<p>Container có thể chậm dù host còn CPU rảnh vì cgroup CPU quota giới hạn lượng CPU container được sử dụng.</p>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>cpu.max = 50000 100000</code></pre></div>
+<p>Quota 50.000 microsecond trong period 100.000 microsecond, tương đương 0,5 CPU theo cơ chế quota.</p>
+<div class="code"><div class="codebar"><span>bash</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>cat cpu.stat</code></pre></div>
+<p>Các counter như <code>nr_throttled</code> và <code>throttled_usec</code> giúp đánh giá throttling, nhưng cần xem delta theo thời gian, không chỉ giá trị tích lũy. Điểm này kết nối trực tiếp với Bài 36.</p>
+<h2>Phần IX — Thiết kế giải pháp, không chỉ sửa lỗi</h2>
+<h3>28. Sau khi tìm được nguyên nhân, nên thêm tài nguyên hay sửa phần mềm?</h3>
+<p>API chậm: A. Tăng RAM từ 8 GB lên 32 GB. B. Sửa truy vấn SQL đang quét toàn bộ bảng. Không thể kết luận chỉ từ việc API chậm. Nếu database full table scan không cần thiết, thêm RAM có thể chỉ che giấu vấn đề. Nếu query đã tối ưu nhưng working set vượt RAM và workload tăng trưởng hợp lý, tăng RAM có thể phù hợp.</p>
+<ul><li>CPU utilization và pressure.</li><li>Memory working set.</li><li>Page fault.</li><li>I/O latency.</li><li>Query execution plan.</li><li>Throughput.</li><li>P95/P99 latency.</li><li>Capacity trong failure scenario.</li><li>Chi phí và thời gian triển khai.</li></ul>
+<h3>29. Quyết định tăng tài nguyên cần chứng minh điều gì?</h3>
+<ol><li>Bottleneck đã được xác định bằng bằng chứng nào?</li><li>Tăng tài nguyên nào sẽ tác động tới bottleneck đó?</li><li>Dự kiến cải thiện bao nhiêu?</li><li>Có bottleneck khác xuất hiện sau khi scale không?</li><li>Giải pháp có đáp ứng N-1 không?</li><li>Cần kiểm thử như thế nào?</li><li>Khi nào phải rollback?</li></ol>
+<p>Không nên chỉ viết “Server CPU cao, đề xuất nâng lên 32 core”. Nên nêu: “Trong giờ cao điểm, CPU pressure và run queue tăng đồng thời với P99 latency. Profiling cho thấy phần lớn thời gian CPU nằm ở xử lý request có thể song song hóa. Load test trên cấu hình 32 vCPU cho thấy throughput tăng trong khi P99 vẫn dưới mục tiêu. Đề xuất mở rộng có kiểm soát, đồng thời theo dõi database connections và giới hạn rollback.”</p>
+<h2>Phần X — Postmortem</h2>
+<h3>30. Postmortem là gì?</h3>
+<p>Postmortem là tài liệu phân tích sự cố sau khi hệ thống đã được ổn định. Mục tiêu không phải tìm người để đổ lỗi, mà là hiểu chuyện gì xảy ra, cơ chế gây lỗi, vì sao không ngăn hoặc phát hiện sớm, điều gì giúp/cản trở khôi phục và hành động có thể kiểm chứng.</p>
+<h3>31. Mẫu postmortem thực tế</h3>
+<p><strong>Ví dụ giả định: Backend mất khả năng ghi log.</strong></p>
+<div class="tablewrap"><table><thead><tr><th>Trường</th><th>Nội dung</th></tr></thead><tbody><tr><td>Incident</td><td>INC-2026-001</td></tr><tr><td>Ảnh hưởng</td><td>35% request thanh toán thất bại trong 18 phút</td></tr><tr><td>Phát hiện</td><td>Error-rate alert</td></tr><tr><td>Cơ chế trực tiếp</td><td>Backend không xử lý đúng lỗi ghi file khi filesystem hết chỗ</td></tr><tr><td>Yếu tố góp phần</td><td>Log rotation thiếu kiểm tra; không có alert dung lượng phù hợp</td></tr><tr><td>Mitigation</td><td>Khôi phục dung lượng có kiểm soát và restart instance bị ảnh hưởng</td></tr><tr><td>Prevention</td><td>Sửa xử lý lỗi ghi log, cải tiến retention và alert</td></tr></tbody></table></div>
+<p><em>Đây là dữ liệu minh họa để học cách viết, không phải sự cố thực tế đã được xác minh.</em></p>
+<h3>32. Vì sao “do nhân viên cấu hình sai” không đủ?</h3>
+<p>Nếu chỉ viết “Root cause: Nhân viên sửa nhầm cấu hình”, bạn chưa trả lời tại sao cấu hình sai được chấp nhận, tại sao không có validation CI, tại sao triển khai đồng thời, không có canary, phát hiện chậm, rollback mất 30 phút.</p>
+<p>Một hệ thống tốt không nên phụ thuộc hoàn toàn vào việc mọi con người luôn thao tác chính xác.</p>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Action 1:
+Thêm nginx -t vào CI pipeline.
+Owner: Platform Team.
+Deadline: 2026-10-20.
+Verification: Pipeline từ chối cấu hình Nginx sai cú pháp.
+
+Action 2:
+Triển khai canary 5% traffic.
+Owner: SRE Team.
+Deadline: 2026-10-25.
+Verification: Canary tự dừng khi error rate vượt ngưỡng được định nghĩa.
+
+Action 3:
+Tạo rollback runbook.
+Owner: Backend Team.
+Deadline: 2026-10-22.
+Verification: Diễn tập rollback trong staging và ghi nhận thời gian.</code></pre></div>
+<p>Các hành động phải có owner, deadline và tiêu chí hoàn thành đo được.</p>
+<h2>Phần XI — Runbook và Playbook</h2>
+<h3>33. Runbook là gì?</h3>
+<p>Runbook là hướng dẫn vận hành cho một tình huống cụ thể.</p>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Runbook: Disk usage &gt; 90%
+
+1. Xác định filesystem bị ảnh hưởng.
+2. Kiểm tra df -h và df -i.
+3. Xác định thư mục chiếm dung lượng.
+4. Kiểm tra file deleted-open.
+5. Kiểm tra snapshot và filesystem metadata.
+6. Xác định hành động an toàn.
+7. Thực hiện theo quyền hạn được phê duyệt.
+8. Xác minh disk usage và SLI.
+9. Ghi lại kết quả và bằng chứng.</code></pre></div>
+<p>Runbook tốt cần ghi rõ khi nào dùng, điều kiện tiên quyết, rủi ro, tác động dự kiến, cách rollback, cách xác minh thành công và khi nào escalation.</p>
+<h3>34. Runbook khác Playbook như thế nào?</h3>
+<p>Runbook thường mô tả quy trình kỹ thuật cụ thể, chẳng hạn xử lý disk đầy. Playbook thường mô tả chiến lược ứng phó rộng hơn, chẳng hạn điều phối incident SEV1. Tùy tổ chức hai thuật ngữ có thể chồng lấn. Điều quan trọng là tài liệu giúp người trực vận hành ra quyết định đúng dưới áp lực.</p>
+<h2>Phần XII — Những vấn đề tương tự Senior thường gặp</h2>
+<h3>35. Một số tình huống có cùng bản chất</h3>
+<div class="tablewrap"><table><thead><tr><th>Tình huống</th><th>Triệu chứng</th><th>Cơ chế cần điều tra</th></tr></thead><tbody><tr><td>Memory leak</td><td>RAM tăng dần</td><td>Allocation không được giải phóng hoặc cache không được kiểm soát</td></tr><tr><td>FD leak</td><td><code>Too many open files</code></td><td>Process giữ quá nhiều descriptor</td></tr><tr><td>Connection leak</td><td>Database hết connection</td><td>Connection không được trả pool</td></tr><tr><td>Thread pool exhaustion</td><td>Request timeout</td><td>Thread bị giữ lâu hoặc blocked</td></tr><tr><td>Deadlock</td><td>Process còn sống nhưng không tiến triển</td><td>Các luồng chờ tài nguyên theo chu trình</td></tr><tr><td>Disk inode exhaustion</td><td>Không tạo được file</td><td>Hết inode dù còn data blocks</td></tr><tr><td>Retry storm</td><td>Traffic tăng sau lỗi</td><td>Retry không có backoff hoặc giới hạn</td></tr><tr><td>Cache stampede</td><td>Database đột ngột quá tải</td><td>Nhiều request đồng thời cache miss</td></tr><tr><td>OOM kill</td><td>Process biến mất</td><td>Memory pressure và OOM policy</td></tr><tr><td>DNS failure</td><td>Backend không kết nối dependency</td><td>Resolver hoặc network path lỗi</td></tr></tbody></table></div>
+<p><strong>Triệu chứng nhìn thấy thường xuất hiện ở thành phần khác với nơi bắt đầu vấn đề.</strong> Database chậm có thể khiến backend giữ connection lâu, proxy timeout, cuối cùng người dùng thấy HTTP 504. Chỉ sửa proxy timeout có thể làm request chờ lâu hơn mà không giải quyết nguyên nhân.</p>
+<h2>Phần XIII — Thực hành tư duy Senior</h2>
+<h3>36. Case study: Website lỗi sau deployment</h3>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>10:00 Deploy version 3.2
+10:02 HTTP 502 tăng
+10:03 Backend CPU tăng
+10:04 Database connections đạt giới hạn
+10:05 Nginx upstream timeout</code></pre></div>
+<p>Hãy chọn bước điều tra ưu tiên:</p>
+<div class="widget quiz"><div class="quiztop"><span>KIỂM TRA TƯ DUY</span><span id="quizProgress">Câu 1/4</span></div><div class="progress"><div id="quizBar"></div></div><h4 id="quizQuestion"></h4><div id="quizChoices"></div><div id="quizFeedback" class="result" hidden></div><div class="actions"><button id="quizPrev">← Câu trước</button><button id="quizNext">Câu tiếp →</button></div><p id="quizScore"></p></div>
+<h2>Phần XIV — Senior Checklist trước khi đóng Incident</h2>
+<h3>37. Khi nào một incident thực sự được coi là đã phục hồi?</h3>
+<p>Không phải khi <code>systemctl status</code> hiển thị <code>active</code>, CPU giảm hoặc alert tắt. Phải kiểm chứng hệ thống ở góc nhìn người dùng và yêu cầu nghiệp vụ.</p>
+<div class="widget"><div class="quiztop"><h4>Incident closure checklist</h4><strong id="checkCount">0/12</strong></div><div class="progress"><div id="checkBar"></div></div><div id="checkItems" class="checkitems"></div><button id="copyChecklist">📋 Sao chép checklist</button></div>
+<h2>Phần XV — Những nguyên tắc cần ghi nhớ</h2>
+<h3>38. Mười nguyên tắc của một Senior Linux Engineer</h3>
+<ol><li><strong>Đừng nhầm symptom với root cause.</strong> HTTP 502 chỉ là điểm bắt đầu điều tra.</li><li><strong>Đừng nhầm correlation với causation.</strong> Deploy trước incident không tự chứng minh deploy là nguyên nhân.</li><li><strong>Đừng nhầm process alive với service healthy.</strong> Phải kiểm tra chức năng nghiệp vụ.</li><li><strong>Đừng scale trước khi xác định bottleneck.</strong> Thêm replica có thể làm database quá tải hơn.</li><li><strong>Đừng coi replication là backup.</strong> Dữ liệu sai có thể được nhân bản.</li><li><strong>Đừng chỉ thiết kế cho ngày bình thường.</strong> Phải tính capacity khi một thành phần hỏng.</li><li><strong>Đừng restart mà không cân nhắc bằng chứng.</strong> Nhưng cũng đừng để điều tra kéo dài ảnh hưởng không cần thiết.</li><li><strong>Đừng dùng lệnh phá hủy trạng thái khi chưa hiểu tác động.</strong> Đặc biệt với database, storage và process quan trọng.</li><li><strong>Đừng kết thúc incident chỉ vì alert biến mất.</strong> Kiểm chứng bằng SLI và chức năng người dùng.</li><li><strong>Đừng kết thúc postmortem bằng “con người mắc lỗi”.</strong> Cải thiện hệ thống kiểm tra, triển khai, giám sát và khôi phục.</li></ol>
+<h3>39. Mối liên hệ giữa các bài đã học</h3>
+<div class="tablewrap"><table><thead><tr><th>Bài học</th><th>Ứng dụng khi xử lý incident</th></tr></thead><tbody><tr><td>Process / Thread</td><td>Phát hiện deadlock, thread exhaustion, zombie</td></tr><tr><td>Memory / Page Fault</td><td>Phân tích memory pressure, OOM, swap</td></tr><tr><td>Scheduler / CPU</td><td>Phân biệt CPU saturation và scheduling delay</td></tr><tr><td>Filesystem</td><td>Phân tích disk, inode, deleted-open file</td></tr><tr><td>Driver / I/O</td><td>Điều tra lỗi block device và I/O latency</td></tr><tr><td>Network</td><td>Phân tích socket, TCP, DNS, timeout</td></tr><tr><td>Security</td><td>Kiểm tra permission, SELinux, capabilities</td></tr><tr><td>Observability</td><td>Xây dựng metrics, logs, traces, SLI</td></tr><tr><td>Performance</td><td>Xác định bottleneck bằng profiling</td></tr><tr><td>Debugging</td><td>Thu thập bằng chứng và kiểm chứng giả thuyết</td></tr><tr><td>Container / Cgroups</td><td>Phân tích quota, throttling, OOM</td></tr><tr><td>Virtualization</td><td>Hiểu shared resources và failure domain</td></tr><tr><td>Build Kernel</td><td>Kiểm soát thay đổi kernel, module, boot và rollback</td></tr></tbody></table></div>
+<h2>Phần XVI — Bài tập tốt nghiệp Bài 39</h2>
+<h3>40. Đề bài tổng hợp</h3>
+<p>Bạn quản lý một hệ thống có:</p>
+<div class="code"><div class="codebar"><span>text</span><button onclick="copyCode(this)">Sao chép</button></div><pre><code>Internet
+                       |
+                    Nginx
+                       |
+             +---------+---------+
+             |                   |
+         Backend A           Backend B
+             |                   |
+             +---------+---------+
+                       |
+                    Database
+                       |
+                     Disk</code></pre></div>
+<p>Trong giờ cao điểm:</p>
+<ul><li>20% request trả 502.</li><li>P99 latency tăng từ 200 ms lên 5 giây.</li><li>Load average tăng từ 2 lên 18.</li><li>Disk usage đạt 96%.</li><li>Database connections đạt 100% giới hạn.</li><li>Một deployment được thực hiện 10 phút trước.</li></ul>
+<p>Bạn phải tạo ra bốn sản phẩm:</p>
+<ol><li><strong>Evidence bundle:</strong> Lưu log, metric, trạng thái process, socket, cgroup, filesystem, version và thời điểm thu thập.</li><li><strong>Timeline:</strong> Ghi rõ sự kiện đã xác nhận, sự kiện chỉ là giả thuyết và nguồn bằng chứng.</li><li><strong>Postmortem:</strong> Phân tích ảnh hưởng, nguyên nhân, yếu tố góp phần, mitigation, rủi ro và hành động phòng ngừa.</li><li><strong>Runbook:</strong> Viết quy trình xử lý sự cố tương tự, gồm kiểm tra, quyết định, rollback và verification.</li></ol>
+<p>Đặc biệt, hãy tự trả lời ba câu hỏi:</p>
+<ul><li>Nếu chỉ được thực hiện một phép kiểm tra đầu tiên, bạn sẽ chọn gì để phân biệt các giả thuyết có giá trị nhất?</li><li>Nếu cần giảm ảnh hưởng trong 5 phút, bạn chọn rollback, giảm traffic hay scale, và dựa vào bằng chứng nào?</li><li>Sau khi dịch vụ phục hồi, bạn sẽ chứng minh nguyên nhân và hiệu quả của hành động phòng ngừa bằng cách nào?</li></ul>
+<h3>41. Tiêu chuẩn đánh giá ở mức Senior</h3>
+<div class="tablewrap"><table><thead><tr><th>Cấp độ</th><th>Biểu hiện</th></tr></thead><tbody><tr><td>Junior</td><td>Biết dùng lệnh để kiểm tra trạng thái và sửa một số lỗi quen thuộc</td></tr><tr><td>Middle</td><td>Có thể phân tích log, metric và xác định nhiều nguyên nhân kỹ thuật</td></tr><tr><td>Senior</td><td>Xây dựng giả thuyết, phân biệt bằng chứng, kiểm soát rủi ro, thiết kế giải pháp bền vững</td></tr><tr><td>Staff / Principal</td><td>Cải tiến kiến trúc, quy trình và năng lực chống chịu sự cố trên nhiều hệ thống, nhiều nhóm</td></tr></tbody></table></div>
+<p>Đây là mô tả năng lực tham khảo, không phải tiêu chuẩn chức danh cố định của mọi công ty.</p>
+<h2>Tổng kết</h2>
+<p>Bài 39 không chỉ dạy cách xử lý một server Linux bị lỗi. Nó dạy cách nhìn hệ thống như một tập hợp các thành phần phụ thuộc lẫn nhau, nơi một lỗi nhỏ có thể lan truyền thành sự cố lớn.</p>
+<aside><strong>Từ “Lệnh nào sửa được lỗi?” sang “Bằng chứng nào chứng minh cơ chế lỗi, hành động nào giảm ảnh hưởng an toàn nhất và thay đổi nào khiến lỗi khó tái diễn hơn?”</strong></aside>
+<p>Khi nắm được cách suy nghĩ này, bạn sẽ xử lý các vấn đề từ disk đầy, memory leak, deadlock, HTTP 502, database timeout đến sự cố phân tán phức tạp theo cùng một phương pháp khoa học: quan sát, đặt giả thuyết, kiểm chứng, giảm ảnh hưởng, phục hồi và cải tiến.</p>
+<p>Bước tiếp theo là <strong>Bài 40 — Đồ án tổng hợp</strong>, nơi các kiến thức này được áp dụng vào hệ thống thực hành hoàn chỉnh với giám sát, fault injection, recovery và báo cáo sự cố.</p><footer class="footer">Bài 39 · Senior Linux Engineering · Tài liệu HTML độc lập — hoạt động offline</footer></main></div><script>const $=id=>document.getElementById(id);
+function copyText(s){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(s);const t=document.createElement('textarea');t.value=s;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();return Promise.resolve()}
+function copyCode(btn){copyText(btn.closest('.code').querySelector('code').textContent).then(()=>{btn.textContent='✓ Đã sao chép';setTimeout(()=>btn.textContent='Sao chép',1300)})}
+function updateRpo(){let a=+$('rpo').value,b=+$('rto').value;$('rpoVal').textContent=a;$('rtoVal').textContent=b;const hm=n=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('rpoResult').innerHTML='Nếu sự cố xảy ra lúc 12:00, giả sử mục tiêu được đáp ứng:<br>Điểm dữ liệu cần khôi phục: không cũ hơn <b>'+hm(720-a)+'</b>.<br>Hạn mục tiêu khôi phục dịch vụ: <b>'+hm(720+b)+'</b>.'}
+['rpo','rto'].forEach(id=>$(id).addEventListener('input',updateRpo));updateRpo();
+function updateCapacity(){let n=+$('replicas').value,c=+$('perNode').value,t=+$('traffic').value,normal=n*c,fail=(n-1)*c;[['replicasVal',n],['perNodeVal',c],['trafficVal',t],['normalCap',normal+' RPS'],['failCap',fail+' RPS'],['normalPct',Math.round(t/normal*100)+'% tải'],['failPct',Math.round(t/fail*100)+'% tải']].forEach(([id,v])=>$(id).textContent=v);$('capacityVerdict').innerHTML=fail>=t?'✓ Đủ capacity theo mô hình N-1.':'⚠ Không đủ capacity theo mô hình N-1.';$('capacityVerdict').classList.toggle('warning',fail<t)}
+['replicas','perNode','traffic'].forEach(id=>$(id).addEventListener('input',updateCapacity));updateCapacity();
+const stageText={open:['deleted-open.bin','Tên file và FD cùng tham chiếu dữ liệu','File có tên trong thư mục, process giữ FD và dữ liệu còn được cấp phát.'],unlinked:['(đã bị xóa)','Không còn tên file nhưng FD vẫn giữ file','Tên file biến mất khỏi thư mục. du không thấy file theo đường dẫn cũ, nhưng process vẫn giữ FD.'],closed:['(đã bị xóa)','FD đóng; dữ liệu có thể được thu hồi','Khi tham chiếu mở cuối cùng được giải phóng và không còn hard link, filesystem có thể thu hồi block, tùy các cơ chế như snapshot.']};
+function setStage(s){document.querySelectorAll('[data-stage]').forEach(b=>b.classList.toggle('active',b.dataset.stage===s));$('dirName').textContent=stageText[s][0];$('stageCaption').textContent=stageText[s][1];$('stageDescription').textContent=stageText[s][2];$('dirLink').style.display=s==='open'?'':'none';$('deletedCross').style.display=s==='closed'?'':'none';$('fdLinks').setAttribute('class',s==='closed'?'disconnected':'connected')}
+document.querySelectorAll('[data-stage]').forEach(b=>b.addEventListener('click',()=>setStage(b.dataset.stage)));setStage('open');
+const questions=[{q:'Nginx báo 502 sau deploy. Hành động nào phù hợp nhất?',a:['Tăng timeout Nginx ngay lập tức','Kiểm tra error log proxy, kết nối backend và tác động của deployment','Restart tất cả server'],correct:1,why:'Cần xác định lỗi nằm ở kết nối upstream, backend hay timeout. Restart và tăng timeout có thể che dấu triệu chứng.'},{q:'Backend active nhưng người dùng vẫn lỗi. Điều này chứng minh gì?',a:['Backend hoàn toàn khỏe mạnh','Database chắc chắn lỗi','Process còn sống nhưng chưa chứng minh được chức năng hoạt động'],correct:2,why:'Liveness khác readiness và functional health. Cần kiểm tra endpoint nghiệp vụ và SLI.'},{q:'Hai replica cùng sử dụng một storage. Storage hỏng thì sao?',a:['Cả hai có thể cùng bị ảnh hưởng','HA luôn đảm bảo dịch vụ hoạt động','Chỉ một replica bị ảnh hưởng'],correct:0,why:'Storage chung là shared failure domain, nên hai replica không độc lập đối với lỗi storage.'},{q:'Đã xóa log nhưng df không giảm. Nên làm gì?',a:['Kill -9 tất cả process','Format filesystem','Kiểm tra deleted-open file, snapshot và accounting'],correct:2,why:'File đã unlink có thể còn FD tham chiếu. Ngoài ra còn nhiều cơ chế filesystem khác.'}];let qi=0,answers={};
+function renderQuiz(){let q=questions[qi];$('quizProgress').textContent='Câu '+(qi+1)+'/'+questions.length;$('quizBar').style.width=(qi+1)/questions.length*100+'%';$('quizQuestion').textContent=q.q;$('quizChoices').replaceChildren();q.a.forEach((a,i)=>{let l=document.createElement('label');l.className='choice';let r=document.createElement('input');r.type='radio';r.name='quiz';r.value=i;r.checked=answers[qi]===i;r.addEventListener('change',()=>{answers[qi]=i;renderQuiz()});l.append(r,document.createTextNode(' '+a));$('quizChoices').appendChild(l)});let picked=answers[qi];$('quizFeedback').hidden=picked===undefined;if(picked!==undefined){$('quizFeedback').textContent=(picked===q.correct?'✓ Chính xác. ':'✕ Chưa chính xác. ')+q.why;$('quizFeedback').classList.toggle('warning',picked!==q.correct)}$('quizPrev').disabled=qi===0;$('quizNext').disabled=picked===undefined;$('quizNext').textContent=qi===questions.length-1?'Làm lại':'Câu tiếp →';$('quizScore').textContent=Object.keys(answers).length===questions.length?'Kết quả: '+questions.filter((q,i)=>answers[i]===q.correct).length+'/'+questions.length+' câu đúng':''}
+$('quizPrev').onclick=()=>{qi--;renderQuiz()};$('quizNext').onclick=()=>{if(qi===questions.length-1){qi=0;answers={}}else qi++;renderQuiz()};renderQuiz();
+const checklist=['Phạm vi ảnh hưởng đã được xác định','Có timeline với timestamp và nguồn bằng chứng','Đã kiểm chứng các giả thuyết quan trọng','Mitigation có kiểm soát và ghi nhận kết quả','Error rate, latency và throughput trở lại ngưỡng chấp nhận','Các chức năng nghiệp vụ quan trọng đã được kiểm tra','Đã đánh giá tính nhất quán dữ liệu và backlog cần xử lý','Đã lưu evidence bundle phù hợp','Đã lập postmortem với điều chưa biết được ghi rõ','Action items có owner, deadline và cách kiểm chứng','Runbook đã được cập nhật','Failure domain và rủi ro còn lại đã được ghi nhận'];
+function updateChecklist(){let done=[...$('checkItems').querySelectorAll('input')].filter(i=>i.checked).length;$('checkCount').textContent=done+'/'+checklist.length;$('checkBar').style.width=done/checklist.length*100+'%'}
+checklist.forEach((s,i)=>{let l=document.createElement('label'),c=document.createElement('input');c.type='checkbox';c.addEventListener('change',updateChecklist);l.append(c,document.createTextNode(' '+s));$('checkItems').appendChild(l)});$('copyChecklist').onclick=()=>{let s=[...$('checkItems').querySelectorAll('input')].map((c,i)=>(c.checked?'[x] ':'[ ] ')+checklist[i]).join('\n');copyText(s).then(()=>{let b=$('copyChecklist');b.textContent='✓ Đã sao chép';setTimeout(()=>b.textContent='📋 Sao chép checklist',1300)})};updateChecklist();
+const headings=[...document.querySelectorAll('main h2,main h3')];headings.forEach((h,i)=>{h.id='section-'+i;let a=document.createElement('a');a.href='#'+h.id;a.textContent=h.textContent;a.className=h.tagName==='H3'?'sub':'';$('toc').appendChild(a)});
+$('themeBtn').onclick=()=>{document.body.classList.toggle('light');$('themeBtn').textContent=document.body.classList.contains('light')?'🌙 Chế độ tối':'☀ Chế độ sáng'};
+$('tocBtn').onclick=()=>document.body.classList.toggle('showtoc');document.querySelectorAll('#toc a').forEach(a=>a.onclick=()=>document.body.classList.remove('showtoc'));
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

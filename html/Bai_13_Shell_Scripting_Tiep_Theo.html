@@ -1,0 +1,342 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 13 — Shell Scripting có kiểm soát lỗi — Tiếp theo từ mục 13.1</title><style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#131f32;--panel2:#1b2b43;--text:#e8effa;--muted:#a9b9ce;--accent:#78aaff;--line:#354760;--green:#51c49a;--orange:#e8ab64}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.78 system-ui,-apple-system,Segoe UI,Arial,sans-serif}main{max-width:990px;margin:auto;padding:32px 30px 90px}h1{font-size:2.2rem;line-height:1.25}h2{font-size:1.75rem;margin-top:55px;border-bottom:1px solid var(--line);padding-bottom:10px}h3{font-size:1.3rem;margin-top:34px;color:#b8d4ff}h4{font-size:1.09rem;margin-top:26px}p{margin:13px 0}strong{color:#fff}blockquote{border-left:4px solid var(--accent);padding:8px 20px;background:var(--panel);margin:25px 0}pre{overflow:auto;background:#08101e;border:1px solid var(--line);border-radius:11px;padding:20px;font-size:14px;line-height:1.55}code{font-family:Consolas,Monaco,monospace}p code,li code,td code{background:#23334c;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:20px 0;display:block;overflow-x:auto}th,td{border:1px solid var(--line);padding:11px 14px;text-align:left;vertical-align:top}th{background:#20334f}tr:nth-child(even){background:#111d30}li{margin:6px 0}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:24px 0}.panel svg{max-width:100%;height:auto;display:block;margin:auto}.controls{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0}.controls button,.qa button{background:#233954;color:var(--text);border:1px solid #49658a;padding:10px 15px;border-radius:9px;cursor:pointer;font:inherit}.controls button.active{background:#315b91;border-color:#83b3fa}.controls button:disabled{opacity:.35;cursor:not-allowed}.desc{color:var(--muted);font-size:.94rem}.qa{border:1px solid var(--line);border-radius:9px;margin:8px 0;overflow:hidden}.qa button{display:block;width:100%;text-align:left;border:0;border-radius:0}.answer{display:none;padding:14px;background:#203047}.answer.open{display:block}.note{border-left:4px solid var(--orange);background:#30291f;padding:12px 16px}.toc a{color:var(--accent);text-decoration:none}.toc{columns:2}.toc li{break-inside:avoid}a{color:var(--accent)}.status{font-weight:700;color:var(--green)}@media(max-width:650px){main{padding:18px 15px 60px}h1{font-size:1.65rem}.toc{columns:1}pre{font-size:12px}}@media print{:root{color-scheme:light;--bg:#fff;--panel:#f3f6fa;--panel2:#eaf0f8;--text:#182332;--muted:#465366;--line:#cad2df}body{font-size:11pt}main{max-width:none}.controls{display:none}pre{white-space:pre-wrap;color:#111;background:#f5f5f5}h2,h3{break-after:avoid}.panel,pre,table{break-inside:avoid}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="13"><main><h1>Bài 13 — Shell Scripting có kiểm soát lỗi (Tiếp theo từ mục 13.1)</h1>
+<p>Chúng ta tiếp tục từ <strong>mục 13.1 — Có một vấn đề sâu hơn</strong>, đi sâu vào các tình huống thực tế mà một kỹ sư Linux cần nhận diện khi viết script backup.</p>
+<h2>13.1. Có một vấn đề sâu hơn: Kiểm tra đường dẫn đã thực sự an toàn chưa?</h2>
+<p>Ở mục trước, chúng ta đã có đoạn code:</p>
+<pre><code class="language-bash">if [[ &quot;$src&quot; == / ||
+      &quot;$dst&quot; == &quot;$src&quot; ||
+      &quot;$dst&quot; == &quot;$src/&quot;* ]]; then
+    printf &#x27;Invalid destination\n&#x27; &gt;&amp;2
+    exit 2
+fi</code></pre>
+<p>Đoạn code này giải quyết được một vấn đề: <strong>không cho phép thư mục backup nằm bên trong thư mục nguồn</strong>.</p>
+<p>Nhưng hãy đặt câu hỏi: <strong>Nếu đường dẫn hợp lệ tại thời điểm kiểm tra, liệu nó có chắc chắn vẫn hợp lệ tại thời điểm sử dụng?</strong></p>
+<p>Câu trả lời là không.</p>
+<h3>13.1.1. Time-of-check to time-of-use (TOCTOU)</h3>
+<p>Trong lập trình hệ thống, đây là một loại race condition rất phổ biến. <strong>TOCTOU</strong> viết tắt của <em>Time Of Check To Time Of Use</em>.</p>
+<ul><li>Bạn kiểm tra một điều kiện.</li><li>Sau đó bạn thực hiện một thao tác dựa trên kết quả kiểm tra.</li><li>Nhưng trạng thái hệ thống có thể thay đổi giữa hai thời điểm.</li></ul>
+<p>Ví dụ đời sống: Bạn kiểm tra phòng họp đang trống lúc 9:00. Đến 9:05 bạn mới bước vào. Trong khoảng thời gian đó, người khác đã sử dụng phòng. Kết quả kiểm tra lúc 9:00 không còn bảo đảm đúng lúc 9:05.</p>
+<p>Trong Linux cũng tương tự.</p>
+<pre><code class="language-bash">src=$(realpath -e -- &quot;$1&quot;)
+
+# Một khoảng thời gian trôi qua
+
+tar -czf &quot;$tmp&quot; -C &quot;$src&quot; .</code></pre>
+<p>Giữa hai command, một tiến trình khác có thể thay đổi filesystem. Đặc biệt, nếu có quyền thay đổi các thành phần đường dẫn, tiến trình khác có thể thay thế directory hoặc symlink.</p>
+<div class="panel"><strong>Mô phỏng TOCTOU</strong><div class="controls" id="toctou-controls"><button data-step="0" class="active">1. Check</button><button data-step="1">2. Change</button><button data-step="2">3. Use</button></div><svg viewBox="0 0 330 170" aria-label="Sơ đồ TOCTOU"><rect x="12" y="15" width="306" height="130" rx="9" fill="#263952" stroke="#56708f"/><text x="26" y="39" fill="white" font-size="12" font-weight="bold">/data/current</text><path d="M95 57 V83 H131 M125 78 l6 5 -6 5" stroke="white" fill="none" stroke-width="1.8"/><rect id="toctou-box" x="135" y="65" width="164" height="40" rx="7" fill="#1d6e56" stroke="#51c49a"/><text id="toctou-path" x="217" y="81" text-anchor="middle" fill="white" font-size="12">/data/safe</text><text id="toctou-label" x="217" y="96" text-anchor="middle" font-size="10" fill="white">Đường dẫn được kiểm tra</text><text id="toctou-caption" x="165" y="130" text-anchor="middle" font-size="11" fill="white">Kiểm tra hợp lệ</text></svg><p class="desc">Mô phỏng một race condition dựa trên đường dẫn. Mức độ ảnh hưởng phụ thuộc vào quyền truy cập, cấu trúc filesystem và cách command mở đường dẫn.</p></div>
+<h3>13.1.2. Vì sao realpath chưa giải quyết TOCTOU?</h3>
+<p><code>realpath</code> chuẩn hóa đường dẫn tại một thời điểm. Nó không khóa toàn bộ filesystem và không bảo đảm các thành phần đường dẫn sẽ không thay đổi.</p>
+<ul><li><strong>Pathname:</strong> tên dùng để tìm đối tượng.</li><li><strong>File descriptor:</strong> handle tham chiếu đến đối tượng đã mở.</li></ul>
+<p>Trong lập trình C/Linux, một số API như <code>openat()</code> và <code>openat2()</code> giúp thao tác tương đối với directory file descriptor và áp đặt các ràng buộc khi phân giải đường dẫn. Ví dụ, <code>openat2()</code> có các cơ chế như <code>RESOLVE_BENEATH</code> hoặc <code>RESOLVE_NO_SYMLINKS</code>, tùy yêu cầu.</p>
+<p>Nhưng Bash script dùng <code>realpath</code> rồi gọi <code>tar</code> không tự động có những bảo đảm đó.</p>
+<p><strong>Câu hỏi phản biện:</strong> Nếu đường dẫn source chỉ do root quản lý và không có tiến trình không tin cậy được phép thay đổi nó, TOCTOU có còn đáng lo?</p>
+<p>Về lý thuyết, trạng thái vẫn có thể thay đổi. Nhưng nguy cơ khai thác sẽ thấp hơn đáng kể. Vì vậy khi thiết kế hệ thống, phải xác định <em>threat model</em> thay vì coi mọi race condition có mức độ nguy hiểm giống nhau.</p>
+<h2>13.2. Một vấn đề khác: Source nằm trong destination</h2>
+<p>Chúng ta đã chặn:</p>
+<pre><code class="language-text">source = /data
+destination = /data/backups</code></pre>
+<p>Nhưng chưa chặn:</p>
+<pre><code class="language-text">source = /storage/data
+destination = /storage</code></pre>
+<p>Trường hợp thứ hai không trực tiếp tạo vòng lặp tự backup, vì archive được tạo ở thư mục cha, bên ngoài source. Vậy có cần từ chối không? <strong>Không nhất thiết.</strong> Điều này phụ thuộc vào chính sách vận hành.</p>
+<pre><code class="language-text">/storage/
+├── data/
+│   ├── config.json
+│   └── logs/
+└── backup-20261010.tar.gz</code></pre>
+<p>Cấu trúc trên có thể hợp lệ. Tuy nhiên, nếu cùng một filesystem chứa dữ liệu gốc và backup, hỏng filesystem hoặc thiết bị lưu trữ có thể làm mất cả hai.</p>
+<ul><li>Backup để khôi phục sau khi xóa nhầm file.</li><li>Backup để khôi phục sau khi hỏng thiết bị.</li><li>Backup để phục hồi sau thảm họa.</li></ul>
+<p>Một bản sao trên cùng ổ đĩa có thể hữu ích, nhưng không đáp ứng mọi mục tiêu phục hồi.</p>
+<h2>Phần V — Atomicity, Transaction và tính toàn vẹn dữ liệu</h2>
+<h3>14. Đặt vấn đề: Điều gì xảy ra khi backup bị ngắt giữa chừng?</h3>
+<p>Giả sử bạn có một thư mục chứa 10 GB dữ liệu.</p>
+<pre><code class="language-bash">tar -czf /backup/latest.tar.gz /data</code></pre>
+<p>Quá trình mất khoảng 2 phút. Đến giây thứ 90, hệ thống mất điện. Khi khởi động lại, file <code>latest.tar.gz</code> có thể đã tồn tại.</p>
+<pre><code class="language-bash">if [[ -f /backup/latest.tar.gz ]]; then
+    echo &quot;Backup exists&quot;
+fi</code></pre>
+<p>Script này có thể kết luận rằng backup tồn tại, mặc dù archive chưa hoàn chỉnh. <strong>Vấn đề nằm ở đâu?</strong> Chúng ta đã công bố tên file cuối cùng trước khi dữ liệu hoàn thành.</p>
+<p>Để giải quyết, cần phân biệt hai trạng thái: dữ liệu đang được tạo và dữ liệu đã được xác nhận đủ điều kiện công bố. Đây là lý do xuất hiện kỹ thuật <strong>temporary file + atomic rename</strong>.</p>
+<h3>14.1. Atomicity là gì?</h3>
+<p>Atomicity có nghĩa là một thao tác được quan sát như một đơn vị không thể chia nhỏ ở mức bảo đảm của hệ thống.</p>
+<p>Ví dụ đời sống: Bạn chuẩn bị một tài liệu mới trên bàn làm việc riêng. Chỉ khi hoàn tất kiểm tra, bạn mới thay tài liệu cũ trên bảng thông báo bằng tài liệu mới. Người đọc bảng thông báo không phải nhìn thấy tài liệu đang được viết dở.</p>
+<pre><code class="language-bash">tmp=$(mktemp &quot;$dst/.archive.XXXXXX&quot;)
+
+tar -czf &quot;$tmp&quot; -C &quot;$src&quot; .
+
+tar -tzf &quot;$tmp&quot; &gt;/dev/null
+
+mv -- &quot;$tmp&quot; &quot;$target&quot;</code></pre>
+<p>Điểm quan trọng là file tạm nằm trong cùng filesystem với file cuối cùng. Khi đó, thao tác rename thông thường có thể cung cấp tính nguyên tử đối với việc thay đổi tên trong filesystem.</p>
+<div class="panel"><strong>Mô phỏng ba giai đoạn backup — Quy trình publish archive</strong><div class="controls" id="stage-controls"><button data-stage="0" class="active">Prepare</button><button data-stage="1">Write</button><button data-stage="2">Verify</button><button data-stage="3">Commit</button></div><svg viewBox="0 0 330 125" aria-label="Sơ đồ file tạm và file cuối"><rect x="8" y="15" width="140" height="78" rx="8" fill="#234976" stroke="#78aaff"/><text x="78" y="38" text-anchor="middle" font-size="12" fill="white">Temporary file</text><text id="stage-temp" x="78" y="61" text-anchor="middle" font-size="11" fill="white">Empty</text><path id="stage-arrow" d="M151 54 H177 m-7 -5 l7 5 -7 5" fill="none" stroke="white" stroke-width="2" opacity=".2"/><rect id="stage-final-box" x="181" y="15" width="141" height="78" rx="8" fill="#313a48" stroke="#999" stroke-dasharray="4 4"/><text x="251" y="38" text-anchor="middle" font-size="12" fill="white">Final archive</text><text id="stage-final" x="251" y="61" text-anchor="middle" font-size="11" fill="white">Not available</text><text id="stage-caption" x="165" y="114" text-anchor="middle" font-size="10" fill="white">Consumer chưa thấy file cuối</text></svg><p id="stage-desc" class="desc">Tạo file tạm. Chưa có archive được công bố.</p><div class="controls"><button id="stage-prev">Quay lại</button><button id="stage-next">Tiếp theo →</button></div></div>
+<h3>14.2. Atomic rename có giống database transaction không?</h3>
+<p>Có nét tương đồng, nhưng không giống hoàn toàn. Một database transaction thường được giải thích bằng ACID:</p>
+<table><thead><tr><th>Thuộc tính</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td>Atomicity</td><td>Toàn bộ hoặc không có thay đổi được commit</td></tr><tr><td>Consistency</td><td>Giữ các ràng buộc dữ liệu</td></tr><tr><td>Isolation</td><td>Các transaction không can thiệp sai vào nhau</td></tr><tr><td>Durability</td><td>Dữ liệu đã commit tồn tại sau sự cố theo bảo đảm hệ thống</td></tr></tbody></table>
+<p>Kỹ thuật rename chỉ giải quyết một phần của bài toán. Nó không tự động bảo đảm:</p>
+<ul><li>Dữ liệu source nhất quán.</li><li>Archive chứa đủ dữ liệu.</li><li>Dữ liệu đã bền vững trên thiết bị lưu trữ.</li><li>Có thể restore ứng dụng thành công.</li></ul>
+<h3>14.3. Atomicity khác Durability thế nào?</h3>
+<p><strong>Atomicity</strong> trả lời: Khi quan sát thao tác, ta có nhìn thấy trạng thái cập nhật dở dang không?</p>
+<p><strong>Durability</strong> trả lời: Sau khi hệ thống báo thành công, dữ liệu có còn tồn tại nếu xảy ra mất điện không?</p>
+<pre><code class="language-bash">mv temporary.tar.gz final.tar.gz</code></pre>
+<p>Rename thành công không tự động đồng nghĩa mọi dữ liệu và metadata đã được ghi bền vững xuống thiết bị.</p>
+<pre><code class="language-text">Write temporary file
+        |
+        v
+fsync(file descriptor)
+        |
+        v
+rename(temp, final)
+        |
+        v
+fsync(directory descriptor)</code></pre>
+<p><code>fsync()</code> yêu cầu đồng bộ dữ liệu hoặc metadata liên quan, nhưng bảo đảm thực tế vẫn phụ thuộc filesystem, thiết bị và cách hệ thống lưu trữ triển khai. Một lưu ý nữa: nếu archive mới ghi đè archive cũ, cần phân tích riêng các trường hợp crash và chính sách giữ bản cũ.</p>
+<h2>15. mktemp — Vì sao không tự đặt tên file tạm?</h2>
+<pre><code class="language-bash">tmp=&quot;/tmp/backup.tmp&quot;</code></pre>
+<p>Nhưng điều gì xảy ra nếu hai tiến trình cùng chạy?</p>
+<pre><code class="language-text">Tiến trình A: /tmp/backup.tmp
+Tiến trình B: /tmp/backup.tmp</code></pre>
+<p>Hai tiến trình có thể ghi đè hoặc phá hỏng kết quả của nhau. Một rủi ro khác là file hoặc symlink có thể đã tồn tại trước đó.</p>
+<pre><code class="language-bash">tmp=$(mktemp &quot;$dst/.archive.XXXXXX&quot;) || exit 1</code></pre>
+<p><code>mktemp</code> tạo một file mới với tên duy nhất theo cơ chế an toàn hơn việc tự tạo tên.</p>
+<pre><code class="language-text">/backup/.archive.A3d9xQ</code></pre>
+<h3>15.1. Vì sao phải đặt file tạm trong destination?</h3>
+<pre><code class="language-text">/tmp         -&gt; tmpfs
+/backup      -&gt; ext4</code></pre>
+<pre><code class="language-bash">mv /tmp/archive.tmp /backup/archive.tar.gz</code></pre>
+<p>Đây là di chuyển giữa hai filesystem. Trong trường hợp này, <code>mv</code> thường phải copy dữ liệu rồi xóa file nguồn, thay vì chỉ thực hiện rename nguyên tử. Nếu mất điện giữa lúc copy, file đích có thể chưa hoàn chỉnh.</p>
+<pre><code class="language-bash">mktemp &quot;$dst/.archive.XXXXXX&quot;</code></pre>
+<p>Giúp bảo đảm file tạm và file cuối cùng nằm trong cùng thư mục đích.</p>
+<h3>15.2. Vì sao dùng umask 077?</h3>
+<pre><code class="language-bash">umask 077</code></pre>
+<p><code>umask</code> xác định những permission bit bị loại bỏ khi tạo file và directory. Ví dụ file mới được yêu cầu mode <code>0666</code>:</p>
+<pre><code class="language-text">0666
+0777? Không, file thông thường không mặc định yêu cầu execute.</code></pre>
+<p>Với <code>umask 077</code>, quyền kết quả thường là:</p>
+<pre><code class="language-text">0600 = rw-------</code></pre>
+<p>Chỉ owner được đọc và ghi. Với directory mới thường yêu cầu mode <code>0777</code>, kết quả là:</p>
+<pre><code class="language-text">0700 = rwx------</code></pre>
+<p>Điều này đặc biệt quan trọng vì backup có thể chứa:</p>
+<ul><li>Password configuration.</li><li>Private keys.</li><li>Database dump.</li><li>Access tokens.</li><li>File cấu hình nội bộ.</li></ul>
+<p><strong>Câu hỏi phản biện:</strong> Nếu archive chứa private key nhưng được tạo với permission <code>0644</code>, điều gì có thể xảy ra? Những user khác trên máy có thể đọc file nếu các quyền trên directory cha cũng cho phép truy cập.</p>
+<h2>Phần VI — Concurrency và File Locking</h2>
+<h3>16. Tại sao cần flock?</h3>
+<p>Giả sử backup chạy bằng cron mỗi 5 phút. Nhưng mỗi lần backup mất 8 phút.</p>
+<pre><code class="language-text">00:00  Backup A starts
+00:05  Backup B starts
+00:08  Backup A finishes
+00:13  Backup B finishes</code></pre>
+<p>Hai job cùng chạy trong khoảng ba phút. Điều này có thể gây ra:</p>
+<ul><li>Tăng tải CPU.</li><li>Tăng I/O.</li><li>Tăng sử dụng RAM.</li><li>Cạnh tranh dung lượng.</li><li>Xung đột với thao tác cleanup hoặc retention.</li><li>Kết quả không nhất quán nếu job có side effect khác.</li></ul>
+<pre><code class="language-bash">exec 9&gt;&quot;$dst/.backup.lock&quot; || exit 1
+
+flock -n 9 || {
+    printf &#x27;Backup already running\n&#x27; &gt;&amp;2
+    exit 3
+}</code></pre>
+<h3>16.1. File descriptor số 9 là gì?</h3>
+<p>Trong Linux, tiến trình thường có ba file descriptor chuẩn:</p>
+<table><thead><tr><th>FD</th><th>Tên</th><th>Chức năng</th></tr></thead><tbody><tr><td>0</td><td>stdin</td><td>Nhận dữ liệu</td></tr><tr><td>1</td><td>stdout</td><td>Xuất kết quả</td></tr><tr><td>2</td><td>stderr</td><td>Xuất lỗi</td></tr></tbody></table>
+<p>Các FD khác có thể dùng cho file, socket, pipe và nhiều đối tượng I/O.</p>
+<pre><code class="language-bash">exec 9&gt;&quot;$dst/.backup.lock&quot;</code></pre>
+<p>Mở file <code>.backup.lock</code> và giữ file descriptor 9 trong shell. Tại sao chọn 9? Không có yêu cầu đặc biệt. Đây là một FD được chọn để sử dụng cho lock.</p>
+<h3>16.2. flock -n 9 hoạt động thế nào?</h3>
+<p><code>flock</code> yêu cầu một advisory lock. <code>-n</code> nghĩa là nonblocking. Nếu không lấy được lock ngay, command thất bại.</p>
+<div class="panel"><strong>Mô phỏng hai tiến trình tranh lock</strong><div class="controls"><button id="lock-a">Process A: Acquire lock</button><button id="lock-b">Process B: Acquire lock</button><button id="lock-release">Release lock</button></div><svg viewBox="0 0 330 112" aria-label="Hai tiến trình tranh chấp lock"><rect x="7" y="10" width="146" height="72" rx="8" fill="#233954" stroke="#78aaff"/><rect x="177" y="10" width="146" height="72" rx="8" fill="#233954" stroke="#78aaff"/><text x="80" y="36" text-anchor="middle" fill="white" font-size="13">Process A</text><text id="lock-a-label" x="80" y="60" text-anchor="middle" fill="#a9b9ce" font-size="11">IDLE</text><text x="250" y="36" text-anchor="middle" fill="white" font-size="13">Process B</text><text id="lock-b-label" x="250" y="60" text-anchor="middle" fill="#a9b9ce" font-size="11">IDLE</text><text id="lock-caption" x="165" y="104" text-anchor="middle" fill="white" font-size="11">.backup.lock: chưa có owner</text></svg><p id="lock-desc" class="desc">Chưa có tiến trình giữ lock.</p></div>
+<h3>16.3. Advisory lock có ngăn tất cả tiến trình ghi file không?</h3>
+<p>Không. Advisory lock là cơ chế phối hợp giữa các chương trình tuân thủ quy ước khóa. Một chương trình không sử dụng cơ chế đó vẫn có thể ghi vào dữ liệu liên quan. Vì vậy lock không thay thế permission, sandbox hay transaction.</p>
+<h3>16.4. Lock có tự giải phóng khi script chết không?</h3>
+<p>Thông thường lock được giải phóng khi các file descriptor tham chiếu đến open file description liên quan đều được đóng. Tuy nhiên, cần chú ý một điểm ít người mới học biết: <strong>File descriptor có thể được tiến trình con kế thừa.</strong></p>
+<p>Nếu một tiến trình con giữ FD còn mở, lock có thể tồn tại lâu hơn vòng đời của script cha. Đây là lý do phải hiểu mối liên hệ giữa <code>fork</code>, <code>exec</code>, file descriptor và vòng đời process trong Linux.</p>
+<h3>16.5. Có thể dùng flock trên NFS không?</h3>
+<p>Không nên mặc định rằng cơ chế khóa sẽ hoạt động giống nhau trên mọi network filesystem. Hành vi phụ thuộc vào loại filesystem, phiên bản kernel, mount options và cơ chế khóa của hệ thống lưu trữ. Nếu nhiều máy cùng backup lên một storage từ xa, cần một giao thức điều phối phù hợp, thay vì chỉ tin rằng <code>flock</code> luôn đủ.</p>
+<h2>Phần VII — Trap và quản lý tài nguyên</h2>
+<h3>17. Đặt vấn đề: Ai sẽ dọn file tạm khi script thất bại?</h3>
+<pre><code class="language-bash">tmp=$(mktemp)</code></pre>
+<p>Sau đó thực hiện:</p>
+<pre><code class="language-bash">tar -czf &quot;$tmp&quot; -C &quot;$src&quot; .</code></pre>
+<p>Nếu <code>tar</code> thất bại và script thoát ngay, file tạm có thể vẫn còn. Sau nhiều lần thất bại, các file tạm tích tụ và làm đầy filesystem.</p>
+<pre><code class="language-bash">trap &#x27;rm -f -- &quot;$tmp&quot;&#x27; EXIT</code></pre>
+<h3>17.1. trap là gì?</h3>
+<p><code>trap</code> cho phép shell đăng ký command được thực thi khi một sự kiện được xử lý. Trong trường hợp này, <code>EXIT</code> là pseudo-signal của Bash, được xử lý khi shell thoát theo các đường có thể thực hiện EXIT trap.</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+tmp=$(mktemp)
+
+trap &#x27;rm -f -- &quot;$tmp&quot;&#x27; EXIT
+
+echo &quot;Temporary file: $tmp&quot;
+
+exit 1</code></pre>
+<p>Dù script thoát với code 1, EXIT trap vẫn có cơ hội xóa file tạm.</p>
+<h3>17.2. Liên hệ với C và C++</h3>
+<pre><code class="language-c">FILE *fp = fopen(&quot;data.txt&quot;, &quot;w&quot;);
+
+if (fp == NULL) {
+    return -1;
+}
+
+/* Work */
+
+fclose(fp);</code></pre>
+<p>Nếu có nhiều nhánh lỗi, ta có thể dùng một cleanup path:</p>
+<pre><code class="language-c">int ret = -1;
+FILE *fp = fopen(&quot;data.txt&quot;, &quot;w&quot;);
+
+if (!fp)
+    goto cleanup;
+
+/* Work */
+
+ret = 0;
+
+cleanup:
+if (fp)
+    fclose(fp);
+
+return ret;</code></pre>
+<p>Trong C++, RAII giúp quản lý vòng đời tài nguyên tự động hơn. Bash <code>trap EXIT</code> có mục đích tương tự: gom cleanup về một vị trí thay vì lặp lại ở mọi nhánh. Nhưng không nên coi các cơ chế này hoàn toàn tương đương.</p>
+<h3>17.3. SIGINT, SIGTERM và SIGKILL khác nhau thế nào?</h3>
+<pre><code class="language-bash">trap &#x27;exit 130&#x27; INT
+trap &#x27;exit 143&#x27; TERM</code></pre>
+<table><thead><tr><th>Signal</th><th>Số phổ biến trên Linux</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td>SIGINT</td><td>2</td><td>Interrupt</td></tr><tr><td>SIGTERM</td><td>15</td><td>Yêu cầu kết thúc</td></tr><tr><td>SIGKILL</td><td>9</td><td>Buộc kết thúc, không thể bắt</td></tr><tr><td>SIGHUP</td><td>1</td><td>Hangup</td></tr><tr><td>SIGPIPE</td><td>13</td><td>Ghi vào pipe không còn reader</td></tr></tbody></table>
+<p>Khi người dùng nhấn Ctrl+C, terminal thường gửi SIGINT đến foreground process group. Khi <code>kill PID</code> được gọi mà không chỉ định signal, mặc định thường gửi SIGTERM.</p>
+<pre><code class="language-bash">kill -9 PID</code></pre>
+<p>Gửi SIGKILL. <strong>Câu hỏi:</strong> Nếu SIGKILL được gửi, <code>trap EXIT</code> có chạy không? Không. Kernel không cho phép chương trình bắt, bỏ qua hoặc xử lý SIGKILL. Vì vậy script có thể để lại file tạm.</p>
+<h3>17.4. Điều gì xảy ra khi mất điện?</h3>
+<p>Khi mất điện, không có cơ hội thực hiện cleanup trong user space. Vì vậy thiết kế đáng tin cậy cần nghĩ đến hai cơ chế:</p>
+<ul><li>Cleanup trong lúc chạy, bằng trap.</li><li>Recovery sau crash, ở lần chạy tiếp theo hoặc khi khởi động hệ thống.</li></ul>
+<blockquote>Cleanup giúp giảm tài nguyên tồn dư trong vận hành bình thường. Recovery giúp xử lý những trạng thái mà cleanup không có cơ hội hoàn thành.</blockquote>
+<h2>Phần VIII — Kiểm chứng archive và khả năng restore</h2>
+<h3>18. Tại sao tạo được file .tar.gz chưa có nghĩa backup thành công?</h3>
+<pre><code class="language-bash">tar -czf &quot;$tmp&quot; -C &quot;$src&quot; .</code></pre>
+<p>Sau đó:</p>
+<pre><code class="language-bash">tar -tzf &quot;$tmp&quot; &gt;/dev/null</code></pre>
+<p><code>tar -tzf</code> thử đọc và liệt kê nội dung archive. Nó có thể phát hiện một số dạng lỗi archive. Nhưng có một vấn đề quan trọng: <strong>Archive hợp lệ không có nghĩa dữ liệu trong đó đúng và đầy đủ.</strong></p>
+<pre><code class="language-text">/data/
+├── config.json
+├── firmware.bin
+└── database.db</code></pre>
+<p>Trong lúc backup, ứng dụng vẫn đang cập nhật <code>database.db</code>. <code>tar</code> có thể đọc file tại những thời điểm khác nhau. Kết quả là archive chứa một phiên bản dữ liệu không nhất quán theo logic ứng dụng.</p>
+<h3>18.1. Application consistency là gì?</h3>
+<p>Giả sử database thực hiện giao dịch chuyển tiền:</p>
+<pre><code class="language-text">Account A: -100
+Account B: +100</code></pre>
+<p>Nếu backup chụp trạng thái sau khi A bị trừ nhưng trước khi B được cộng, dữ liệu phục hồi có thể sai. Đây là lý do database cần cơ chế backup nhất quán như:</p>
+<ul><li>Transaction-aware backup.</li><li>Snapshot phối hợp với ứng dụng.</li><li>Write-ahead log hoặc cơ chế phục hồi tương ứng.</li><li>Quiesce ứng dụng khi phù hợp.</li></ul>
+<p>Chỉ dùng <code>tar</code> trên file database đang thay đổi không bảo đảm application consistency.</p>
+<h2>19. Các cấp độ kiểm chứng backup</h2>
+<table><thead><tr><th>Cấp độ</th><th>Kiểm chứng</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td>1</td><td>File tồn tại</td><td>Có một file ở đường dẫn dự kiến</td></tr><tr><td>2</td><td>Archive đọc được</td><td>Định dạng có thể đọc được</td></tr><tr><td>3</td><td>Nội dung được đối chiếu</td><td>Dữ liệu khớp kỳ vọng</td></tr><tr><td>4</td><td>Restore test</td><td>Có thể khôi phục và sử dụng dữ liệu</td></tr></tbody></table>
+<pre><code class="language-bash">mkdir -p /tmp/restore-test
+
+tar -xzf backup.tar.gz \
+    -C /tmp/restore-test</code></pre>
+<p>Sau đó:</p>
+<pre><code class="language-bash">diff -r /data /tmp/restore-test</code></pre>
+<p>Nếu dữ liệu nguồn tĩnh và hai cây thư mục tương ứng, <code>diff -r</code> có thể giúp phát hiện khác biệt về nội dung và cấu trúc file. Nhưng nó không chứng minh mọi metadata đã được phục hồi. Ví dụ, ACL, extended attributes, ownership và một số đặc tính filesystem cần phương pháp kiểm chứng riêng.</p>
+<h3>19.1. Checksum có giải quyết được tất cả không?</h3>
+<p>Không.</p>
+<pre><code class="language-bash">sha256sum backup.tar.gz</code></pre>
+<p>SHA-256 giúp kiểm tra file có thay đổi so với một giá trị checksum đáng tin cậy hay không. Nhưng nếu archive đã thiếu dữ liệu ngay từ lúc tạo, checksum vẫn có thể hoàn toàn hợp lệ. Checksum giải quyết bài toán <strong>integrity của dữ liệu đã được ghi</strong>, không tự chứng minh <strong>completeness và correctness của dữ liệu nguồn</strong>.</p>
+<h2>Phần IX — Kiểm thử lỗi có chủ đích</h2>
+<h3>20. Fault Injection: Chủ động làm script thất bại</h3>
+<p>Một kỹ sư không chỉ kiểm thử đường thành công. Họ phải cố tình tạo lỗi để xem script phản ứng thế nào.</p>
+<pre><code class="language-bash">bash backup.sh</code></pre>
+<p>Thiếu argument, phải trả lỗi sử dụng.</p>
+<pre><code class="language-bash">bash backup.sh /not-exist /backup</code></pre>
+<p>Source không tồn tại, phải thất bại.</p>
+<pre><code class="language-bash">bash backup.sh /data /data/backups</code></pre>
+<p>Destination nằm trong source, phải bị từ chối. Ngoài ra cần kiểm tra:</p>
+<ul><li>Hết dung lượng.</li><li>Không có quyền ghi.</li><li>Hai job chạy đồng thời.</li><li>SIGTERM trong khi đang nén.</li><li>Archive bị hỏng.</li><li>File tạm tồn dư sau crash.</li></ul>
+<h3>20.1. Một ví dụ fault injection đơn giản</h3>
+<pre><code class="language-bash">#!/usr/bin/env bash
+
+set -u
+
+step() {
+    local name=$1
+
+    echo &quot;Running: $name&quot;
+
+    if [[ &quot;${FAIL_AT:-}&quot; == &quot;$name&quot; ]]; then
+        echo &quot;Injected failure at $name&quot; &gt;&amp;2
+        return 1
+    fi
+}
+
+step prepare || exit 1
+step write   || exit 1
+step verify  || exit 1
+step commit  || exit 1
+
+echo &quot;Success&quot;</code></pre>
+<p>Chạy bình thường:</p>
+<pre><code class="language-bash">bash test.sh</code></pre>
+<p>Giả lập lỗi:</p>
+<pre><code class="language-bash">FAIL_AT=verify bash test.sh</code></pre>
+<p>Kết quả:</p>
+<pre><code class="language-text">Running: prepare
+Running: write
+Running: verify
+Injected failure at verify</code></pre>
+<p>Script phải dừng trước commit. Đây là cách kiểm chứng error propagation và bảo đảm rằng các bước sau không chạy khi điều kiện tiên quyết thất bại.</p>
+<h2>Phần X — Cron, systemd và môi trường chạy thực tế</h2>
+<h3>21. Vì sao script chạy trong terminal nhưng lỗi khi chạy bằng cron?</h3>
+<p>Một script có thể phụ thuộc ngầm vào:</p>
+<ul><li><code>PATH</code>.</li><li>Working directory.</li><li>Environment variables.</li><li>User permissions.</li><li>Mount points.</li><li>Các dịch vụ đã khởi động.</li></ul>
+<pre><code class="language-bash">tar -czf backup.tar.gz data/</code></pre>
+<p>Đường dẫn <code>data/</code> là relative path. Nếu cron chạy với working directory khác, script có thể thất bại hoặc backup sai dữ liệu. Đây là lý do nên dùng đường dẫn rõ ràng.</p>
+<h3>21.1. Có nên dùng systemd timer thay cron?</h3>
+<p>Với hệ thống Linux hiện đại, systemd timer có một số lợi thế:</p>
+<ul><li>Quản lý dependency.</li><li>Ghi log qua journal.</li><li>Tích hợp service lifecycle.</li><li>Có thể cấu hình resource limits.</li><li>Có thể dùng security sandboxing.</li><li>Hỗ trợ lịch chạy bù với <code>Persistent=true</code> trong những trường hợp phù hợp.</li></ul>
+<pre><code class="language-ini">[Unit]
+Description=Backup application data
+RequiresMountsFor=/mnt/backup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup.sh /srv/data /mnt/backup</code></pre>
+<p>Timer:</p>
+<pre><code class="language-ini">[Unit]
+Description=Run backup daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target</code></pre>
+<p>Tuy nhiên, systemd không tự động bảo đảm backup nhất quán hay phục hồi được.</p>
+<h2>Phần XI — Tư duy senior: Một script backup production còn thiếu gì?</h2>
+<h3>22. Phân tích các giới hạn</h3>
+<table><thead><tr><th>Thành phần</th><th>Script lab</th><th>Production cần xem xét</th></tr></thead><tbody><tr><td>Kiểm tra argument</td><td>Có</td><td>Có</td></tr><tr><td>Quote đường dẫn</td><td>Có</td><td>Có</td></tr><tr><td>File tạm</td><td>Có</td><td>Có</td></tr><tr><td>Lock</td><td>Có</td><td>Điều phối phù hợp môi trường</td></tr><tr><td>Kiểm tra archive</td><td>Cơ bản</td><td>Kiểm tra nội dung và restore</td></tr><tr><td>Retention</td><td>Chưa có</td><td>Chính sách giữ bản</td></tr><tr><td>Offsite backup</td><td>Chưa có</td><td>Thường cần</td></tr><tr><td>Encryption</td><td>Chưa có</td><td>Theo độ nhạy dữ liệu</td></tr><tr><td>Application consistency</td><td>Chưa có</td><td>Theo loại ứng dụng</td></tr><tr><td>Monitoring</td><td>Chưa có</td><td>Cảnh báo thất bại</td></tr><tr><td>Crash durability</td><td>Chưa bảo đảm</td><td>Thiết kế theo yêu cầu RPO/RTO</td></tr></tbody></table>
+<h3>22.1. RPO và RTO là gì?</h3>
+<p>Hai thuật ngữ quan trọng trong backup:</p>
+<p><strong>RPO — Recovery Point Objective</strong>: Mức mất dữ liệu tối đa có thể chấp nhận, tính theo thời gian. Ví dụ RPO = 1 giờ nghĩa là tổ chức đặt mục tiêu không mất quá khoảng một giờ dữ liệu khi xảy ra sự cố thuộc phạm vi thiết kế.</p>
+<p><strong>RTO — Recovery Time Objective</strong>: Thời gian mục tiêu để khôi phục dịch vụ. Ví dụ RTO = 30 phút nghĩa là cần thiết kế hệ thống sao cho có thể phục hồi dịch vụ trong khoảng thời gian đó.</p>
+<p>Câu hỏi: Nếu backup mỗi 24 giờ nhưng yêu cầu RPO chỉ 15 phút, hệ thống có đáp ứng không? Không, chỉ với lịch backup đó thì không. Cần một chiến lược bảo vệ dữ liệu có tần suất hoặc cơ chế phục hồi phù hợp hơn.</p>
+<h2>Phần XII — Những câu hỏi phản biện quan trọng</h2>
+<div class="panel"><strong>Tự đánh giá mức độ hiểu bài</strong><p class="desc">Hãy tự trả lời trước khi mở đáp án.</p>
+<div class="qa"><button aria-expanded="false">1. Vì sao không chỉ bật set -e và bỏ qua mọi kiểm tra lỗi? ▾</button><div class="answer">Vì set -e có ngoại lệ theo ngữ cảnh và không thể quyết định nghiệp vụ nào cần rollback, retry hoặc cleanup.</div></div>
+<div class="qa"><button aria-expanded="false">2. Vì sao file tạm phải nằm cùng filesystem với file đích? ▾</button><div class="answer">Để có thể sử dụng rename nguyên tử thay vì copy qua filesystem khác.</div></div>
+<div class="qa"><button aria-expanded="false">3. Vì sao flock không thay thế transaction? ▾</button><div class="answer">Vì lock chỉ điều phối những chương trình hợp tác. Nó không bảo đảm dữ liệu được commit nhất quán hoặc bền vững.</div></div>
+<div class="qa"><button aria-expanded="false">4. Vì sao tar -tzf thành công chưa chứng minh backup tốt? ▾</button><div class="answer">Vì archive có thể đọc được nhưng thiếu dữ liệu, chứa trạng thái không nhất quán hoặc không đủ metadata để phục hồi.</div></div>
+<div class="qa"><button aria-expanded="false">5. Vì sao trap EXIT không đủ cho crash recovery? ▾</button><div class="answer">Vì SIGKILL, mất điện hoặc kernel crash không cho shell cơ hội chạy cleanup.</div></div>
+<div class="qa"><button aria-expanded="false">6. Vì sao backup trên cùng ổ đĩa chưa đủ? ▾</button><div class="answer">Vì lỗi vật lý hoặc hỏng filesystem có thể làm mất cả dữ liệu gốc và bản sao.</div></div>
+</div>
+<h2>Phần XIII — Tổng kết và kết nối kiến thức</h2>
+<p>Một shell script đáng tin cậy phải giải quyết đồng thời nhiều vấn đề:</p>
+<div class="panel"><svg viewBox="0 0 340 295" aria-label="Sơ đồ kiến trúc Reliable Shell Script"><rect x="83" y="8" width="174" height="39" rx="8" fill="#315b91" stroke="#78aaff"/><text x="170" y="32" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Reliable Shell Script</text><path d="M170 47 V65 M50 65 H290 M50 65 V84 M170 65 V84 M290 65 V84" stroke="#b7c9de" fill="none"/><rect x="5" y="84" width="108" height="55" rx="7" fill="#255a6c" stroke="#53b4c8"/><rect x="116" y="84" width="108" height="55" rx="7" fill="#255a6c" stroke="#53b4c8"/><rect x="227" y="84" width="108" height="55" rx="7" fill="#255a6c" stroke="#53b4c8"/><g text-anchor="middle" font-size="12" fill="white"><text x="59" y="106">Input</text><text x="59" y="123">Validation</text><text x="170" y="106">Error</text><text x="170" y="123">Handling</text><text x="281" y="106">Resource</text><text x="281" y="123">Cleanup</text></g><path d="M59 139 V165 M170 139 V165 M281 139 V165 M59 165 H281 M170 165 V183" stroke="#b7c9de" fill="none"/><rect x="83" y="183" width="174" height="43" rx="8" fill="#235b4b" stroke="#51c49a"/><text x="170" y="200" text-anchor="middle" font-size="12" fill="white">Atomic Publish</text><text x="170" y="215" text-anchor="middle" font-size="11" fill="white">+ Verification</text><path d="M170 226 V243" stroke="#b7c9de"/><rect x="83" y="243" width="174" height="43" rx="8" fill="#65512b" stroke="#e8ab64"/><text x="170" y="260" text-anchor="middle" font-size="12" fill="white">Recovery &amp; Monitoring</text><text x="170" y="275" text-anchor="middle" font-size="11" fill="white">Khả năng vận hành lâu dài</text></svg></div>
+<p>Các mối liên hệ quan trọng:</p>
+<table><thead><tr><th>Bash</th><th>Kiến thức hệ thống tương ứng</th></tr></thead><tbody><tr><td>Exit status</td><td>Error code trong C</td></tr><tr><td><code>trap EXIT</code></td><td>Cleanup handler</td></tr><tr><td><code>flock</code></td><td>Mutual exclusion</td></tr><tr><td><code>mktemp</code></td><td>Tạo tài nguyên tạm an toàn</td></tr><tr><td>Atomic rename</td><td>Commit/publish</td></tr><tr><td><code>pipefail</code></td><td>Error propagation</td></tr><tr><td><code>realpath</code></td><td>Path canonicalization</td></tr><tr><td>TOCTOU</td><td>Race condition</td></tr><tr><td>Restore test</td><td>Integration/recovery testing</td></tr><tr><td>systemd timer</td><td>Job scheduling</td></tr><tr><td>RPO/RTO</td><td>Disaster recovery engineering</td></tr></tbody></table>
+<p><strong>Kết luận của Bài 13:</strong> Điểm khác biệt giữa một script Bash đơn giản và một automation đáng tin cậy không nằm ở số lượng dòng code, mà nằm ở khả năng dự đoán và kiểm soát hành vi khi có lỗi.</p>
+<p>Một kỹ sư senior luôn thiết kế theo các câu hỏi:</p>
+<ul><li>Điều gì xảy ra nếu command thất bại?</li><li>Điều gì xảy ra nếu hai tiến trình chạy đồng thời?</li><li>Điều gì xảy ra nếu dữ liệu thay đổi trong khi đọc?</li><li>Điều gì xảy ra nếu mất điện giữa lúc ghi?</li><li>Điều gì xảy ra nếu cleanup không được thực thi?</li><li>Điều gì chứng minh kết quả cuối cùng thực sự sử dụng được?</li></ul>
+<p>Khi trả lời được những câu hỏi này, bạn không còn chỉ viết shell script để tự động hóa thao tác, mà đang thiết kế một hệ thống automation có thể kiểm chứng, giám sát và phục hồi.</p></main><script>
+const setActive=(container,attr,value)=>document.querySelectorAll(container+' button').forEach(b=>b.classList.toggle('active',b.dataset[attr]===String(value)));
+const paths=['/data/safe','/data/changed','/data/changed'];const caps=['Kiểm tra hợp lệ','Một tiến trình khác thay đổi filesystem','Thao tác có thể dùng trạng thái mới'];
+document.querySelectorAll('#toctou-controls button').forEach(b=>b.addEventListener('click',()=>{let n=Number(b.dataset.step);setActive('#toctou-controls','step',n);document.getElementById('toctou-path').textContent=paths[n];document.getElementById('toctou-label').textContent=n===0?'Đường dẫn được kiểm tra':'Đường dẫn đã thay đổi';document.getElementById('toctou-caption').textContent=caps[n];document.getElementById('toctou-box').setAttribute('fill',n===0?'#1d6e56':'#81502c');document.getElementById('toctou-box').setAttribute('stroke',n===0?'#51c49a':'#e8ab64');}));
+let stage=0;const stageNames=['Empty','Writing...','Verifying','Renamed'],stageDescriptions=['Tạo file tạm. Chưa có archive được công bố.','Ghi dữ liệu vào file tạm. Nếu thất bại, file cuối chưa xuất hiện.','Kiểm tra archive có thể đọc được trước khi công bố.','Rename file tạm sang tên cuối. Consumer có thể thấy archive.'];function updateStage(){setActive('#stage-controls','stage',stage);document.getElementById('stage-temp').textContent=stageNames[stage];document.getElementById('stage-final').textContent=stage===3?'Published':'Not available';document.getElementById('stage-caption').textContent=stage===3?'Commit complete':'Consumer chưa thấy file cuối';document.getElementById('stage-desc').textContent=stageDescriptions[stage];document.getElementById('stage-arrow').setAttribute('opacity',stage===3?'1':'.2');document.getElementById('stage-final-box').setAttribute('fill',stage===3?'#235b4b':'#313a48');document.getElementById('stage-final-box').setAttribute('stroke',stage===3?'#51c49a':'#999');document.getElementById('stage-prev').disabled=stage===0;document.getElementById('stage-next').disabled=stage===3;}document.querySelectorAll('#stage-controls button').forEach(b=>b.addEventListener('click',()=>{stage=Number(b.dataset.stage);updateStage()}));document.getElementById('stage-prev').onclick=()=>{stage=Math.max(0,stage-1);updateStage()};document.getElementById('stage-next').onclick=()=>{stage=Math.min(3,stage+1);updateStage()};updateStage();
+let owner=null;function updateLock(){for(const id of ['a','b']){document.getElementById('lock-'+id+'-label').textContent=owner===id?'LOCK HELD':owner===null?'IDLE':'BLOCKED';document.getElementById('lock-'+id).disabled=owner!==null;}document.getElementById('lock-release').disabled=owner===null;document.getElementById('lock-caption').textContent=owner===null?'.backup.lock: chưa có owner':'.backup.lock: Process '+owner.toUpperCase()+' giữ lock';document.getElementById('lock-desc').textContent=owner===null?'Chưa có tiến trình giữ lock.':'Process '+owner.toUpperCase()+' đang giữ lock. Process còn lại không thể lấy nonblocking exclusive lock tương thích trên cùng đối tượng.';}for(const id of ['a','b'])document.getElementById('lock-'+id).onclick=()=>{if(owner===null)owner=id;updateLock()};document.getElementById('lock-release').onclick=()=>{owner=null;updateLock()};updateLock();
+document.querySelectorAll('.qa button').forEach(b=>b.addEventListener('click',()=>{let a=b.nextElementSibling;let open=a.classList.toggle('open');b.setAttribute('aria-expanded',String(open));}));
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

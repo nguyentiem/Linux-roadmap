@@ -1,0 +1,729 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 32 — Phân tích CPU và bộ nhớ chuyên sâu</title><meta name="description" content="Bài học Linux performance chuyên sâu, sơ đồ SVG và mô phỏng JavaScript ngoại tuyến"><style>
+:root{--bg:#f6f8fb;--paper:#fff;--text:#182334;--muted:#64748b;--line:#dce3ec;--accent:#0d9488;--code:#101827}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.78 system-ui,-apple-system,'Segoe UI',Arial,sans-serif}body.dark{--bg:#101722;--paper:#182334;--text:#e7edf5;--muted:#a5b3c5;--line:#344457;--code:#0b1019}a{color:var(--accent)}.layout{display:grid;grid-template-columns:260px minmax(0,900px);justify-content:center;gap:36px;max-width:1280px;margin:auto;padding:30px 22px}.sidebar{position:sticky;top:20px;align-self:start;height:calc(100vh - 40px);overflow:auto;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}.sidebar h3{margin:0 0 12px;font-size:16px}.sidebar a{display:block;text-decoration:none;color:var(--muted);font-size:13px;line-height:1.45;padding:9px;border-radius:8px}.sidebar a:hover{background:var(--bg);color:var(--accent)}article{background:var(--paper);padding:42px 52px;border-radius:20px;border:1px solid var(--line);box-shadow:0 8px 35px #11182709;min-width:0}h1{font-size:clamp(25px,3vw,36px);line-height:1.3;letter-spacing:-.7px;margin:55px 0 22px;color:var(--text);border-top:1px solid var(--line);padding-top:30px}article>h1:first-child{border:0;padding:0;margin-top:0;font-size:clamp(32px,4vw,44px)}h2{font-size:23px;line-height:1.4;margin:38px 0 14px}h3{font-size:18px}p{margin:13px 0}strong{color:var(--text)}blockquote{border-left:4px solid var(--accent);padding:6px 20px;background:var(--bg);margin:20px 0}table{border-collapse:collapse;width:100%;font-size:14px;margin:20px 0;display:block;overflow-x:auto}th,td{border:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top}th{background:var(--bg)}tr:nth-child(even){background:color-mix(in srgb,var(--bg) 55%,transparent)}pre{background:var(--code);color:#e6edf3;border-radius:12px;padding:18px;overflow:auto;font-size:13px;line-height:1.6;position:relative}pre code{background:none;color:inherit;padding:0}code{background:var(--bg);padding:2px 5px;border-radius:4px;font-size:.9em}button{cursor:pointer;background:var(--accent);color:white;border:0;border-radius:8px;padding:10px 15px;font-weight:650}button:hover{filter:brightness(.94)}button.active{background:#075f57}.toolbar{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:22px}.toolbar button{background:var(--paper);color:var(--text);border:1px solid var(--line)}.diagram,.widget{margin:25px 0;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:20px;overflow:hidden}.diagram svg{width:100%;height:auto;max-height:340px}.widget h3{margin:0 0 18px}.widget label:not(.option):not(.check){display:block;margin:12px 0;font-weight:600}.widget input[type=range]{display:block;width:100%;accent-color:var(--accent);margin:8px 0 20px}.widget output{float:right;color:var(--accent)}.widget small,.note{color:var(--muted);font-size:13px}.core-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.core{border:1px solid var(--line);padding:12px 5px;border-radius:9px;text-align:center;background:var(--bg);font-size:13px}.core.busy{background:#0d94882a;border-color:#0d9488}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:14px 0}.stats>div{background:var(--bg);border-radius:12px;padding:14px}.stats strong{display:block;font-size:30px;line-height:1.4}.timebar{display:flex;height:50px;border-radius:8px;overflow:hidden;margin:14px 0}.timebar span{display:grid;place-items:center;color:white;font-weight:700}.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.page-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:10px 0}.page{height:26px;border-radius:5px;background:#6366f133;border:1px solid #6366f177}.page.physical{background:var(--bg);border-color:var(--line)}.page.physical.touched{background:#0d9488a0;border-color:#0d9488}.controls{display:flex;gap:10px}.progress{height:18px;border-radius:8px;background:var(--bg);overflow:hidden;margin:9px 0 18px}.progress>div{height:100%;transition:width .2s ease}.formula{margin:18px auto;padding:16px;text-align:center;background:var(--bg);border-radius:10px;font-family:Georgia,serif;font-size:19px;overflow:auto}.quiz-item{border:0;border-top:1px solid var(--line);padding:20px 0;margin:0}.quiz-item legend{font-weight:700;padding-top:12px}.option,.check{display:block;padding:8px 10px;margin:5px 0;border-radius:8px;cursor:pointer}.option:hover,.check:hover{background:var(--bg)}input[type=radio],input[type=checkbox]{accent-color:var(--accent);width:17px;height:17px;vertical-align:middle}.feedback{font-size:14px;margin:9px 0}.correct{color:#0d9488}.incorrect{color:#dc6555}#quizCount,#checkCount{float:right;color:var(--muted);font-size:14px}canvas{display:block;width:100%;height:auto}hr{border:0;border-top:1px solid var(--line);margin:35px 0}.footer{text-align:center;color:var(--muted);font-size:13px;margin:35px 0}.mobile-nav{display:none}@media(max-width:950px){.layout{display:block;padding:10px}.sidebar{display:none}article{padding:24px 20px}.mobile-nav{display:block;padding:12px;margin:10px 0;border:1px solid var(--line);border-radius:10px;background:var(--paper)}.mobile-nav select{width:100%;padding:9px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--text)}}@media(max-width:520px){.stats,.two-col{grid-template-columns:1fr}.core-grid{grid-template-columns:repeat(2,1fr)}article{padding:20px 15px}h2{font-size:20px}}@media print{body{background:white}.sidebar,.toolbar,.mobile-nav{display:none}.layout{display:block;padding:0}article{border:0;box-shadow:none;padding:0}h1,h2{break-after:avoid}pre,.widget,.diagram{break-inside:avoid}button,input{display:none}}
+</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="32"><div class="layout"><aside class="sidebar"><h3>📚 Mục lục Bài 32</h3><a href="#s1">Bài 32 — Phân tích CPU và bộ nhớ chuyên sâu trong Linux</a><a href="#s2">Phần I — Tư duy nền tảng: CPU cao không đồng nghĩa CPU là bottleneck</a><a href="#s4">Phần II — CPU thực sự hoạt động như thế nào?</a><a href="#s7">Phần III — Run queue, scheduler và CPU contention</a><a href="#s11">Phần IV — User time, system time, iowait, irq và softirq</a><a href="#s13">Phần V — Context switch</a><a href="#s15">Phần VI — CPU migration và cache locality</a><a href="#s17">Phần VII — Hardware performance counters: Cache miss, branch miss, IPC</a><a href="#s22">Phần VIII — Memory: RAM còn trống mà ứng dụng vẫn chậm?</a><a href="#s25">Phần IX — Reserve, touch và page fault</a><a href="#s28">Phần X — Memory pressure và reclaim</a><a href="#s31">Phần XI — PSI: Đo thời gian đình trệ</a><a href="#s34">Phần XII — Cgroup: Host còn CPU/RAM nhưng container vẫn chậm?</a><a href="#s38">Phần XIII — NUMA: RAM không còn đồng nhất</a><a href="#s41">Phần XIV — Lab 1: CPU-bound so với Sleeping</a><a href="#s45">Phần XV — Lab 2: Reserve và Touch bộ nhớ</a><a href="#s47">Phần XVI — Memory leak: RSS tăng có phải leak?</a><a href="#s49">Phần XVII — Thread chờ khóa: Thêm CPU không giải quyết?</a><a href="#s51">Phần XVIII — Quy trình điều tra hiệu năng kiểu senior</a><a href="#s57">Phần XIX — Case study: Cùng chậm, ba nguyên nhân</a><a href="#s61">Phần XX — Những sai lầm phổ biến</a><a href="#s63">Phần XXI — Bộ lệnh thực chiến</a><a href="#s66">Phần XXII — Bài tập tư duy và phản biện</a><a href="#s67">Phần XXIII — Kiến thức mở rộng: Các vấn đề tương tự</a><a href="#s72">Phần XXIV — Checklist hoàn thành Bài 32</a><a href="#s73">Tổng kết — Tư duy senior khi phân tích CPU và bộ nhớ</a></aside><main><div class="toolbar"><button id="themeToggle" type="button">☾ Sáng / tối</button><button id="printBtn" type="button">⎙ In / PDF</button></div><div class="mobile-nav"><select id="mobileJump"><option value="">Đi tới phần...</option><option value="#s1">Bài 32 — Phân tích CPU và bộ nhớ chuyên sâu trong Linux</option><option value="#s2">Phần I — Tư duy nền tảng: CPU cao không đồng nghĩa CPU là bottleneck</option><option value="#s4">Phần II — CPU thực sự hoạt động như thế nào?</option><option value="#s7">Phần III — Run queue, scheduler và CPU contention</option><option value="#s11">Phần IV — User time, system time, iowait, irq và softirq</option><option value="#s13">Phần V — Context switch</option><option value="#s15">Phần VI — CPU migration và cache locality</option><option value="#s17">Phần VII — Hardware performance counters: Cache miss, branch miss, IPC</option><option value="#s22">Phần VIII — Memory: RAM còn trống mà ứng dụng vẫn chậm?</option><option value="#s25">Phần IX — Reserve, touch và page fault</option><option value="#s28">Phần X — Memory pressure và reclaim</option><option value="#s31">Phần XI — PSI: Đo thời gian đình trệ</option><option value="#s34">Phần XII — Cgroup: Host còn CPU/RAM nhưng container vẫn chậm?</option><option value="#s38">Phần XIII — NUMA: RAM không còn đồng nhất</option><option value="#s41">Phần XIV — Lab 1: CPU-bound so với Sleeping</option><option value="#s45">Phần XV — Lab 2: Reserve và Touch bộ nhớ</option><option value="#s47">Phần XVI — Memory leak: RSS tăng có phải leak?</option><option value="#s49">Phần XVII — Thread chờ khóa: Thêm CPU không giải quyết?</option><option value="#s51">Phần XVIII — Quy trình điều tra hiệu năng kiểu senior</option><option value="#s57">Phần XIX — Case study: Cùng chậm, ba nguyên nhân</option><option value="#s61">Phần XX — Những sai lầm phổ biến</option><option value="#s63">Phần XXI — Bộ lệnh thực chiến</option><option value="#s66">Phần XXII — Bài tập tư duy và phản biện</option><option value="#s67">Phần XXIII — Kiến thức mở rộng: Các vấn đề tương tự</option><option value="#s72">Phần XXIV — Checklist hoàn thành Bài 32</option><option value="#s73">Tổng kết — Tư duy senior khi phân tích CPU và bộ nhớ</option></select></div><article><h1 id="s1">Bài 32 — Phân tích CPU và bộ nhớ chuyên sâu trong Linux</h1>
+<p><strong>Linux Performance Engineering · CPU Scheduling · Memory Management · NUMA · PSI · Cgroups · Troubleshooting</strong></p>
+<p>Bài 31 đã giúp chúng ta hình thành tư duy tìm <em>bottleneck</em> (nút thắt hiệu năng). Bài 32 đi sâu vào hai tài nguyên quan trọng nhất của hệ thống: <strong>CPU và RAM</strong>.</p>
+<p>Điều quan trọng nhất không phải học thuộc <code>top</code>, <code>free</code>, <code>vmstat</code> hay <code>perf</code>, mà là suy luận: <strong>Một ứng dụng chạy chậm, làm thế nào chứng minh chính xác nó chậm vì CPU không đủ, vì phải chờ CPU, vì thiếu bộ nhớ, vì tranh chấp khóa, hay vì bị Linux giới hạn tài nguyên?</strong></p>
+<p>Chúng ta liên kết bài 17 (memory), bài 19 (scheduler), bài 31 (bottleneck), rồi đi vào cách điều tra thực tế như khi xử lý sự cố production.</p>
+<hr />
+<h1 id="s2">Phần I — Tư duy nền tảng: CPU cao không đồng nghĩa CPU là bottleneck</h1>
+<h2 id="s3">1. Đặt vấn đề: Server chậm, có nên nâng cấp CPU?</h2>
+<p>Giả sử server Linux chạy API. Bình thường: 1.000 request/giây; phản hồi trung bình 20 ms; CPU 40%; RAM 60%. Một ngày, request mất 500 ms, CPU 95%, RAM vẫn còn trống, khách hàng báo timeout.</p>
+<p>Người mới: “CPU 95%, nâng 4 core lên 8 core!”. Senior hỏi: <strong>95% CPU đang thực sự làm việc gì?</strong></p>
+<p>Có thể CPU tính toán cần thiết, xử lý quá nhiều syscall, chạy vòng lặp vô nghĩa, nhiều thread tranh mutex, xử lý interrupt, bị quota, hoặc liên tục cache miss. CPU 95% cũng không có nghĩa mọi request đang chờ CPU.</p>
+<h3>Ví dụ đời sống: Nhà hàng</h3>
+<p>CPU core là đầu bếp; process/thread là đơn hàng; run queue là hàng đơn chờ; RAM là bàn chuẩn bị nguyên liệu; disk là kho xa; mutex là dụng cụ chỉ một người dùng; CPU quota là giới hạn thời gian làm việc.</p>
+<div class="diagram"><svg viewBox="0 0 720 200" role="img" aria-label="Sơ đồ minh họa"><rect x="20" y="15" width="95" height="38" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="67.5" y="38.0" text-anchor="middle" fill="currentColor" font-size="12">Đơn 1</text><rect x="130" y="15" width="95" height="38" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="177.5" y="38.0" text-anchor="middle" fill="currentColor" font-size="12">Đơn 2</text><rect x="240" y="15" width="95" height="38" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="287.5" y="38.0" text-anchor="middle" fill="currentColor" font-size="12">Đơn 3</text><rect x="350" y="15" width="95" height="38" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="397.5" y="38.0" text-anchor="middle" fill="currentColor" font-size="12">Đơn 4</text><rect x="460" y="15" width="95" height="38" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="507.5" y="38.0" text-anchor="middle" fill="currentColor" font-size="12">Đơn 5</text><path d="M275 60 V100" stroke="currentColor" stroke-dasharray="5 5"/><path d="M270 92 L275 100 L280 92" stroke="currentColor" fill="none"/><rect x="110" y="110" width="220" height="65" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="220.0" y="146.5" text-anchor="middle" fill="currentColor" font-size="12">CPU Core 0 — đang nấu</text><rect x="390" y="110" width="220" height="65" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="500.0" y="146.5" text-anchor="middle" fill="currentColor" font-size="12">CPU Core 1 — đang nấu</text></svg></div>
+<p>Nếu nhà hàng chậm, hỏi: đầu bếp bận nấu, đơn xếp hàng, chờ nguyên liệu, tranh chảo, hay quản lý hạn chế giờ làm? Cùng một triệu chứng, nhiều nguyên nhân khác nhau.</p>
+<hr />
+<h1 id="s4">Phần II — CPU thực sự hoạt động như thế nào?</h1>
+<h2 id="s5">2. Phân biệt CPU time, wall time và waiting time</h2>
+<p>Giả sử request cần 10 ms tính toán, 30 ms chờ disk, 40 ms chờ network, 20 ms chờ scheduler cấp CPU. Tổng thời gian thực là 100 ms, nhưng CPU execution chỉ khoảng 10 ms. Đây là ví dụ tuần tự, không chồng lấn.</p>
+<div class="formula">T_{wall}=10+30+40+20=100\text{ ms}</div>
+<div class="formula">T_{CPU}=10\text{ ms}</div>
+<div class="widget"><b>Timeline request — 100 ms</b><div class="timebar"><span style="flex:10;background:#0d9488">10</span><span style="flex:20;background:#d97706">20</span><span style="flex:30;background:#64748b">30</span><span style="flex:40;background:#6366f1">40</span></div><div class="legend"><span>🟢 CPU 10 ms</span><span>🟠 Runnable wait 20 ms</span><span>⚪ Disk 30 ms</span><span>🟣 Network 40 ms</span></div></div>
+<p><strong>Câu hỏi:</strong> Thêm CPU gấp đôi, request giảm còn 50 ms? Không nhất thiết. Nếu xóa toàn bộ runnable wait, vẫn còn 80 ms. Phải phân tách latency trước khi tối ưu.</p>
+<p><strong>CPU time</strong> là thời gian process/thread thực sự thực thi trên CPU, gồm user time và system time:</p>
+<div class="formula">T_{CPU}=T_{user}+T_{system}</div>
+<p><strong>Wall time</strong> là thời gian đồng hồ thực trôi từ bắt đầu đến kết thúc.</p>
+<pre><code class="language-bash">/usr/bin/time -v ./my_program
+</code></pre>
+<pre><code class="language-text">User time (seconds): 1.80
+System time (seconds): 0.20
+Elapsed (wall clock) time: 0:05.00
+</code></pre>
+<p>CPU time 2 giây, wall time 5 giây. Phần còn lại có thể là sleeping, scheduler wait, I/O và các loại chờ khác; không thể quy hết cho I/O. Process đa luồng có thể có CPU time lớn hơn wall time do chạy song song.</p>
+<h2 id="s6">3. CPU utilization: 100% nghĩa là gì?</h2>
+<p>Một logical CPU thường chạy một luồng thực thi tại một thời điểm. Một thread CPU-bound có thể tiêu thụ gần 100% một logical CPU; 4 thread có thể tiêu thụ 4 CPU. <code>top</code> có thể hiển thị process đa luồng tới 400% ở chế độ Irix. Cách chuẩn hóa khác nhau giữa công cụ.</p>
+<div class="widget"><h3>Mô phỏng CPU utilization</h3><label>Số logical CPU <output id="cpuC">4</output><input id="cores" type="range" min="1" max="8" value="4"></label><label>Số worker CPU-bound <output id="cpuW">3</output><input id="workers" type="range" min="1" max="12" value="3"></label><div id="cpuGrid" class="core-grid"></div><div class="stats"><div><small>Utilization lý tưởng</small><strong id="util">75%</strong></div><div><small>Thread chờ CPU</small><strong id="waiting">0</strong></div></div><p class="note">Mô hình lý tưởng: worker luôn runnable, không quota/affinity/overhead.</p></div>
+<p>Thử 4 CPU và 8 worker: utilization 100% nhưng 4 worker không thể chạy đồng thời. Chúng ở <strong>run queue</strong>.</p>
+<hr />
+<h1 id="s7">Phần III — Run queue, scheduler và CPU contention</h1>
+<h2 id="s8">4. Runnable khác Running thế nào?</h2>
+<p><strong>Running</strong>: đang thực thi trên CPU. <strong>Runnable</strong>: đủ điều kiện chạy nhưng chưa được CPU phục vụ. <strong>Sleeping</strong>: chờ sự kiện, timer, I/O hoặc điều kiện đồng bộ.</p>
+<div class="diagram"><svg viewBox="0 0 720 220" role="img" aria-label="Sơ đồ minh họa"><rect x="285" y="10" width="150" height="48" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="360.0" y="38.0" text-anchor="middle" fill="currentColor" font-size="12">RUNNING</text><rect x="60" y="110" width="170" height="48" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="145.0" y="138.0" text-anchor="middle" fill="currentColor" font-size="12">RUNNABLE</text><rect x="490" y="110" width="170" height="48" rx="8" fill="#64748b" fill-opacity=".20" stroke="#64748b"/><text x="575.0" y="138.0" text-anchor="middle" fill="currentColor" font-size="12">SLEEPING</text><path d="M290 40 Q135 40 135 110 M190 110 Q230 75 320 58 M430 40 Q570 40 570 110 M490 158 Q360 220 230 158" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/></svg></div>
+<p>Trong Linux, trạng thái <code>R</code> của <code>ps</code> bao gồm cả đang chạy và runnable đang chờ. Task runnable chờ CPU khác task sleeping chờ network, dù cả hai đều làm tăng request latency.</p>
+<h2 id="s9">5. Run queue length</h2>
+<p>Run queue phản ánh lượng công việc runnable. Với 4 CPU, 2 task có thể chạy đồng thời; 4 task dùng hết 4 CPU; 8 task cạnh tranh CPU; 40 task có thể là quá tải nghiêm trọng. Đây là mô hình đơn giản, chưa xét affinity, SMT, quota, ưu tiên và per-CPU runqueue.</p>
+<pre><code class="language-bash">vmstat 1
+</code></pre>
+<pre><code class="language-text"> r  b   swpd   free   buff  cache  si so  us sy id wa
+ 8  0      0 500000  12000 800000 70 10  0 20 10  0
+</code></pre>
+<p><code>r=8</code> nghĩa là có 8 task runnable tại mẫu đó, không chứng minh hệ thống liên tục quá tải. So với số CPU thực sự khả dụng:</p>
+<pre><code class="language-bash">nproc
+</code></pre>
+<p><strong>Phản biện:</strong> Run queue 8 trên 32 CPU có thể bình thường; container quota 2 CPU dù host 32 CPU có thể rất căng. Run queue phải đặt cạnh capacity và giới hạn.</p>
+<h2 id="s10">6. CPU utilization cao nhưng run queue thấp</h2>
+<p>Ví dụ CPU utilization 95%, run queue khoảng 1, server 16 CPU: chưa đủ kết luận CPU bottleneck. Có thể một số CPU bận interrupt, task bị affinity hoặc số liệu đo khác phạm vi.</p>
+<pre><code class="language-bash">mpstat -P ALL 1
+pidstat -u -t 1
+taskset -pc &lt;PID&gt;
+cat /proc/&lt;PID&gt;/status | grep Cpus_allowed_list
+</code></pre>
+<p>16 CPU của host không đồng nghĩa process được phép chạy trên cả 16 CPU.</p>
+<hr />
+<h1 id="s11">Phần IV — User time, system time, iowait, irq và softirq</h1>
+<h2 id="s12">7. CPU accounting</h2>
+<pre><code class="language-bash">top
+</code></pre>
+<pre><code class="language-text">%Cpu(s): 65.0 us, 20.0 sy, 5.0 id, 8.0 wa, 1.0 hi, 1.0 si
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Trường</th>
+  <th>Ý nghĩa</th>
+  <th>Câu hỏi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>us</code></td>
+  <td>User-space execution</td>
+  <td>Code ứng dụng làm gì?</td>
+</tr>
+<tr>
+  <td><code>sy</code></td>
+  <td>Kernel execution</td>
+  <td>Kernel path nào tốn CPU?</td>
+</tr>
+<tr>
+  <td><code>id</code></td>
+  <td>Idle</td>
+  <td>CPU có rảnh không?</td>
+</tr>
+<tr>
+  <td><code>wa</code></td>
+  <td>I/O wait accounting</td>
+  <td>Có I/O gây đình trệ không?</td>
+</tr>
+<tr>
+  <td><code>hi</code></td>
+  <td>Hardware interrupt</td>
+  <td>Thiết bị nào tạo interrupt?</td>
+</tr>
+<tr>
+  <td><code>si</code></td>
+  <td>Software interrupt</td>
+  <td>Network/deferred processing nào hoạt động?</td>
+</tr>
+<tr>
+  <td><code>st</code></td>
+  <td>Steal time</td>
+  <td>Hypervisor có lấy mất thời gian vCPU?</td>
+</tr>
+</tbody>
+</table>
+<h3>7.1 User time cao</h3>
+<p>Ứng dụng xử lý ảnh chạy vòng lặp tính toán sẽ có <code>us</code> cao. Dùng profiling tìm hot path:</p>
+<pre><code class="language-bash">perf record -g -p &lt;PID&gt; -- sleep 15
+perf report
+</code></pre>
+<p>Hot path là đoạn code được thực thi nhiều hoặc tiêu tốn phần lớn CPU time; không cần tối ưu toàn bộ code.</p>
+<h3>7.2 System time cao</h3>
+<p>Ghi từng byte có thể sinh rất nhiều syscall:</p>
+<pre><code class="language-c">for (int i = 0; i &lt; 1000000; i++) {
+    write(fd, &quot;x&quot;, 1);
+}
+</code></pre>
+<p>Thay bằng batch:</p>
+<pre><code class="language-c">write(fd, buffer, 1000000);
+</code></pre>
+<p>Số syscall giảm mạnh, nhưng hiệu quả phụ thuộc buffering và storage. <code>sy</code> cao còn có thể do page fault, filesystem, network, reclaim và interrupt, không chỉ số syscall.</p>
+<pre><code class="language-bash">strace -c -p &lt;PID&gt;
+</code></pre>
+<p><code>strace</code> có overhead đáng kể, cẩn trọng với production nhạy latency.</p>
+<h3>7.3 Iowait</h3>
+<p>Iowait <strong>không phải</strong> thời gian CPU đang thực thi I/O. Nó là accounting CPU trong điều kiện idle và có I/O đang chờ theo cơ chế Linux. Iowait cao không đo chính xác latency request; iowait thấp không chứng minh disk khỏe.</p>
+<pre><code class="language-bash">iostat -xz 1
+</code></pre>
+<p>Kết hợp latency ứng dụng, block I/O và I/O PSI.</p>
+<h3>7.4 Softirq cao</h3>
+<p>Network packet processing có thể đẩy CPU softirq lên cao, nhất là nhiều packet nhỏ.</p>
+<pre><code class="language-bash">cat /proc/softirqs
+mpstat -P ALL 1
+</code></pre>
+<p>Nếu processing tập trung một CPU, kiểm tra RSS/RPS, interrupt affinity và thiết kế network. Tăng worker ứng dụng chưa chắc giải quyết được.</p>
+<hr />
+<h1 id="s13">Phần V — Context switch</h1>
+<h2 id="s14">8. Context switch là gì?</h2>
+<p>CPU đang chạy A, scheduler chuyển sang B. Kernel duy trì và chuyển trạng thái thực thi, bookkeeping, có thể ảnh hưởng address space, cache/TLB locality.</p>
+<div class="diagram"><svg viewBox="0 0 720 180" role="img" aria-label="Sơ đồ minh họa"><rect x="15" y="40" width="165" height="75" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="97.5" y="81.5" text-anchor="middle" fill="currentColor" font-size="12">Task A</text><rect x="180" y="40" width="100" height="75" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="230.0" y="81.5" text-anchor="middle" fill="currentColor" font-size="12">Switch</text><rect x="280" y="40" width="165" height="75" rx="8" fill="#6366f1" fill-opacity=".20" stroke="#6366f1"/><text x="362.5" y="81.5" text-anchor="middle" fill="currentColor" font-size="12">Task B</text><rect x="445" y="40" width="100" height="75" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="495.0" y="81.5" text-anchor="middle" fill="currentColor" font-size="12">Switch</text><rect x="545" y="40" width="165" height="75" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="627.5" y="81.5" text-anchor="middle" fill="currentColor" font-size="12">Task A</text><text x="360" y="155" text-anchor="middle" fill="currentColor">Thời gian →</text></svg></div>
+<p>Chi phí không cố định, phụ thuộc phần cứng, kernel và trạng thái cache.</p>
+<p><strong>Voluntary:</strong> task tự chờ, chẳng hạn blocking <code>read()</code>. <strong>Involuntary:</strong> scheduler preempt task vì cạnh tranh hoặc task ưu tiên cao hơn.</p>
+<pre><code class="language-bash">pidstat -w -p &lt;PID&gt; 1
+</code></pre>
+<p><code>cswch/s</code>: voluntary context switches/s. <code>nvcswch/s</code>: non-voluntary switches/s.</p>
+<p>Context switch cao không tự động là xấu: event-driven server có thể switch nhiều mà vẫn hiệu quả. Cần liên hệ throughput, latency, runnable wait và CPU profiling.</p>
+<hr />
+<h1 id="s15">Phần VI — CPU migration và cache locality</h1>
+<h2 id="s16">9. Vì sao migration có thể làm chậm?</h2>
+<p>Thread A chạy trên CPU 0, thường đọc dữ liệu đã ở cache thuận lợi. Scheduler chuyển sang CPU 3, dữ liệu có thể cần lấy lại từ cấp cache khác hoặc memory hierarchy.</p>
+<div class="diagram"><svg viewBox="0 0 720 155" role="img" aria-label="Sơ đồ minh họa"><rect x="30" y="20" width="280" height="60" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="170.0" y="54.0" text-anchor="middle" fill="currentColor" font-size="12">CPU 0 — cache có dữ liệu A</text><rect x="410" y="20" width="280" height="60" rx="8" fill="#6366f1" fill-opacity=".20" stroke="#6366f1"/><text x="550.0" y="54.0" text-anchor="middle" fill="currentColor" font-size="12">CPU 3 — có thể lấy lại A</text><path d="M310 50 H410" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/><text x="360" y="35" text-anchor="middle" fill="currentColor" font-size="11">Migration</text><text x="360" y="125" text-anchor="middle" fill="currentColor">Cache locality ↔ Load balancing</text></svg></div>
+<p>Cache thực tế có nhiều cấp, có thể chia sẻ; migration không có nghĩa mất toàn bộ cache. Scheduler vẫn migration để cân bằng tải: trade-off <strong>load balancing ↔ cache locality</strong>.</p>
+<pre><code class="language-bash">perf stat -e cpu-migrations,context-switches -- ./my_program
+taskset -c 2 ./my_program
+</code></pre>
+<p>Pin CPU có thể gây mất cân bằng hoặc remote NUMA. Không phải tối ưu mặc định.</p>
+<hr />
+<h1 id="s17">Phần VII — Hardware performance counters: Cache miss, branch miss, IPC</h1>
+<h2 id="s18">10. CPU utilization không nói CPU hữu ích đến đâu</h2>
+<p>Hai chương trình đều 100% một CPU nhưng A xử lý 1 triệu phần tử/s, B xử lý 5 triệu/s. CPU bận không cho biết lượng công việc hữu ích hoàn thành.</p>
+<h2 id="s19">11. Instructions per cycle — IPC</h2>
+<div class="formula">IPC=\frac{Instructions\ retired}{CPU\ cycles}</div>
+<p>2 tỷ instruction / 1 tỷ cycle = IPC 2. IPC cao/thấp không thể đánh giá tuyệt đối nếu chưa biết architecture và workload.</p>
+<pre><code class="language-bash">perf stat -e cycles,instructions -- ./my_program
+</code></pre>
+<p>Ví dụ 1 tỷ cycles, 500 triệu instructions → IPC 0.5. Không đủ chứng minh memory bottleneck: có thể cache miss, dependency chain, branch misprediction, pipeline stall hoặc instruction mix.</p>
+<h2 id="s20">12. Cache miss</h2>
+<div class="diagram"><svg viewBox="0 0 720 220" role="img" aria-label="Sơ đồ minh họa"><rect x="165" y="12" width="390" height="35" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="360.0" y="33.5" text-anchor="middle" fill="currentColor" font-size="12">Registers</text><rect x="200" y="57" width="320" height="35" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="360.0" y="78.5" text-anchor="middle" fill="currentColor" font-size="12">L1 cache</text><rect x="235" y="102" width="250" height="35" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="360.0" y="123.5" text-anchor="middle" fill="currentColor" font-size="12">L2 / L3 cache</text><rect x="270" y="147" width="180" height="35" rx="8" fill="#6366f1" fill-opacity=".20" stroke="#6366f1"/><text x="360.0" y="168.5" text-anchor="middle" fill="currentColor" font-size="12">DRAM</text></svg></div>
+<p>Truy cập mảng tuần tự thường có locality tốt:</p>
+<pre><code class="language-c">for (int i = 0; i &lt; N; i++) {
+    sum += array[i];
+}
+</code></pre>
+<p>Truy cập chỉ số ngẫu nhiên có thể kém locality:</p>
+<pre><code class="language-c">for (int i = 0; i &lt; N; i++) {
+    sum += array[random_index[i]];
+}
+</code></pre>
+<pre><code class="language-bash">perf stat -e cache-references,cache-misses -- ./my_program
+</code></pre>
+<p><code>cache-misses</code> phụ thuộc PMU và cách kernel ánh xạ sự kiện; không phải mọi miss của mọi cấp cache.</p>
+<h2 id="s21">13. Branch misprediction</h2>
+<p>CPU dự đoán hướng nhánh để thực thi suy đoán:</p>
+<pre><code class="language-c">if (value &gt; threshold) {
+    process_a();
+} else {
+    process_b();
+}
+</code></pre>
+<p>Nếu khó dự đoán, CPU có thể phải bỏ công việc suy đoán và nạp lại pipeline.</p>
+<pre><code class="language-bash">perf stat -e branches,branch-misses -- ./my_program
+</code></pre>
+<p><strong>Phản biện:</strong> Branch miss cao có nên bỏ mọi <code>if</code>? Không. Branchless code có thể tăng instruction hoặc memory access. Đo throughput/latency thực tế.</p>
+<hr />
+<h1 id="s22">Phần VIII — Memory: RAM còn trống mà ứng dụng vẫn chậm?</h1>
+<h2 id="s23">14. Virtual memory từ bài 17</h2>
+<p>Process làm việc với virtual address space. MMU, page table và TLB ánh xạ địa chỉ ảo sang vật lý. Một vùng có thể reserve mà chưa có physical page, fault-in khi truy cập, bị reclaim/swap, hoặc chia sẻ giữa process.</p>
+<p><strong>Virtual Size ≠ Resident RAM.</strong></p>
+<h2 id="s24">15. VIRT, RSS, PSS, USS</h2>
+<p>Giả sử process A có 50 MiB private resident, B có 30 MiB; hai process cùng chia sẻ library 20 MiB, toàn bộ resident và chia sẻ đều.</p>
+<table>
+<thead>
+<tr>
+  <th>Metric</th>
+  <th style="text-align:right">Process A</th>
+  <th style="text-align:right">Process B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>RSS</td>
+  <td style="text-align:right">70 MiB</td>
+  <td style="text-align:right">50 MiB</td>
+</tr>
+<tr>
+  <td>PSS</td>
+  <td style="text-align:right">60 MiB</td>
+  <td style="text-align:right">40 MiB</td>
+</tr>
+<tr>
+  <td>Private resident (xấp xỉ USS)</td>
+  <td style="text-align:right">50 MiB</td>
+  <td style="text-align:right">30 MiB</td>
+</tr>
+</tbody>
+</table>
+<p>Tổng RSS = 120 MiB nhưng resident physical khác biệt chỉ 100 MiB. Tổng PSS = 100 MiB vì phân bổ shared memory theo tỷ lệ chia sẻ.</p>
+<pre><code class="language-bash">cat /proc/&lt;PID&gt;/smaps_rollup
+</code></pre>
+<p>Các trường thường gặp: <code>Rss</code>, <code>Pss</code>, <code>Pss_Anon</code>, <code>Pss_File</code>, <code>Pss_Shmem</code>, <code>Private_Clean</code>, <code>Private_Dirty</code> (tùy kernel). Thu thập <code>smaps_rollup</code> có chi phí, không nên lấy quá dày trên production.</p>
+<hr />
+<h1 id="s25">Phần IX — Reserve, touch và page fault</h1>
+<h2 id="s26">16. Cấp phát 1 GiB chưa chắc dùng 1 GiB RAM</h2>
+<pre><code class="language-c">void *p = mmap(NULL, 1024UL * 1024 * 1024,
+    PROT_READ | PROT_WRITE,
+    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+</code></pre>
+<p><code>mmap()</code> thành công có thể chỉ tạo vùng địa chỉ ảo. Khi ghi vào từng page, kernel mới cấp physical page tương ứng theo cơ chế demand paging:</p>
+<pre><code class="language-c">for (size_t i = 0; i &lt; size; i += 4096) {
+    ((char *)p)[i] = 1;
+}
+</code></pre>
+<p>Giả định page size 4096 byte; hành vi thực tế chịu ảnh hưởng huge pages, zero page, overcommit.</p>
+<div class="widget"><h3>Mô phỏng Reserve và Touch</h3><div class="controls"><button type="button" id="reserveBtn" class="active">1. Reserve</button><button type="button" id="touchBtn">2. Touch</button></div><div class="two-col"><div><b>Virtual pages</b><div id="virtualPages" class="page-grid"></div><small>16/16 page được reserve</small></div><div><b>Physical resident pages</b><div id="physicalPages" class="page-grid"></div><small id="residentLabel">0/16 resident</small></div></div><p id="reserveNote" class="note">Vùng địa chỉ ảo tồn tại nhưng chưa cần physical page riêng.</p></div>
+<h2 id="s27">17. Minor và major page fault</h2>
+<p>Page fault không tự động là lỗi chương trình. CPU cần kernel xử lý một tình huống translation/access.</p>
+<p><strong>Minor fault:</strong> xử lý mà không cần đọc page từ backing storage tại thời điểm đó, như lần đầu ghi anonymous page.</p>
+<p><strong>Major fault:</strong> phải chờ I/O để đưa dữ liệu cần thiết vào memory theo phân loại Linux, như file-backed page không resident.</p>
+<p>Major fault không đồng nghĩa mọi disk read; không phải mọi memory stall đều là page fault.</p>
+<pre><code class="language-bash">ps -o pid,min_flt,maj_flt,rss,vsz,comm -p &lt;PID&gt;
+pidstat -r -p &lt;PID&gt; 1
+</code></pre>
+<hr />
+<h1 id="s28">Phần X — Memory pressure và reclaim</h1>
+<h2 id="s29">18. RAM gần đầy có luôn là vấn đề?</h2>
+<p>Không. Linux tận dụng RAM làm cache.</p>
+<pre><code class="language-bash">free -h
+</code></pre>
+<pre><code class="language-text">              total   used   free  buff/cache available
+Mem:           16Gi    5Gi  500Mi    10Gi       9Gi
+</code></pre>
+<p><code>free=500MiB</code> không tự chứng minh thiếu RAM. <code>MemAvailable</code> là ước lượng memory có thể cấp mà không cần swap đáng kể, không phải cam kết tuyệt đối.</p>
+<h2 id="s30">19. Reclaim là gì?</h2>
+<p>RAM như bàn làm việc: hồ sơ đang dùng, hồ sơ đã dùng, tài liệu có thể lấy lại từ kho. Khi thiếu chỗ, phải dọn. Linux reclaim clean file-backed pages, xử lý dirty pages, có thể swap anonymous pages hoặc thu hồi cache khác.</p>
+<p><strong>Background reclaim:</strong> <code>kswapd</code> thu hồi trước. <strong>Direct reclaim:</strong> task cấp phát phải tham gia reclaim, có thể làm tăng latency. Ứng dụng có thể chậm trước khi OOM.</p>
+<pre><code class="language-bash">vmstat 1
+grep -E 'pgscan|pgsteal|allocstall|pswpin|pswpout' /proc/vmstat
+</code></pre>
+<p><code>si</code>/<code>so</code> trong vmstat là swap-in/out. Counter <code>/proc/vmstat</code> tích lũy từ boot; phải lấy chênh lệch nhiều mẫu để biết tốc độ.</p>
+<hr />
+<h1 id="s31">Phần XI — PSI: Đo thời gian đình trệ</h1>
+<h2 id="s32">20. Vì sao CPU% và RAM% chưa đủ?</h2>
+<p>Hai server cùng dùng 90% RAM: A workload ổn định, không reclaim, latency tốt; B reclaim liên tục, p99 cao. <strong>PSI — Pressure Stall Information</strong> đo thời gian task bị stall do tài nguyên.</p>
+<pre><code class="language-bash">cat /proc/pressure/cpu
+cat /proc/pressure/memory
+cat /proc/pressure/io
+</code></pre>
+<h2 id="s33">21. <code>some</code>, <code>full</code>, <code>avg10</code>, <code>avg60</code>, <code>avg300</code>, <code>total</code></h2>
+<pre><code class="language-text">some avg10=12.00 avg60=8.00 avg300=3.00 total=12000000
+full avg10=4.00 avg60=2.00 avg300=1.00 total=4000000
+</code></pre>
+<p>Với memory PSI: <code>some</code> có ít nhất một task không-idle bị stall; <code>full</code> tất cả task không-idle trong phạm vi đo cùng stall; <code>avg10/60/300</code> là xu hướng theo cửa sổ giây; <code>total</code> là thời gian tích lũy microsecond. <code>avg10=12</code> là tỷ lệ thời gian, không phải 12 task.</p>
+<div class="widget"><h3>Mô phỏng PSI — cửa sổ 10 giây</h3><label>Tỷ lệ thời gian có stall <output id="psiNum">30%</output><input type="range" min="0" max="100" step="5" value="30" id="psiRange"></label><div class="progress"><div id="psiFill" style="width:30%;background:#d97706"></div></div><p id="psiExplain">3 giây có stall; 7 giây không stall.</p><p class="note">Đây là tỷ lệ thời gian có stall, không phải số task chờ.</p></div>
+<p>CPU utilization đo mức CPU bận; CPU PSI <code>some</code> đo thời gian có runnable task chờ CPU. Memory/I/O PSI đo stall tương ứng. System-level <code>cpu full</code> không được đọc giống <code>memory full</code>; cgroup lại có phạm vi riêng.</p>
+<p>Tài liệu chính thức: <a href="https://docs.kernel.org/accounting/psi.html">https://docs.kernel.org/accounting/psi.html</a></p>
+<hr />
+<h1 id="s34">Phần XII — Cgroup: Host còn CPU/RAM nhưng container vẫn chậm?</h1>
+<h2 id="s35">22. Đặt vấn đề</h2>
+<p>Host 32 CPU, 128 GiB RAM; container quota 2 CPU, memory limit 2 GiB. Container vẫn có thể throttling/OOM khi host dư tài nguyên. Capacity host ≠ capacity workload được phép sử dụng.</p>
+<h2 id="s36">23. CPU quota và throttling</h2>
+<p>Cgroup v2:</p>
+<pre><code class="language-bash">cat /sys/fs/cgroup/cpu.max
+</code></pre>
+<pre><code class="language-text">200000 100000
+</code></pre>
+<p>Quota 200.000 microsecond CPU time trong chu kỳ 100.000 microsecond = trung bình 2 CPU. Không phải pin vào đúng 2 CPU cố định.</p>
+<div class="widget"><h3>Mô phỏng CPU quota</h3><label>Nhu cầu CPU tương đương <output id="demandNum">4</output><input id="demand" type="range" min="1" max="8" value="4"></label><label>CPU quota <output id="quotaNum">2</output><input id="quota" type="range" min="1" max="8" value="2"></label><small>CPU demand</small><div class="progress"><div id="demandBar" style="width:50%;background:#6366f1"></div></div><small>Quota được cấp</small><div class="progress"><div id="quotaBar" style="width:25%;background:#0d9488"></div></div><p id="quotaExplain" class="note"></p><p class="note">Throttling thực tế còn phụ thuộc phân phối CPU bandwidth theo chu kỳ.</p></div>
+<pre><code class="language-bash">cat /sys/fs/cgroup/cpu.stat
+</code></pre>
+<pre><code class="language-text">nr_periods 10000
+nr_throttled 3500
+throttled_usec 24000000
+</code></pre>
+<p><code>nr_throttled</code>: số chu kỳ có throttling. <code>throttled_usec</code>: accounting thời gian throttling tích lũy, không phải latency request trực tiếp. Host 20% CPU mà container throttled? Kiểm tra quota trước khi mua CPU host.</p>
+<h2 id="s37">24. Memory cgroup và OOM</h2>
+<pre><code class="language-bash">cat /sys/fs/cgroup/memory.current
+cat /sys/fs/cgroup/memory.max
+cat /sys/fs/cgroup/memory.events
+</code></pre>
+<pre><code class="language-text">low 0
+high 15
+max 28
+oom 2
+oom_kill 1
+</code></pre>
+<p><code>high</code> liên quan vượt ngưỡng <code>memory.high</code>; <code>max</code> là các lần usage sắp vượt <code>memory.max</code>; <code>oom</code> là sự kiện OOM; <code>oom_kill</code> đếm process bị OOM killer tiêu diệt theo accounting. Không phải mỗi <code>max</code> đều OOM.</p>
+<p>Đọc đúng cgroup của process/container:</p>
+<pre><code class="language-bash">cat /proc/&lt;PID&gt;/cgroup
+</code></pre>
+<p>Root <code>/sys/fs/cgroup</code> không nhất thiết là cgroup workload.</p>
+<hr />
+<h1 id="s38">Phần XIII — NUMA: RAM không còn đồng nhất</h1>
+<h2 id="s39">25. NUMA là gì?</h2>
+<p><strong>Non-Uniform Memory Access</strong>: CPU truy cập local RAM và remote RAM có thể khác latency/bandwidth. Ví dụ hai văn phòng, mỗi văn phòng có kho riêng: lấy tài liệu ở kho gần thường thuận tiện hơn.</p>
+<div class="diagram"><svg viewBox="0 0 720 195" role="img" aria-label="Sơ đồ minh họa"><rect x="25" y="20" width="290" height="52" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="170.0" y="50.0" text-anchor="middle" fill="currentColor" font-size="12">NUMA Node 0 — CPU Socket 0</text><rect x="25" y="115" width="290" height="52" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="170.0" y="145.0" text-anchor="middle" fill="currentColor" font-size="12">Local RAM 0</text><rect x="405" y="20" width="290" height="52" rx="8" fill="#6366f1" fill-opacity=".20" stroke="#6366f1"/><text x="550.0" y="50.0" text-anchor="middle" fill="currentColor" font-size="12">NUMA Node 1 — CPU Socket 1</text><rect x="405" y="115" width="290" height="52" rx="8" fill="#6366f1" fill-opacity=".20" stroke="#6366f1"/><text x="550.0" y="145.0" text-anchor="middle" fill="currentColor" font-size="12">Local RAM 1</text><path d="M170 72 V115 M550 72 V115 M315 45 H405" stroke="currentColor" stroke-width="2" stroke-dasharray="5 5"/></svg></div>
+<p>Remote không phải luôn chậm đáng kể với mọi workload; phụ thuộc kiến trúc và tải.</p>
+<h2 id="s40">26. Kiểm tra NUMA</h2>
+<pre><code class="language-bash">numactl --hardware
+</code></pre>
+<pre><code class="language-text">available: 2 nodes (0-1)
+node 0 cpus: 0 1 2 3
+node 0 size: 16384 MB
+node 1 cpus: 4 5 6 7
+node 1 size: 16384 MB
+</code></pre>
+<pre><code class="language-bash">numastat
+numastat -p &lt;PID&gt;
+cat /proc/&lt;PID&gt;/numa_maps
+</code></pre>
+<p>Pin process CPU node 0 nhưng memory ở node 1 có thể gây remote access:</p>
+<pre><code class="language-bash">taskset -c 0-3 ./app
+numactl --cpunodebind=0 --membind=0 ./app
+</code></pre>
+<p>CPU placement và memory placement phải xét cùng nhau. Binding có thể thất bại nếu không đáp ứng chính sách memory; VM lộ một node không chứng minh host vật lý không NUMA.</p>
+<hr />
+<h1 id="s41">Phần XIV — Lab 1: CPU-bound so với Sleeping</h1>
+<h2 id="s42">27. Mục tiêu lab</h2>
+<p>Chứng minh process tồn tại không có nghĩa dùng CPU; CPU-bound tiêu thụ CPU time; sleeping có wall time nhưng gần như không tiêu thụ CPU; <code>ps</code>, <code>pidstat</code>, <code>wchan</code> cho các góc nhìn khác nhau. Chạy trong VM/lab có kiểm soát.</p>
+<h2 id="s43">28. Chạy CPU-bound</h2>
+<p>Terminal 1:</p>
+<pre><code class="language-bash">timeout 10s python3 -c 'while True: pass' &amp;
+wrapper_pid=$!
+ps -eo pid,ppid,stat,pcpu,wchan:24,args --forest
+wait &quot;$wrapper_pid&quot;
+</code></pre>
+<p><code>timeout</code> giới hạn 10 giây; Python tạo busy loop; <code>&amp;</code> chạy background; <code>$!</code> lưu PID job background (thường timeout); <code>ps --forest</code> tìm Python con; <code>wait</code> chờ kết thúc. <code>timeout</code> có thể trả 124 khi hết thời gian, không phải lỗi bất ngờ của lab.</p>
+<p>Terminal 2:</p>
+<pre><code class="language-bash">pidstat -u -w 1 10
+</code></pre>
+<p>Python có thể dùng gần 100% một logical CPU; trên máy 8 CPU, CPU tổng thể chỉ khoảng 12.5%.</p>
+<h2 id="s44">29. Chạy sleeping task</h2>
+<pre><code class="language-bash">sleep 10 &amp;
+sleep_pid=$!
+ps -p &quot;$sleep_pid&quot; -o pid,stat,pcpu,wchan:24,args
+wait &quot;$sleep_pid&quot;
+</code></pre>
+<p><code>sleep</code> chờ timer, không chạy CPU liên tục. <code>wchan</code> có thể hiển thị wait channel nếu hỗ trợ và đủ quyền.</p>
+<table>
+<thead>
+<tr>
+  <th>Quan sát</th>
+  <th>CPU-bound</th>
+  <th>Sleeping</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Wall time</td>
+  <td>Khoảng 10 s</td>
+  <td>Khoảng 10 s</td>
+</tr>
+<tr>
+  <td>CPU time</td>
+  <td>Có thể gần 10 CPU-s</td>
+  <td>Gần 0</td>
+</tr>
+<tr>
+  <td>CPU usage</td>
+  <td>Cao trên 1 core</td>
+  <td>Rất thấp</td>
+</tr>
+<tr>
+  <td>Trạng thái</td>
+  <td>Chủ yếu R</td>
+  <td>Chủ yếu S</td>
+</tr>
+<tr>
+  <td>Wchan</td>
+  <td>Thường không chờ</td>
+  <td>Có thể hiện wait channel</td>
+</tr>
+</tbody>
+</table>
+<p>Các số thực tế phụ thuộc scheduler, quota và VM. <strong>Vì sao <code>sleep 10</code> mất 10 giây mà CPU time không phải 10 giây?</strong> Thời gian tồn tại khác thời gian được CPU thực thi.</p>
+<hr />
+<h1 id="s45">Phần XV — Lab 2: Reserve và Touch bộ nhớ</h1>
+<h2 id="s46">30. Tạo chương trình thí nghiệm</h2>
+<pre><code class="language-python">import mmap
+import os
+import time
+
+SIZE = 64 * 1024 * 1024
+page_size = os.sysconf(&quot;SC_PAGE_SIZE&quot;)
+mem = mmap.mmap(-1, SIZE)
+
+print(&quot;PID:&quot;, os.getpid(), flush=True)
+print(&quot;Reserved 64 MiB&quot;, flush=True)
+input(&quot;Press Enter to touch memory...&quot;)
+
+for offset in range(0, SIZE, page_size):
+    mem[offset] = 1
+
+print(&quot;Touched all pages&quot;, flush=True)
+input(&quot;Press Enter to exit...&quot;)
+mem.close()
+</code></pre>
+<p>Lưu <code>memory_lab.py</code>, chạy:</p>
+<pre><code class="language-bash">nano memory_lab.py
+python3 memory_lab.py
+</code></pre>
+<p>Terminal khác:</p>
+<pre><code class="language-bash">cat /proc/&lt;PID&gt;/smaps_rollup
+vmstat 1
+cat /proc/pressure/memory
+pidstat -r -p &lt;PID&gt; 1
+</code></pre>
+<p>Trước touch, virtual mapping tồn tại nhưng không nhất thiết resident đủ 64 MiB; sau touch, RSS thường tăng. Nếu 64 MiB không gây pressure, <strong>không được kết luận reclaim tốt</strong>. Lab chỉ chứng minh mapping/residency, chưa đánh giá reclaim/OOM.</p>
+<hr />
+<h1 id="s47">Phần XVI — Memory leak: RSS tăng có phải leak?</h1>
+<h2 id="s48">31. Đặt vấn đề</h2>
+<p>RSS 100 MiB ban đầu, 300 MiB sau 1.000 request, 500 MiB sau 2.000 request. Có thể leak thật, allocator giữ memory tái sử dụng, hoặc cache tăng. RSS còn phụ thuộc residency và shared mappings.</p>
+<p>Memory leak là memory không còn cần thiết nhưng vẫn bị giữ hoặc không giải phóng đúng cách.</p>
+<pre><code class="language-c">void handle_request(void) {
+    char *buffer = malloc(1024);
+    if (buffer == NULL) return;
+    process(buffer);
+    // Quên free(buffer)
+}
+</code></pre>
+<p>Một triệu request × 1 KiB ≈ 977 MiB bị giữ. Nhưng <code>free()</code> không bảo đảm RSS giảm ngay: allocator có thể giữ memory, fragmentation và cơ chế trả page về OS ảnh hưởng kết quả.</p>
+<pre><code class="language-c">char *p = malloc(1024 * 1024);
+free(p);
+</code></pre>
+<p>Phân biệt bằng RSS/PSS time series, request count, live objects, cache size, allocator stats và heap profile. Nếu live allocation tăng không giới hạn qua các chu kỳ tương đương, giả thuyết leak mạnh hơn.</p>
+<div class="widget"><h3>Ba kiểu tăng memory giả định</h3><canvas id="memoryChart" width="800" height="370" role="img" aria-label="Biểu đồ leak liên tục, cache đạt giới hạn và memory ổn định"></canvas><div class="legend"><span>🟠 Leak liên tục</span><span>🟢 Cache đạt giới hạn</span><span>🟣 Ổn định</span></div><p class="note">Dữ liệu mô phỏng, không phải kết quả đo thực tế.</p></div>
+<p>Đường tăng liên tục không tự động chứng minh leak; cache tăng rồi ổn định có thể bình thường. Không phải mọi leak đều tuyến tính.</p>
+<hr />
+<h1 id="s49">Phần XVII — Thread chờ khóa: Thêm CPU không giải quyết?</h1>
+<h2 id="s50">32. Lock contention</h2>
+<p>8 thread cùng cập nhật shared counter:</p>
+<pre><code class="language-c">pthread_mutex_lock(&amp;lock);
+shared_counter++;
+pthread_mutex_unlock(&amp;lock);
+</code></pre>
+<p>Critical section ngắn có thể ổn; nhưng nếu giữ mutex khi chạy công việc 100 ms:</p>
+<pre><code class="language-c">pthread_mutex_lock(&amp;lock);
+do_expensive_work(); // 100 ms
+pthread_mutex_unlock(&amp;lock);
+</code></pre>
+<p>Tối đa xấp xỉ 1 / 0.1 = 10 operations/s qua đoạn serial, giả sử mỗi operation bắt buộc đi qua và không có overhead khác. Thêm 100 thread không làm đoạn độc quyền chạy đồng thời.</p>
+<h3>Định luật Amdahl</h3>
+<div class="formula">S(N)=\frac{1}{s+\frac{1-s}{N}}</div>
+<p>Nếu phần tuần tự 40%, speedup tối đa khi N tiến tới vô hạn là 1/0.4 = 2.5×.</p>
+<div class="widget"><h3>Mô phỏng định luật Amdahl</h3><label>Phần tuần tự <output id="serialNum">40%</output><input id="serial" type="range" min="0" max="100" step="5" value="40"></label><label>Số CPU <output id="amdCpusNum">8</output><input id="amdCpus" type="range" min="1" max="64" value="8"></label><div class="stats"><div><small>Speedup lý tưởng</small><strong id="speedup"></strong></div><div><small>Giới hạn N → ∞</small><strong id="maxSpeedup"></strong></div></div><p class="note">Bỏ qua overhead synchronization, scheduling và memory bandwidth.</p></div>
+<p>Hướng tối ưu: giảm thời gian giữ lock; chuyển I/O ra ngoài critical section khi an toàn; sharding; per-thread/per-CPU counter; atomic khi phù hợp; giảm shared mutable state. Lock-free không luôn nhanh và có thể tăng coherence traffic, khó bảo đảm correctness.</p>
+<hr />
+<h1 id="s51">Phần XVIII — Quy trình điều tra hiệu năng kiểu senior</h1>
+<h2 id="s52">33. Bắt đầu bằng giả thuyết, không phải tối ưu</h2>
+<p>p99 latency tăng từ 30 ms lên 400 ms: đo execution/waiting, CPU/memory PSI, quota, profiler; đưa giả thuyết có thể kiểm chứng; thử <strong>một thay đổi</strong>, đo lại.</p>
+<div class="diagram"><svg viewBox="0 0 720 225" role="img" aria-label="Sơ đồ minh họa"><rect x="210" y="10" width="300" height="37" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="360.0" y="32.5" text-anchor="middle" fill="currentColor" font-size="12">p99 latency tăng</text><rect x="210" y="62" width="300" height="37" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="360.0" y="84.5" text-anchor="middle" fill="currentColor" font-size="12">Đo CPU, memory, PSI, quota</text><rect x="30" y="115" width="300" height="40" rx="8" fill="#d97706" fill-opacity=".20" stroke="#d97706"/><text x="180.0" y="139.0" text-anchor="middle" fill="currentColor" font-size="12">CPU pressure / contention</text><rect x="390" y="115" width="300" height="40" rx="8" fill="#6366f1" fill-opacity=".20" stroke="#6366f1"/><text x="540.0" y="139.0" text-anchor="middle" fill="currentColor" font-size="12">Memory pressure / reclaim</text><rect x="210" y="173" width="300" height="37" rx="8" fill="#0d9488" fill-opacity=".20" stroke="#0d9488"/><text x="360.0" y="195.5" text-anchor="middle" fill="currentColor" font-size="12">Giả thuyết → thử → đo lại</text><path d="M360 47 V62 M360 99 L180 115 M360 99 L540 115 M180 155 L360 173 M540 155 L360 173" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>
+<h2 id="s53">34. Bước 1 — Xác định phạm vi</h2>
+<p>Chậm toàn host hay một container? Mọi endpoint hay một endpoint? Liên tục hay burst? Sau deploy hay theo tải? Quota/memory limit thay đổi? Nếu chỉ một endpoint chậm, tối ưu toàn hệ thống có thể sai trọng tâm.</p>
+<h2 id="s54">35. Bước 2 — Thu baseline</h2>
+<pre><code class="language-bash">uptime
+vmstat 1
+mpstat -P ALL 1
+pidstat -u -r -w 1
+cat /proc/pressure/cpu
+cat /proc/pressure/memory
+cat /proc/pressure/io
+free -h
+</code></pre>
+<p><code>mpstat</code>, <code>pidstat</code>, <code>iostat</code> thuộc <code>sysstat</code> trên nhiều distro:</p>
+<pre><code class="language-bash">sudo apt install sysstat
+</code></pre>
+<p>Embedded image có thể không có các công cụ này.</p>
+<h2 id="s55">36. Bước 3 — Giả thuyết</h2>
+<table>
+<thead>
+<tr>
+  <th>Quan sát</th>
+  <th>Giả thuyết</th>
+  <th>Kiểm chứng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>CPU PSI/run queue cao</td>
+  <td>Thiếu CPU capacity</td>
+  <td>Scheduler wait, quota</td>
+</tr>
+<tr>
+  <td>System CPU cao</td>
+  <td>Kernel path tốn CPU</td>
+  <td><code>perf</code>, syscall profile</td>
+</tr>
+<tr>
+  <td>Major faults tăng</td>
+  <td>Fault cần storage I/O</td>
+  <td><code>pidstat</code>, I/O metrics</td>
+</tr>
+<tr>
+  <td>Memory PSI cao</td>
+  <td>Reclaim gây stall</td>
+  <td><code>/proc/vmstat</code>, PSI</td>
+</tr>
+<tr>
+  <td>Throttling tăng</td>
+  <td>Cgroup quota</td>
+  <td><code>cpu.stat</code>, <code>cpu.max</code></td>
+</tr>
+<tr>
+  <td>CPU bận, IPC thấp</td>
+  <td>Pipeline/memory stalls</td>
+  <td>Hardware counters</td>
+</tr>
+<tr>
+  <td>Thread chờ mutex</td>
+  <td>Lock contention</td>
+  <td>Stack/profile, lock tracing</td>
+</tr>
+<tr>
+  <td>Remote NUMA nhiều</td>
+  <td>Placement chưa tốt</td>
+  <td><code>numastat</code>, A/B test</td>
+</tr>
+</tbody>
+</table>
+<p>Đây là <strong>giả thuyết</strong>, không phải kết luận.</p>
+<h2 id="s56">37. Bước 4 — Thử một biến</h2>
+<p>Nghi quota thấp: đo p50/p95/p99, throughput, throttling, CPU PSI, CPU utilization. Tăng quota trong môi trường thử nghiệm, giữ workload cố định. Nếu throttling giảm và latency cải thiện, giả thuyết mạnh hơn. Nếu không đổi, xem lại lock, database, network.</p>
+<hr />
+<h1 id="s57">Phần XIX — Case study: Cùng chậm, ba nguyên nhân</h1>
+<h2 id="s58">38. Case A — CPU-bound thật</h2>
+<pre><code class="language-text">CPU utilization: 98%
+CPU PSI some: cao
+Run queue: cao
+Memory PSI: thấp
+CPU throttling: không đáng kể
+</code></pre>
+<p>Profiler cho thấy hàm parse chiếm CPU. Tối ưu thuật toán, giảm allocation/copy, batch, cải thiện locality, tăng CPU nếu workload scale được. Không chỉ tăng RAM.</p>
+<h2 id="s59">39. Case B — Memory pressure</h2>
+<pre><code class="language-text">CPU utilization: 45%
+Memory PSI some: cao
+Major faults: tăng
+Reclaim: tăng mạnh
+Swap-in: xuất hiện
+</code></pre>
+<p>Cache lớn gây latency. Đo <strong>working set</strong> — tập dữ liệu truy cập tích cực trong khoảng thời gian có ý nghĩa; kiểm tra eviction, giảm dữ liệu giữ, kiểm tra cgroup, tăng RAM nếu working set cần thiết vượt capacity. Không phải toàn bộ virtual memory là working set.</p>
+<h2 id="s60">40. Case C — CPU quota throttling</h2>
+<pre><code class="language-text">Host CPU utilization: 15%
+Container cpu.stat: throttling tăng
+Container latency: cao
+</code></pre>
+<p>Host 32 CPU, container quota 1 CPU. Tối ưu quota hoặc CPU demand, không vội mua thêm CPU host.</p>
+<hr />
+<h1 id="s61">Phần XX — Những sai lầm phổ biến</h1>
+<h2 id="s62">41. Kết luận sai cần tránh</h2>
+<table>
+<thead>
+<tr>
+  <th>Kết luận vội</th>
+  <th>Vì sao sai?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>CPU 100% phải nâng CPU</td>
+  <td>Chưa biết hot path, quota, khả năng scale</td>
+</tr>
+<tr>
+  <td>RAM free thấp là thiếu RAM</td>
+  <td>Linux tận dụng RAM làm cache</td>
+</tr>
+<tr>
+  <td>RSS cao là leak</td>
+  <td>Allocator/cache có thể giữ memory</td>
+</tr>
+<tr>
+  <td>Iowait cao là CPU đang đọc disk</td>
+  <td>Iowait là accounting, không phải CPU thực thi I/O</td>
+</tr>
+<tr>
+  <td>Context switch cao là lỗi</td>
+  <td>Có thể do workload hợp lệ</td>
+</tr>
+<tr>
+  <td>IPC thấp chắc chắn do RAM</td>
+  <td>Có nhiều loại pipeline stall</td>
+</tr>
+<tr>
+  <td>Major fault tăng là sắp OOM</td>
+  <td>Fault và OOM khác nhau</td>
+</tr>
+<tr>
+  <td>Thêm thread sẽ nhanh hơn</td>
+  <td>Có thể tăng contention</td>
+</tr>
+<tr>
+  <td>Pin CPU luôn tốt</td>
+  <td>Có thể mất cân bằng, remote NUMA</td>
+</tr>
+<tr>
+  <td>Host còn RAM thì container không OOM</td>
+  <td>Cgroup có memory limit riêng</td>
+</tr>
+</tbody>
+</table>
+<p>Senior biết <strong>metric nào chưa đủ để kết luận</strong>.</p>
+<hr />
+<h1 id="s63">Phần XXI — Bộ lệnh thực chiến</h1>
+<h2 id="s64">42. CPU investigation</h2>
+<pre><code class="language-bash"># CPU toàn hệ thống
+top
+# CPU từng logical processor
+mpstat -P ALL 1
+# Process CPU usage
+pidstat -u 1
+# Context switches
+pidstat -w 1
+# CPU pressure
+cat /proc/pressure/cpu
+# CPU quota cgroup v2 hiện tại
+cat /sys/fs/cgroup/cpu.max
+# Throttling
+cat /sys/fs/cgroup/cpu.stat
+# Hardware counters
+perf stat -e cycles,instructions,cache-misses -- ./my_program
+# Profiling
+perf record -g -- ./my_program
+perf report
+</code></pre>
+<h2 id="s65">43. Memory investigation</h2>
+<pre><code class="language-bash">free -h
+vmstat 1
+cat /proc/pressure/memory
+cat /proc/&lt;PID&gt;/smaps_rollup
+pidstat -r -p &lt;PID&gt; 1
+grep -E 'pgscan|pgsteal|allocstall' /proc/vmstat
+cat /sys/fs/cgroup/memory.current
+cat /sys/fs/cgroup/memory.max
+cat /sys/fs/cgroup/memory.events
+numactl --hardware
+numastat -p &lt;PID&gt;
+</code></pre>
+<p>Với container, đọc <strong>đúng đường dẫn cgroup</strong>, không mặc định root cgroup.</p>
+<hr />
+<h1 id="s66">Phần XXII — Bài tập tư duy và phản biện</h1>
+<p>Hãy tự phân tích trước khi xem lời giải.</p>
+<div class="widget" id="quiz"><h3>Kiểm tra hiểu bài <span id="quizCount">0/5 câu</span></h3><fieldset class="quiz-item" data-answer="1" data-why="CPU tổng thể thấp không bảo đảm thread quan trọng được dùng mọi CPU. Một luồng tuần tự không tự động tận dụng 16 core."><legend>1. Server 16 CPU, utilization 25%, request CPU-bound vẫn chậm. Có thể do đâu?</legend><label class="option"><input type="radio" name="q0" value="0"> CPU tổng thể chưa đủ mạnh</label><label class="option"><input type="radio" name="q0" value="1"> Thread bị giới hạn affinity/quota hoặc hot path tuần tự</label><label class="option"><input type="radio" name="q0" value="2"> Chắc chắn thiếu RAM</label><div class="feedback" aria-live="polite"></div></fieldset><fieldset class="quiz-item" data-answer="2" data-why="Virtual address space và resident physical pages là hai khái niệm khác nhau."><legend>2. Process VIRT 10 GiB, RSS 200 MiB. Kết luận hợp lý?</legend><label class="option"><input type="radio" name="q1" value="0"> Đang chiếm 10 GiB physical RAM</label><label class="option"><input type="radio" name="q1" value="1"> Chắc chắn memory leak</label><label class="option"><input type="radio" name="q1" value="2"> Virtual address space lớn, resident footprint nhỏ hơn nhiều</label><div class="feedback" aria-live="polite"></div></fieldset><fieldset class="quiz-item" data-answer="0" data-why="Reclaim và memory pressure có thể làm tăng latency trước OOM."><legend>3. Memory PSI cao nhưng chưa OOM. Có đáng lo?</legend><label class="option"><input type="radio" name="q2" value="0"> Có, task có thể stall do memory pressure</label><label class="option"><input type="radio" name="q2" value="1"> Không, chỉ OOM mới ảnh hưởng</label><label class="option"><input type="radio" name="q2" value="2"> PSI chỉ đo RAM đã dùng</label><div class="feedback" aria-live="polite"></div></fieldset><fieldset class="quiz-item" data-answer="2" data-why="IPC thấp là tín hiệu điều tra, không tự chứng minh memory hay branch bottleneck."><legend>4. CPU 100%, IPC thấp. Làm gì?</legend><label class="option"><input type="radio" name="q3" value="0"> Thêm RAM ngay</label><label class="option"><input type="radio" name="q3" value="1"> Loại bỏ mọi if</label><label class="option"><input type="radio" name="q3" value="2"> Profiling và counters bổ sung tìm nguyên nhân</label><div class="feedback" aria-live="polite"></div></fieldset><fieldset class="quiz-item" data-answer="1" data-why="CPU quota có thể hạn chế container độc lập với host utilization."><legend>5. Container throttled dù host còn 70% CPU rảnh?</legend><label class="option"><input type="radio" name="q4" value="0"> Nâng CPU host</label><label class="option"><input type="radio" name="q4" value="1"> Kiểm tra cpu.max, cpu.stat, CPU demand</label><label class="option"><input type="radio" name="q4" value="2"> Tăng swap</label><div class="feedback" aria-live="polite"></div></fieldset><div id="quizScore"></div><button type="button" id="resetQuiz">Làm lại bài kiểm tra</button></div>
+<hr />
+<h1 id="s67">Phần XXIII — Kiến thức mở rộng: Các vấn đề tương tự</h1>
+<h2 id="s68">44. CPU bottleneck và memory bottleneck có thể đồng thời</h2>
+<p>Ứng dụng xử lý dữ liệu: CPU tính nhiều, working set lớn hơn cache, cache miss cao, memory bandwidth gần bão hòa. Tăng CPU có thể làm core cạnh tranh bandwidth hơn, throughput không tăng tương ứng. CPU và memory phải xem cùng nhau.</p>
+<h2 id="s69">45. Memory bandwidth khác memory latency</h2>
+<p><strong>Latency</strong>: một lần truy cập mất bao lâu. <strong>Bandwidth</strong>: truyền được bao nhiêu dữ liệu mỗi giây. Như đường cao tốc: thời gian một xe đi từ A đến B khác số xe đi qua mỗi giây. Pointer chasing thường nhạy latency; streaming dữ liệu lớn thường nhạy bandwidth. Tăng RAM capacity không tự động tăng bandwidth hoặc giảm latency.</p>
+<h2 id="s70">46. False sharing</h2>
+<pre><code class="language-c">struct Counters {
+    long a;
+    long b;
+};
+</code></pre>
+<p>Thread 0 ghi <code>a</code>, thread 1 ghi <code>b</code>. Hai biến khác nhau có thể cùng cache line, khiến cache coherence chuyển quyền sở hữu qua lại. <strong>False sharing</strong> có thể giảm bằng tách biến ghi thường xuyên sang cache line khác, nhưng padding tăng memory footprint: phải đo trước/sau.</p>
+<h2 id="s71">47. Tail latency và coordinated omission</h2>
+<p>Average 20 ms nhưng p99 500 ms có thể do scheduler, reclaim, GC, page faults, lock. Benchmark phải tránh <strong>coordinated omission</strong>: load generator ngừng/giảm gửi request khi hệ thống chậm khiến đo thiếu độ trễ người dùng trải nghiệm. Cần time series và latency distribution.</p>
+<hr />
+<h1 id="s72">Phần XXIV — Checklist hoàn thành Bài 32</h1>
+<div class="widget" id="checklist"><h3>Tiến độ học tập <span id="checkCount">0/14</span></h3><div class="progress"><div id="checkBar" style="width:0%;background:#0d9488"></div></div><label class="check"><input type="checkbox"> Phân biệt CPU time, wall time và runnable wait</label><label class="check"><input type="checkbox"> Giải thích user/system/iowait mà không nhầm</label><label class="check"><input type="checkbox"> Đọc run queue cùng capacity và quota</label><label class="check"><input type="checkbox"> Biết khi nào context switch/migration đáng điều tra</label><label class="check"><input type="checkbox"> Đọc IPC, cache miss, branch miss có điều kiện</label><label class="check"><input type="checkbox"> Phân biệt VIRT, RSS, PSS và private memory</label><label class="check"><input type="checkbox"> Giải thích reserve/touch và page faults</label><label class="check"><input type="checkbox"> Phát hiện reclaim và memory pressure</label><label class="check"><input type="checkbox"> Đọc PSI some/full, avg10/60/300</label><label class="check"><input type="checkbox"> Kiểm tra throttling và cgroup OOM events</label><label class="check"><input type="checkbox"> Giải thích local/remote NUMA</label><label class="check"><input type="checkbox"> Phân biệt leak với allocator/cache growth</label><label class="check"><input type="checkbox"> Thực hiện hai lab và ghi time series</label><label class="check"><input type="checkbox"> Viết báo cáo giả thuyết → đo → thử → kết luận</label></div>
+<hr />
+<h1 id="s73">Tổng kết — Tư duy senior khi phân tích CPU và bộ nhớ</h1>
+<p>Người mới hỏi “CPU bao nhiêu %, RAM còn bao nhiêu?”. Senior hỏi: <strong>Công việc đang tiêu tốn thời gian ở đâu? Đang thực thi, chờ CPU, chờ memory, chờ I/O, chờ lock hay bị giới hạn tài nguyên?</strong></p>
+<div class="formula">Performance=f(Execution,Waiting,Contention,Limits)</div>
+<p>Đây là mô hình tư duy, không phải công thức vật lý thay số trực tiếp.</p>
+<ul>
+<li><strong>Execution:</strong> CPU thực hiện bao nhiêu công việc hữu ích?</li>
+<li><strong>Waiting:</strong> Task chờ gì?</li>
+<li><strong>Contention:</strong> Task nào tranh chấp cùng tài nguyên?</li>
+<li><strong>Limits:</strong> Kernel, cgroup hoặc phần cứng đặt giới hạn nào?</li>
+</ul>
+<p><strong>Đừng nâng CPU khi chưa chứng minh CPU capacity là nút thắt. Đừng nâng RAM khi chưa chứng minh working set, reclaim hoặc memory pressure là vấn đề. Đừng tối ưu một metric nếu chưa chứng minh nó liên quan đến mục tiêu hiệu năng ứng dụng.</strong></p>
+<p>Bài 33 — <em>Phân tích hiệu năng I/O và Network</em> — sẽ tiếp tục phương pháp này với block layer, filesystem latency, network queues, packet processing và throughput.</p>
+</article><p class="footer">Bài 32 · HTML độc lập · SVG, canvas và JavaScript chạy ngoại tuyến · Không phụ thuộc CDN</p></main></div><script>
+const $=id=>document.getElementById(id);
+function updateCPU(){let c=+$('cores').value,w=+$('workers').value;$('cpuC').textContent=c;$('cpuW').textContent=w;$('cpuGrid').innerHTML=Array.from({length:c},(_,i)=>`<div class="core ${i<Math.min(c,w)?'busy':''}">▣ CPU ${i}<br><small>${i<Math.min(c,w)?'Bận':'Rảnh'}</small></div>`).join('');$('util').textContent=Math.round(Math.min(c,w)/c*100)+'%';$('waiting').textContent=Math.max(0,w-c)}
+['cores','workers'].forEach(id=>$(id).addEventListener('input',updateCPU));updateCPU();
+$('virtualPages').innerHTML=Array.from({length:16},()=>'<div class="page"></div>').join('');
+function updateReserve(t){$('physicalPages').innerHTML=Array.from({length:16},()=>`<div class="page physical ${t?'touched':''}"></div>`).join('');$('residentLabel').textContent=t?'16/16 resident':'0/16 resident';$('reserveNote').textContent=t?'Sau ghi vào mỗi page, physical pages được cấp trong mô hình; RSS tăng và có thể có minor faults.':'Virtual mapping đã tạo nhưng chưa cần physical page riêng.';$('reserveBtn').classList.toggle('active',!t);$('touchBtn').classList.toggle('active',t)}
+$('reserveBtn').onclick=()=>updateReserve(false);$('touchBtn').onclick=()=>updateReserve(true);updateReserve(false);
+function updatePSI(){let v=+$('psiRange').value;$('psiNum').textContent=v+'%';$('psiFill').style.width=v+'%';$('psiExplain').textContent=`${v/10} giây có stall; ${(100-v)/10} giây không stall trong cửa sổ 10 giây.`} $('psiRange').addEventListener('input',updatePSI);updatePSI();
+function updateQuota(){let d=+$('demand').value,q=+$('quota').value;$('demandNum').textContent=d;$('quotaNum').textContent=q;$('demandBar').style.width=d/8*100+'%';$('quotaBar').style.width=q/8*100+'%';$('quotaExplain').textContent=d>q?`Nhu cầu vượt quota ${d-q} CPU tương đương; có nguy cơ throttling.`:'Quota đủ nhu cầu trung bình trong mô hình.'}['demand','quota'].forEach(id=>$(id).addEventListener('input',updateQuota));updateQuota();
+function updateAmdahl(){let s=+$('serial').value,n=+$('amdCpus').value;let sp=1/(s/100+(1-s/100)/n);$('serialNum').textContent=s+'%';$('amdCpusNum').textContent=n;$('speedup').textContent=sp.toFixed(2)+'×';$('maxSpeedup').textContent=s===0?'∞':(100/s).toFixed(2)+'×'}['serial','amdCpus'].forEach(id=>$(id).addEventListener('input',updateAmdahl));updateAmdahl();
+function drawChart(){let canvas=$('memoryChart'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);let pad={l:65,r:25,t:20,b:55};let x=i=>pad.l+i*(W-pad.l-pad.r)/6,y=v=>H-pad.b-(v-0)/(600)*(H-pad.t-pad.b);ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--line').trim();ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted').trim();ctx.font='15px system-ui';for(let v=0;v<=600;v+=100){let yy=y(v);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke();ctx.fillText(v+' MiB',5,yy+5)}for(let i=0;i<=6;i++)ctx.fillText(i+'k',x(i)-12,H-25);let series=[['#d97706',[100,170,240,310,380,450,520]],['#0d9488',[100,170,225,255,270,275,275]],['#6366f1',[100,110,105,110,108,110,107]]];for(let [color,data] of series){ctx.strokeStyle=color;ctx.lineWidth=4;ctx.beginPath();data.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));ctx.stroke();data.forEach((v,i)=>{ctx.beginPath();ctx.arc(x(i),y(v),5,0,2*Math.PI);ctx.fillStyle=color;ctx.fill()})}ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted').trim();ctx.fillText('Requests',W/2,H-3)}drawChart();
+function updateQuiz(){let answered=0,correct=0;document.querySelectorAll('.quiz-item').forEach(f=>{let checked=f.querySelector('input:checked'),fb=f.querySelector('.feedback');if(checked){answered++;let ok=+checked.value===+f.dataset.answer;if(ok)correct++;fb.className='feedback '+(ok?'correct':'incorrect');fb.textContent=(ok?'✓ Chính xác. ':'✗ Chưa chính xác. ')+f.dataset.why}else fb.textContent=''});$('quizCount').textContent=answered+'/5 câu';$('quizScore').textContent=answered===5?'Kết quả: '+correct+'/5 câu':''}document.querySelectorAll('#quiz input').forEach(el=>el.addEventListener('change',updateQuiz));$('resetQuiz').onclick=()=>{document.querySelectorAll('#quiz input').forEach(el=>el.checked=false);updateQuiz()};
+function updateChecklist(){let all=[...document.querySelectorAll('#checklist input')],n=all.filter(x=>x.checked).length;$('checkCount').textContent=n+'/'+all.length;$('checkBar').style.width=n/all.length*100+'%'}document.querySelectorAll('#checklist input').forEach(el=>el.addEventListener('change',updateChecklist));updateChecklist();
+$('themeToggle').onclick=()=>{document.body.classList.toggle('dark');drawChart()};$('printBtn').onclick=()=>window.print();$('mobileJump').onchange=e=>{if(e.target.value)location.hash=e.target.value};
+document.querySelectorAll('pre').forEach(pre=>{let b=document.createElement('button');b.type='button';b.textContent='Sao chép';b.style.cssText='position:absolute;right:8px;top:8px;padding:4px 9px;font-size:11px;background:#334155';b.onclick=async()=>{try{await navigator.clipboard.writeText(pre.innerText.replace(/^Sao chép\n/,''));b.textContent='Đã chép'}catch(e){b.textContent='Không thể sao chép'}setTimeout(()=>b.textContent='Sao chép',1500)};pre.appendChild(b)});
+</script><script src="assets/lesson-theme.js" defer></script></body></html>

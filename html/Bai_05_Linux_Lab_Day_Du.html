@@ -1,0 +1,500 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 05 — Linux Lab, VM và Embedded Linux</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0c1220;color:#e6ecf5;font:16px/1.75 system-ui,-apple-system,"Segoe UI",sans-serif}body.light{background:#f6f8fc;color:#172339}a{color:#66b9ff}header{position:sticky;top:0;z-index:5;background:#101b2cf0;backdrop-filter:blur(12px);border-bottom:1px solid #344357;padding:10px 22px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.light header{background:#fffefef0}header strong{margin-right:auto}button,input{font:inherit}button{background:#193957;color:#e8f4ff;border:1px solid #456987;padding:7px 13px;border-radius:9px;cursor:pointer}button:hover{background:#285278}button:disabled{opacity:.4;cursor:not-allowed}.light button{background:#e7f0fc;color:#15385b}.layout{display:grid;grid-template-columns:265px minmax(0,920px);gap:30px;max-width:1280px;margin:auto;padding:25px 22px}aside{position:sticky;top:78px;align-self:start;height:calc(100vh - 100px);overflow:auto;border:1px solid #344357;border-radius:14px;padding:16px;background:#121e30}.light aside{background:#fff;border-color:#dbe2ed}aside a{display:block;text-decoration:none;color:inherit;font-size:12px;line-height:1.5;padding:5px 8px;border-radius:5px}aside a:hover{background:#24415c}.light aside a:hover{background:#e8f0fc}.toc1{font-weight:800}.toc2{font-weight:700}.toc3{padding-left:17px}.toc4{padding-left:25px}main{min-width:0}h1{font-size:2.3rem;line-height:1.25}h2{font-size:1.65rem;border-bottom:1px solid #3d4b60;padding-bottom:10px;margin-top:54px}h3{font-size:1.27rem;margin-top:33px}h1,h2,h3{scroll-margin-top:85px;color:#a9d9ff}.light h1,.light h2,.light h3{color:#124a80}p{margin:14px 0}blockquote{border-left:4px solid #47b5a4;background:#15323d;padding:10px 18px;margin:22px 0;border-radius:0 8px 8px 0}.light blockquote{background:#e8f6f4}pre{position:relative;background:#080e19;color:#c8e7d9;border:1px solid #33465c;border-radius:12px;padding:18px;overflow:auto;font:13px/1.65 Consolas,monospace;white-space:pre}code{font:0.91em Consolas,monospace;background:#24334a;padding:2px 5px;border-radius:4px}pre code{background:none;padding:0;font-size:inherit}table{border-collapse:collapse;width:100%;font-size:14px;margin:20px 0}th,td{padding:10px 12px;border:1px solid #3c4d65;text-align:left;vertical-align:top}th{background:#19344d}.light th{background:#e1ecf7}.light th,.light td{border-color:#d2deeb}.light code{background:#e5edf6}.copy{position:absolute;right:9px;top:8px;font-size:11px;padding:2px 9px}.panel{border:1px solid #3d5a74;border-radius:14px;padding:20px;margin:26px 0;background:#142438}.light .panel{background:#fff;border-color:#d2deeb}.panel h3{margin:0 0 14px}.flex{display:flex;gap:10px;flex-wrap:wrap}.stage{padding:13px 10px;flex:1;min-width:95px;border:1px solid #55728b;border-radius:8px;text-align:center;background:#203a52}.stage.active{background:#0e766e;border-color:#64ead5;color:white}.flowchart{display:flex;flex-direction:column;align-items:center;gap:6px}.node{width:min(100%,470px);text-align:center;padding:11px;border:1px solid #6284a2;border-radius:9px;background:#1b3851}.light .node{background:#e7f1fc}.arrow{color:#52c8bd;font-size:22px}.description{min-height:65px;padding:14px;border-radius:8px;background:#20384d;margin:12px 0}.light .description{background:#edf3f9}.slots{display:grid;grid-template-columns:1fr 1fr;gap:12px}.slot{border:2px solid #536c84;border-radius:12px;padding:18px;text-align:center}.slot.on{border-color:#3cd4b6;background:#0b544e}.light .slot.on{background:#bcefe4}.quizq{padding:12px 0;border-bottom:1px solid #3b5066}.quizq label{display:block;margin:4px 0}.answer{font-size:14px;margin-top:8px;color:#6ce0c5}.progress{height:9px;background:#34495e;border-radius:9px;overflow:hidden}.progress>div{height:100%;background:#24bca7;transition:width .25s}.checkrow{display:block;padding:6px 0}.hide{display:none!important}footer{padding:40px 0;opacity:.7;font-size:13px}@media(max-width:850px){.layout{display:block;padding:16px}aside{position:static;height:190px;margin-bottom:25px}header{position:relative}h1{font-size:1.8rem}}@media print{body,body.light{background:#fff;color:#000}header,aside,.panel button{display:none}.layout{display:block}main{max-width:none}pre{white-space:pre-wrap;color:#111;background:#f5f5f5}h1,h2,h3{color:#111} .panel{break-inside:avoid}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="05"><header><strong>LINUX LAB · BÀI 05</strong><button onclick="toggleTheme()">☼ Sáng / Tối</button><button onclick="window.print()">⎙ In / PDF</button><a href="#interactive">Mô phỏng</a><a href="#diagrams">Sơ đồ</a></header><div class="layout"><aside><input style="width:100%;padding:8px;background:transparent;color:inherit;border:1px solid #657d97;border-radius:8px" placeholder="Tìm mục lục..." oninput="filterTOC(this.value)"><nav><a class="toc1" href="#s1">Bài 05 — Yêu cầu phần cứng, cài đặt và môi trường Lab</a><a class="toc2" href="#s2">Mục tiêu và chuẩn bị</a><a class="toc2" href="#s3">Phần I — Tại sao phải xây dựng môi trường Lab?</a><a class="toc3" href="#s4">1. Đặt vấn đề: Học Linux bằng cách nào?</a><a class="toc3" href="#s5">2. Lab là gì?</a><a class="toc3" href="#s6">3. Máy thật, máy ảo và container khác nhau thế nào?</a><a class="toc2" href="#s7">Phần II — Hiểu đúng yêu cầu phần cứng</a><a class="toc3" href="#s8">4. Một hệ điều hành Linux cần những gì?</a><a class="toc3" href="#s9">5. CPU Architecture — ISA</a><a class="toc3" href="#s10">6. Virtualization khác Emulation</a><a class="toc3" href="#s11">7. vCPU là gì?</a><a class="toc3" href="#s12">8. RAM và swap</a><a class="toc3" href="#s13">9. Disk và Thin Provisioning</a><a class="toc2" href="#s14">Phần III — Virtualization và hypervisor</a><a class="toc3" href="#s15">10. Hypervisor là gì?</a><a class="toc3" href="#s16">11. VT-x, AMD-V và nested virtualization</a><a class="toc2" href="#s17">Phần IV — ISO, checksum và boot</a><a class="toc3" href="#s18">12. ISO là gì?</a><a class="toc3" href="#s19">13. Tại sao kiểm tra checksum?</a><a class="toc3" href="#s20">14. Boot flow: từ nguồn điện đến shell</a><a class="toc2" href="#s21">Phần V — Quy trình cài Linux VM</a><a class="toc3" href="#s22">15. Chọn distro</a><a class="toc3" href="#s23">16. Chọn phần mềm ảo hóa</a><a class="toc3" href="#s24">17. Tạo VM</a><a class="toc3" href="#s25">18. Disk, partition và filesystem</a><a class="toc3" href="#s26">19. Mount root filesystem</a><a class="toc2" href="#s27">Phần VI — Networking cho Lab</a><a class="toc3" href="#s28">20. Card mạng ảo</a><a class="toc3" href="#s29">21. NAT</a><a class="toc3" href="#s30">22. Bridged</a><a class="toc3" href="#s31">23. Host-only và Internal</a><a class="toc3" href="#s32">24. Chọn mô hình mạng</a><a class="toc2" href="#s33">Phần VII — Kiểm tra sau cài đặt</a><a class="toc3" href="#s34">25. Kiểm tra distro</a><a class="toc3" href="#s35">26. Kiểm tra kernel</a><a class="toc3" href="#s36">27. Kiểm tra user</a><a class="toc3" href="#s37">28. Kiểm tra sudo</a><a class="toc3" href="#s38">29. Kiểm tra filesystem root</a><a class="toc3" href="#s39">30. Kiểm tra IP</a><a class="toc3" href="#s40">31. Kiểm tra PID 1</a><a class="toc3" href="#s41">32. Tạo thư mục Lab</a><a class="toc2" href="#s42">Phần VIII — Snapshot và khả năng phục hồi</a><a class="toc3" href="#s43">33. Snapshot là gì?</a><a class="toc3" href="#s44">34. Snapshot hoạt động như thế nào?</a><a class="toc2" href="#s45">Phần XII — Lab: tạo, phá và khôi phục</a><a class="toc3" href="#s46">35. Chuẩn bị baseline</a><a class="toc3" href="#s47">36. Tạo file marker sau snapshot</a><a class="toc3" href="#s48">37. Restore snapshot</a><a class="toc2" href="#s49">Phần XIII — Troubleshooting</a><a class="toc3" href="#s50">38. Tư duy troubleshooting của senior</a><a class="toc3" href="#s51">39. VM quay lại màn hình installer</a><a class="toc3" href="#s52">40. VM không có mạng</a><a class="toc3" href="#s53">41. Sudo không hoạt động</a><a class="toc3" href="#s54">42. VM rất chậm</a><a class="toc2" href="#s55">Phần XIV — Thiết kế Lab tái lập</a><a class="toc3" href="#s56">43. Configuration Inventory</a><a class="toc3" href="#s57">44. Reproducibility và Infrastructure as Code</a><a class="toc2" href="#s58">Phần XV — Liên hệ với Embedded Linux</a><a class="toc3" href="#s59">45. VM Lab và Board thật</a><a class="toc3" href="#s60">45.2. Build, Host và Target</a><a class="toc3" href="#s61">45.3. Native vs Cross-Compilation</a><a class="toc3" href="#s62">46. Embedded Linux Boot Flow</a><a class="toc3" href="#s63">47. Device Tree</a><a class="toc3" href="#s64">48. Root Filesystem trên Embedded Linux</a><a class="toc3" href="#s65">49. Kernel image, Rootfs image và Firmware image</a><a class="toc3" href="#s66">50. UART Console — đường cứu hộ</a><a class="toc3" href="#s67">51. Phân tích lỗi boot trên board</a><a class="toc3" href="#s68">52. VM Snapshot và Firmware Recovery</a><a class="toc3" href="#s69">53. A/B Update</a><a class="toc3" href="#s70">54. Lab Cross-Compilation ARM32</a><a class="toc3" href="#s71">55. Câu hỏi phản biện Embedded Linux</a><a class="toc3" href="#s72">56. Tổng kết Embedded Linux</a><a class="toc2" href="#s73">Phần XVI — Lab nâng cao và kiểm tra đạt</a><a class="toc3" href="#s74">Lab 1 — Nhận diện hệ thống</a><a class="toc3" href="#s75">Lab 2 — Phân tích RAM</a><a class="toc3" href="#s76">Lab 3 — Phân tích filesystem</a><a class="toc3" href="#s77">Lab 4 — Phân tích mạng</a><a class="toc3" href="#s78">Lab 5 — Restore có kiểm chứng</a><a class="toc2" href="#s79">Checklist cuối bài</a><a class="toc2" href="#s80">Tài liệu tham khảo</a><a href="#interactive">Mô phỏng tương tác</a><a href="#diagrams">Sơ đồ tổng hợp</a></nav></aside><main><article><h1 id="s1">Bài 05 — Yêu cầu phần cứng, cài đặt và môi trường Lab</h1>
+<blockquote>
+<p>Giáo trình Linux từ cơ bản đến Embedded Linux. Tài liệu HTML độc lập, có bảng, code, sơ đồ và các mô phỏng tương tác. Nội dung được biên soạn từ bài gốc và các phần giải thích, mở rộng trong cuộc hội thoại.</p>
+</blockquote>
+<h2 id="s2">Mục tiêu và chuẩn bị</h2>
+<p>Hoàn thành bài 01–04. Chuẩn bị máy host có công cụ ảo hóa, ISO từ website chính thức và dung lượng trống. Mục tiêu là có VM có thể khôi phục để dùng xuyên suốt giáo trình.</p>
+<h2 id="s3">Phần I — Tại sao phải xây dựng môi trường Lab?</h2>
+<h3 id="s4">1. Đặt vấn đề: Học Linux bằng cách nào?</h3>
+<p>Học Linux chỉ bằng cách đọc lệnh giống như học sửa ô tô mà không mở nắp capo. Khi học filesystem, bạn có thể muốn thử <code>mount</code>; khi học service, bạn có thể muốn thay đổi systemd; khi học mạng, bạn có thể vô tình mất SSH. Thử trực tiếp trên máy chính tạo rủi ro không cần thiết.</p>
+<p><strong>Lab</strong> là môi trường được chuẩn bị có chủ đích để thực hành và kiểm chứng. Một lab tốt phải có <strong>isolation</strong> (cô lập), <strong>reproducibility</strong> (tái lập), <strong>observability</strong> (quan sát) và <strong>recoverability</strong> (khôi phục).</p>
+<p><strong>Câu hỏi phản biện:</strong> Vì sao không cài lại Linux mỗi khi lỗi? Vì cài lại mất thời gian, khó tái hiện điều kiện ban đầu và không phải một chiến lược khôi phục tốt.</p>
+<h3 id="s5">2. Lab là gì?</h3>
+<p>Tưởng tượng phòng thí nghiệm điện tử: có nguồn giới hạn dòng, đồng hồ đo, linh kiện thay thế và quy trình an toàn. VM là phòng thí nghiệm tương tự dành cho hệ điều hành. Bạn được phép thử nghiệm, quan sát, ghi nhận, rồi khôi phục.</p>
+<h3 id="s6">3. Máy thật, máy ảo và container khác nhau thế nào?</h3>
+<table>
+<thead>
+<tr>
+  <th>Tiêu chí</th>
+  <th>Máy thật</th>
+  <th>Máy ảo</th>
+  <th>Container</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Kernel riêng</td>
+  <td>Có</td>
+  <td>Có</td>
+  <td>Thường chia sẻ kernel host</td>
+</tr>
+<tr>
+  <td>Boot OS hoàn chỉnh</td>
+  <td>Có</td>
+  <td>Có</td>
+  <td>Không boot kernel riêng</td>
+</tr>
+<tr>
+  <td>Lab bootloader</td>
+  <td>Có</td>
+  <td>Có</td>
+  <td>Không phù hợp</td>
+</tr>
+<tr>
+  <td>Snapshot</td>
+  <td>Tùy công cụ</td>
+  <td>Thuận tiện</td>
+  <td>Cơ chế khác</td>
+</tr>
+<tr>
+  <td>Cô lập</td>
+  <td>Vật lý</td>
+  <td>Cấp VM</td>
+  <td>Cấp process/namespace</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ví dụ:</strong> <code>docker run --rm ubuntu uname -r</code> hiển thị kernel của môi trường chạy container, không phải một kernel riêng nằm trong Ubuntu image. Vì vậy container không thay thế VM cho bài boot, kernel và partition hệ thống.</p>
+<h2 id="s7">Phần II — Hiểu đúng yêu cầu phần cứng</h2>
+<h3 id="s8">4. Một hệ điều hành Linux cần những gì?</h3>
+<p>Không có con số RAM hay dung lượng tối thiểu chung cho mọi Linux. Phải tách bốn vấn đề: <strong>kiến trúc CPU</strong>, <strong>distro/installer</strong>, <strong>driver thiết bị</strong> và <strong>workload ứng dụng</strong>. Một thiết bị nhúng tối giản khác hoàn toàn Ubuntu Desktop hoặc database server.</p>
+<h3 id="s9">5. CPU Architecture — ISA</h3>
+<p>ISA (Instruction Set Architecture) là tập chỉ thị CPU hiểu. x86-64, ARMv7, AArch64 và RISC-V là những ví dụ. Mã máy x86-64 không chạy trực tiếp trên CPU ARM chỉ vì cùng sử dụng Linux.</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(void) { printf(&quot;Hello Linux!\\n&quot;); return 0; }
+</code></pre>
+<pre><code class="language-bash">gcc main.c -o hello_x86
+aarch64-linux-gnu-gcc main.c -o hello_arm64
+file hello_x86 hello_arm64
+</code></pre>
+<p><strong>Tại sao?</strong> Compiler sinh chỉ thị máy khác nhau. Ngoài ISA, còn cần tương thích ABI, dynamic linker và thư viện.</p>
+<h3 id="s10">6. Virtualization khác Emulation</h3>
+<p>Virtualization thường chạy guest cùng ISA host, tận dụng hỗ trợ CPU và thực thi nhiều chỉ thị trực tiếp. Emulation mô phỏng ISA hoặc phần cứng khác, thường có chi phí hiệu năng lớn hơn. QEMU có thể làm cả hai: QEMU TCG để emulation, QEMU+KVM để acceleration.</p>
+<table>
+<thead>
+<tr>
+  <th></th>
+  <th>Virtualization</th>
+  <th>Emulation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>ISA</td>
+  <td>Thường giống host</td>
+  <td>Có thể khác</td>
+</tr>
+<tr>
+  <td>Tốc độ</td>
+  <td>Thường gần native</td>
+  <td>Thường chậm hơn</td>
+</tr>
+<tr>
+  <td>Ví dụ</td>
+  <td>KVM, Hyper-V</td>
+  <td>QEMU TCG</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s11">7. vCPU là gì?</h3>
+<p>vCPU là CPU logic hypervisor trình bày cho guest, không phải một lõi vật lý được dành riêng vĩnh viễn. Cấp 8 vCPU không đảm bảo nhanh hơn 2 vCPU: phụ thuộc số luồng, scheduler và tải host. Nguyên tắc senior: đo trước, cấp tài nguyên theo nhu cầu.</p>
+<h3 id="s12">8. RAM và swap</h3>
+<p>RAM là bàn làm việc; SSD là tủ tài liệu. Swap giống chuyển tài liệu từ bàn sang tủ: giúp giải phóng chỗ nhưng chậm hơn nhiều. Thiếu RAM có thể dẫn tới reclaim, swap, độ trễ lớn hoặc OOM killer. Với host 16 GB, ba VM 4 GB cùng host 5 GB có thể gây memory pressure nếu dùng hết.</p>
+<pre><code class="language-bash">free -h
+cat /proc/meminfo
+</code></pre>
+<p><strong>Câu hỏi:</strong> <code>MemFree</code> thấp có nghĩa RAM đã hết? Không; Linux dùng RAM làm page cache. <code>MemAvailable</code> thường hữu ích hơn khi đánh giá bộ nhớ có thể cấp cho workload mới.</p>
+<h3 id="s13">9. Disk và Thin Provisioning</h3>
+<p>Với lab CLI, cấu hình khởi đầu hợp lý là <strong>2 vCPU, 2–4 GB RAM, 25–40 GB disk</strong>. Host 16 GB RAM và SSD trống khoảng 100 GB giúp thuận tiện cho lab nhỏ; build kernel và nhiều VM cần thêm. Đây là ngân sách học tập, không phải tối thiểu chính thức của distro.</p>
+<p>Thin provisioning cho phép ổ ảo được khai báo 40 GB nhưng file trên host chỉ lớn dần khi ghi. Nếu host hết dung lượng, guest vẫn có thể gặp lỗi I/O dù ổ ảo báo còn chỗ.</p>
+<h2 id="s14">Phần III — Virtualization và hypervisor</h2>
+<h3 id="s15">10. Hypervisor là gì?</h3>
+<p>Hypervisor là lớp quản lý tài nguyên phần cứng ảo. Type 1 thường mô tả hypervisor gần phần cứng như ESXi; Type 2 thường mô tả phần mềm ảo hóa chạy trong host OS như VirtualBox. KVM và Hyper-V có kiến trúc thực tế tinh tế hơn cách phân loại đơn giản.</p>
+<h3 id="s16">11. VT-x, AMD-V và nested virtualization</h3>
+<p>Intel VT-x và AMD-V/SVM cung cấp hỗ trợ ảo hóa phần cứng. Kiểm tra trên Linux host:</p>
+<pre><code class="language-bash">lscpu | grep -i virtualization
+grep -E 'vmx|svm' /proc/cpuinfo
+</code></pre>
+<p>Flag xuất hiện chưa đảm bảo hypervisor được cấu hình đúng. Firmware, quyền và môi trường host vẫn quan trọng. <strong>Nested virtualization</strong> là chạy hypervisor trong guest VM; chỉ cần khi guest phải tạo VM tiếp, không cần cho một Linux VM thông thường.</p>
+<h2 id="s17">Phần IV — ISO, checksum và boot</h2>
+<h3 id="s18">12. ISO là gì?</h3>
+<p>ISO là image của phương tiện cài đặt/khởi động, có thể chứa bootloader, kernel, initramfs, installer và package metadata. Gắn ISO vào VM tương đương đưa đĩa cài đặt vào ổ quang ảo.</p>
+<h3 id="s19">13. Tại sao kiểm tra checksum?</h3>
+<pre><code class="language-bash">sha256sum debian-installer.iso
+</code></pre>
+<p>So sánh SHA-256 với giá trị do nhà phát hành công bố để kiểm tra tính toàn vẹn. Nếu kẻ tấn công thay cả ISO và checksum cùng nguồn, checksum không đủ xác thực. Chữ ký số với khóa công khai đã xác minh giúp xác thực nguồn gốc.</p>
+<h3 id="s20">14. Boot flow: từ nguồn điện đến shell</h3>
+<p>Quá trình boot PC thường có <strong>firmware UEFI/BIOS → bootloader → kernel → initramfs nếu cần → rootfs → PID 1 → login/shell</strong>. Firmware tìm thiết bị boot; bootloader nạp kernel; kernel khởi tạo bộ nhớ, scheduler, driver; initramfs có thể chuẩn bị rootfs; init/systemd khởi chạy user space.</p>
+<pre><code class="language-bash">ps -p 1 -o pid,comm,args
+</code></pre>
+<p><strong>Câu hỏi:</strong> PID 1 có vai trò gì? Đây là tiến trình init đặc biệt, quản lý các tiến trình/dịch vụ theo mô hình init được dùng; nếu init chính kết thúc bất thường, hệ thống thường không thể tiếp tục bình thường.</p>
+<h2 id="s21">Phần V — Quy trình cài Linux VM</h2>
+<h3 id="s22">15. Chọn distro</h3>
+<p>Debian và Ubuntu Server phù hợp để học CLI, Bash, APT và systemd. Dùng ISO chính thức, kiểm tra kiến trúc/phiên bản tài liệu.</p>
+<h3 id="s23">16. Chọn phần mềm ảo hóa</h3>
+<p>Trên Windows có VirtualBox, VMware Workstation, Hyper-V; trên Linux có KVM/QEMU và libvirt. Giao diện và tùy chọn phụ thuộc phiên bản hypervisor.</p>
+<h3 id="s24">17. Tạo VM</h3>
+<table>
+<thead>
+<tr>
+  <th>Trường</th>
+  <th>Ví dụ cấu hình</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Name</td>
+  <td>linux-lab-01</td>
+</tr>
+<tr>
+  <td>CPU</td>
+  <td>2 vCPU</td>
+</tr>
+<tr>
+  <td>RAM</td>
+  <td>4096 MB</td>
+</tr>
+<tr>
+  <td>Disk</td>
+  <td>40 GB, ổ ảo mới</td>
+</tr>
+<tr>
+  <td>Network</td>
+  <td>NAT</td>
+</tr>
+<tr>
+  <td>Firmware</td>
+  <td>UEFI nếu hỗ trợ</td>
+</tr>
+<tr>
+  <td>Installation</td>
+  <td>ISO chính thức</td>
+</tr>
+</tbody>
+</table>
+<p>Chỉ cấp ổ ảo mới để tránh xóa dữ liệu máy thật. Chọn CLI/server, tạo user thường có quyền sudo, ghi hostname và cấu hình mạng. Sau cài đặt tháo ISO, boot lại từ ổ ảo, cập nhật package.</p>
+<h3 id="s25">18. Disk, partition và filesystem</h3>
+<p>Disk là thiết bị lưu trữ; partition là vùng phân chia; filesystem là quy tắc tổ chức file; mount point là vị trí trong cây <code>/</code> nơi filesystem xuất hiện. Tưởng tượng disk là tòa nhà, partition là phòng, filesystem là hệ thống tủ kệ.</p>
+<h3 id="s26">19. Mount root filesystem</h3>
+<pre><code class="language-bash">findmnt /
+df -h /
+lsblk -f
+</code></pre>
+<p><code>/</code> có thể nằm trên <code>/dev/vda2</code>, LVM, mapper hoặc cấu trúc khác. Linux tổ chức filesystem trong một cây thư mục thống nhất, không cần ký tự ổ đĩa như C: hay D:.</p>
+<h2 id="s27">Phần VI — Networking cho Lab</h2>
+<h3 id="s28">20. Card mạng ảo</h3>
+<p>Hypervisor trình bày virtual NIC cho guest. Guest vẫn cần driver, cấu hình IP và routing. Host có Internet không đảm bảo guest có mạng.</p>
+<h3 id="s29">21. NAT</h3>
+<p>NAT thường cho phép VM truy cập Internet qua cơ chế dịch địa chỉ; inbound từ LAN thường cần port forwarding hoặc cấu hình khác. NAT <strong>không phải</strong> bảo mật tuyệt đối.</p>
+<h3 id="s30">22. Bridged</h3>
+<p>VM tham gia mạng vật lý, có thể nhận IP từ DHCP LAN và được thiết bị khác truy cập nếu chính sách mạng cho phép. Phù hợp lab SSH/server nhưng tăng mức phơi bày dịch vụ; Wi-Fi và mạng doanh nghiệp có thể hạn chế.</p>
+<h3 id="s31">23. Host-only và Internal</h3>
+<p>Host-only thường cho host giao tiếp với VM trong mạng riêng; Internal thường cô lập giữa các VM cùng mạng. Phù hợp lab firewall, database và thử nghiệm không muốn công khai ra LAN.</p>
+<h3 id="s32">24. Chọn mô hình mạng</h3>
+<p>Bắt đầu bằng NAT; chuyển Bridged khi cần board thật hoặc máy khác truy cập VM; chọn mạng cô lập khi cần kiểm thử nhiều node. Sử dụng mô phỏng tương tác phía dưới để so sánh.</p>
+<h2 id="s33">Phần VII — Kiểm tra sau cài đặt</h2>
+<h3 id="s34">25. Kiểm tra distro</h3>
+<pre><code class="language-bash">cat /etc/os-release
+</code></pre>
+<p>Distro khác kernel. <code>PRETTY_NAME</code> mô tả hệ điều hành phân phối, không nhất thiết là phiên bản kernel.</p>
+<h3 id="s35">26. Kiểm tra kernel</h3>
+<pre><code class="language-bash">uname -r
+uname -a
+uname -m
+</code></pre>
+<p><code>uname -r</code> cho biết kernel release; <code>uname -m</code> cho biết kiến trúc theo kernel.</p>
+<h3 id="s36">27. Kiểm tra user</h3>
+<pre><code class="language-bash">id
+id -u
+</code></pre>
+<p>UID 0 là root; user thường nên thực hiện công việc hàng ngày, chỉ nâng quyền khi cần.</p>
+<h3 id="s37">28. Kiểm tra sudo</h3>
+<pre><code class="language-bash">sudo -v
+sudo -l
+</code></pre>
+<p><code>sudo -v</code> kiểm tra/làm mới xác thực theo chính sách, không đảm bảo user được chạy mọi lệnh. Dùng <code>visudo</code> khi chỉnh sửa sudoers.</p>
+<h3 id="s38">29. Kiểm tra filesystem root</h3>
+<pre><code class="language-bash">findmnt /
+df -h /
+df -i /
+</code></pre>
+<p><code>df -h</code> xem dung lượng block; <code>df -i</code> xem inode. Có thể hết inode dù còn block trống nếu quá nhiều file nhỏ.</p>
+<h3 id="s39">30. Kiểm tra IP</h3>
+<pre><code class="language-bash">ip -br addr
+ip link
+ip route
+ping -c 3 1.1.1.1
+getent hosts debian.org
+sudo apt update
+</code></pre>
+<p>Phân biệt interface, IP, route, DNS và repository. ICMP có thể bị chặn, nên ping thất bại chưa đủ kết luận mất toàn bộ Internet.</p>
+<h3 id="s40">31. Kiểm tra PID 1</h3>
+<pre><code class="language-bash">ps -p 1 -o comm=
+</code></pre>
+<p>Nếu nhánh lab mặc định dùng systemd, kỳ vọng <code>systemd</code>; nếu khác, cần kiểm tra init thực tế.</p>
+<h3 id="s41">32. Tạo thư mục Lab</h3>
+<pre><code class="language-bash">mkdir -p &quot;$HOME/linux-lab&quot;
+ls -ld &quot;$HOME/linux-lab&quot;
+</code></pre>
+<p><code>$HOME</code> linh hoạt hơn hardcode <code>/home/student</code>.</p>
+<h2 id="s42">Phần VIII — Snapshot và khả năng phục hồi</h2>
+<h3 id="s43">33. Snapshot là gì?</h3>
+<p>Snapshot lưu trạng thái máy ảo hoặc storage tại một thời điểm. Tương tự checkpoint trong trò chơi: trước thí nghiệm khó, lưu một mốc để quay lại.</p>
+<h3 id="s44">34. Snapshot hoạt động như thế nào?</h3>
+<p>Một số hypervisor dùng copy-on-write và delta disk. Snapshot có RAM khác snapshot disk-only. Snapshot không thay backup độc lập vì có thể phụ thuộc base disk, metadata và cùng storage host. Snapshot dài hạn có thể tăng độ phức tạp và dung lượng.</p>
+<h2 id="s45">Phần XII — Lab: tạo, phá và khôi phục</h2>
+<h3 id="s46">35. Chuẩn bị baseline</h3>
+<p><strong>Baseline</strong> là trạng thái chuẩn đã kiểm tra; <strong>snapshot</strong> là một phương tiện lưu trạng thái. Trước khi chụp, xác nhận boot, kernel, user, sudo, rootfs, network và repository.</p>
+<pre><code class="language-bash">cat /etc/os-release
+uname -r
+id
+sudo -v
+findmnt /
+df -h /
+ip -br addr
+ip route
+ps -p 1 -o comm=
+sudo apt update
+sudo apt upgrade
+sudo reboot
+</code></pre>
+<p>Sau khi kiểm tra ổn định, tắt sạch:</p>
+<pre><code class="language-bash">sudo shutdown -h now
+</code></pre>
+<p>Tạo snapshot tên <code>baseline-clean</code>, ghi mô tả như <code>Fresh installation; packages updated; network and sudo verified</code>. Tắt sạch cho hệ thống cơ hội đồng bộ page cache và dừng service. Journaling không bảo đảm mọi dữ liệu ứng dụng đều được bảo toàn sau tắt đột ngột.</p>
+<p><strong>Câu hỏi phản biện:</strong> Tại sao snapshot tồn tại chưa có nghĩa recovery đáng tin? Vì chỉ có thử restore mới chứng minh đường khôi phục thực sự hoạt động.</p>
+<h3 id="s47">36. Tạo file marker sau snapshot</h3>
+<pre><code class="language-bash">mkdir -p &quot;$HOME/linux-lab&quot;
+touch &quot;$HOME/linux-lab/marker.txt&quot;
+echo &quot;This file was created after snapshot&quot; &gt; &quot;$HOME/linux-lab/marker.txt&quot;
+cat &quot;$HOME/linux-lab/marker.txt&quot;
+stat &quot;$HOME/linux-lab/marker.txt&quot;
+</code></pre>
+<p>Marker là dấu vết để kiểm chứng trạng thái. <code>stat</code> cho thấy kích thước, quyền, owner, inode và timestamp.</p>
+<h3 id="s48">37. Restore snapshot</h3>
+<p>Tắt VM, chọn <code>baseline-clean</code> trong hypervisor, Restore rồi boot lại. Chỉ thực hiện khi không có dữ liệu cần giữ sau snapshot.</p>
+<pre><code class="language-bash">ls -l &quot;$HOME/linux-lab/marker.txt&quot;
+</code></pre>
+<p>Nếu marker được tạo sau snapshot, sau restore đúng sẽ nhận <code>No such file or directory</code>. Dữ liệu ở shared folder, USB hoặc database ngoài VM có thể không thuộc phạm vi snapshot.</p>
+<h2 id="s49">Phần XIII — Troubleshooting</h2>
+<h3 id="s50">38. Tư duy troubleshooting của senior</h3>
+<p>Quan sát triệu chứng → thu thập bằng chứng → xác định tầng lỗi → đặt giả thuyết → thử kiểm chứng → sửa tối thiểu → xác minh → ghi nhận. Đừng đổi DNS khi card mạng chưa kết nối; đừng cài lại OS khi boot order sai.</p>
+<h3 id="s51">39. VM quay lại màn hình installer</h3>
+<p>Kiểm tra ISO còn gắn, boot order, ổ ảo, chế độ UEFI/Legacy và bootloader. Nếu tháo ISO mà báo <code>No bootable medium</code>, phải kiểm tra ổ ảo, EFI System Partition và cài đặt bootloader.</p>
+<h3 id="s52">40. VM không có mạng</h3>
+<pre><code class="language-bash">ip -br link
+ip -br addr
+ip route
+ping -c 3 1.1.1.1
+getent hosts debian.org
+sudo apt update
+</code></pre>
+<p>Đi từ NIC → interface → IP → route → kết nối IP → DNS → repository. Các lỗi DNS, TLS, HTTP và repository signature có nguyên nhân khác nhau.</p>
+<h3 id="s53">41. Sudo không hoạt động</h3>
+<p><code>sudo: command not found</code> là thiếu lệnh/PATH; <code>user is not in sudoers</code> là authorization. Kiểm tra:</p>
+<pre><code class="language-bash">command -v sudo
+id
+groups
+</code></pre>
+<p>Authentication là xác minh bạn là ai; authorization là bạn được phép làm gì. Khắc phục qua console quản trị và chính sách distro.</p>
+<h3 id="s54">42. VM rất chậm</h3>
+<pre><code class="language-bash">top
+uptime
+free -h
+df -h
+lsblk
+# nếu đã cài sysstat
+iostat -xz 1
+</code></pre>
+<p>Kiểm tra CPU, memory pressure, swap, storage I/O và host contention. Load average cao không nhất thiết CPU 100%: Linux còn tính task runnable và một số task chờ không ngắt được.</p>
+<h2 id="s55">Phần XIV — Thiết kế Lab tái lập</h2>
+<h3 id="s56">43. Configuration Inventory</h3>
+<p>Inventory ghi hostname, distro, kernel, architecture, CPU, RAM, disk, network, init và snapshot. Có thể thu thập tự động:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -eu
+OUTPUT=&quot;$HOME/linux-lab/machine.txt&quot;
+mkdir -p &quot;$HOME/linux-lab&quot;
+{
+  echo '=== DATE ==='; date -Is
+  echo '=== HOSTNAME ==='; hostname
+  echo '=== OS ==='; cat /etc/os-release
+  echo '=== KERNEL ==='; uname -a
+  echo '=== CPU ==='; lscpu
+  echo '=== MEMORY ==='; free -h
+  echo '=== STORAGE ==='; lsblk -f
+  echo '=== ROOT ==='; findmnt /
+  echo '=== NETWORK ==='; ip -br addr
+  echo '=== ROUTES ==='; ip route
+  echo '=== INIT ==='; ps -p 1 -o pid,comm,args
+} &gt; &quot;$OUTPUT&quot;
+echo &quot;Inventory saved to: $OUTPUT&quot;
+</code></pre>
+<p>Đừng chia sẻ inventory bừa bãi vì có thể chứa thông tin mạng và hệ thống.</p>
+<h3 id="s57">44. Reproducibility và Infrastructure as Code</h3>
+<p>Một lab tái lập cần phiên bản OS/kernel, cấu hình VM, dữ liệu thử nghiệm, cách triển khai và rollback rõ ràng. Snapshot lưu trạng thái; IaC mô tả cách tạo trạng thái.</p>
+<pre><code class="language-ruby">Vagrant.configure(&quot;2&quot;) do |config|
+  config.vm.box = &quot;generic/debian12&quot;
+  config.vm.provider &quot;virtualbox&quot; do |vb|
+    vb.memory = 4096
+    vb.cpus = 2
+  end
+end
+</code></pre>
+<p>Ví dụ phụ thuộc box và provider có còn được cung cấp, tương thích hay không. Có thể tìm hiểu Vagrant, cloud-init, Ansible, Packer khi đã hiểu quy trình thủ công.</p>
+<h2 id="s58">Phần XV — Liên hệ với Embedded Linux</h2>
+<h3 id="s59">45. VM Lab và Board thật</h3>
+<p><strong>Vấn đề:</strong> Vì sao học Linux x86-64 VM nếu đích là board ARM? VM cung cấp development environment ổn định để lập trình, cross-compile, build rootfs, kiểm tra shell, filesystem và mạng; board thật cung cấp SoC, peripheral và boot flow thực tế.</p>
+<table>
+<thead>
+<tr>
+  <th>Thành phần</th>
+  <th>Linux VM</th>
+  <th>Embedded Linux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>CPU</td>
+  <td>vCPU</td>
+  <td>SoC ARM thật</td>
+</tr>
+<tr>
+  <td>Firmware</td>
+  <td>UEFI/BIOS ảo</td>
+  <td>Boot ROM, firmware nền tảng</td>
+</tr>
+<tr>
+  <td>Bootloader</td>
+  <td>GRUB hoặc tương đương</td>
+  <td>Thường U-Boot</td>
+</tr>
+<tr>
+  <td>Driver</td>
+  <td>Thiết bị ảo</td>
+  <td>Driver phần cứng thật</td>
+</tr>
+<tr>
+  <td>Storage</td>
+  <td>Virtual disk</td>
+  <td>SD, eMMC, NAND, NVMe</td>
+</tr>
+<tr>
+  <td>Console</td>
+  <td>VM console</td>
+  <td>Thường UART serial</td>
+</tr>
+<tr>
+  <td>Recovery</td>
+  <td>Snapshot</td>
+  <td>Reflash, recovery, A/B</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(void) { printf(&quot;Hello Embedded Linux!\\n&quot;); return 0; }
+</code></pre>
+<pre><code class="language-bash">gcc main.c -o hello_x86
+arm-linux-gnueabihf-gcc main.c -o hello_arm
+file hello_x86 hello_arm
+</code></pre>
+<p>Nếu copy binary x86-64 sang ARM, có thể gặp <code>Exec format error</code>. Đúng ISA vẫn chưa đủ nếu ABI, linker hoặc thư viện không phù hợp.</p>
+<p><strong>Odroid XU4</strong> dùng Exynos 5422 với lõi Cortex-A15/A7 ARMv7-A 32-bit, do đó thường cần toolchain ARM32 tương thích, không phải mặc định AArch64.</p>
+<h3 id="s60">45.2. Build, Host và Target</h3>
+<p>Trong phát triển ứng dụng nhúng, PC thường được gọi host development machine và board là target. Trong thuật ngữ xây GCC: build = máy thực hiện build; host = máy chạy công cụ đang build; target = kiến trúc mà compiler sinh mã. Phân biệt để không chọn sai sysroot/toolchain.</p>
+<h3 id="s61">45.3. Native vs Cross-Compilation</h3>
+<p>Native compiler sinh binary cho chính kiến trúc đang chạy. Cross-compiler chạy trên PC nhưng sinh binary cho target khác. Cross-compilation hữu ích khi build kernel, rootfs, nhiều package hoặc target thiếu RAM/CPU. Native compilation trên board vẫn hợp lý với chương trình nhỏ.</p>
+<h3 id="s62">46. Embedded Linux Boot Flow</h3>
+<p>Một chuỗi tổng quát: Power On → Boot ROM → SPL/firmware nếu có → U-Boot → Linux kernel → root filesystem → init/application. Boot ROM tìm nguồn boot; SPL có thể khởi tạo DRAM; U-Boot nạp kernel, DTB, initramfs và thiết lập boot arguments. Không phải board nào cũng dùng SPL hoặc U-Boot.</p>
+<p><strong>Tại sao kernel không tự boot ngay?</strong> Vì DRAM, image, trạng thái CPU và thông tin nền tảng có thể cần chuẩn bị trước.</p>
+<h3 id="s63">47. Device Tree</h3>
+<p>Device Tree mô tả phần cứng cố định của SoC như UART, SPI, I2C, GPIO, interrupt, địa chỉ MMIO. DTS được biên dịch thành DTB bằng <code>dtc</code>.</p>
+<pre><code class="language-dts">uart0: serial@10000000 {
+    compatible = &quot;vendor,soc-uart&quot;;
+    reg = &lt;0x10000000 0x1000&gt;;
+    status = &quot;okay&quot;;
+};
+</code></pre>
+<p>Đây là ví dụ minh họa, không phải DTS thực tế của XU4. Device Tree là bản mô tả; driver là mã điều khiển. Chỉ có DT không thay được driver.</p>
+<h3 id="s64">48. Root Filesystem trên Embedded Linux</h3>
+<p>Rootfs cung cấp <code>/bin</code>, <code>/etc</code>, <code>/lib</code>, <code>/usr</code>, <code>/dev</code>, <code>/proc</code>, <code>/sys</code> và ứng dụng. Có thể tạo bằng Buildroot, Yocto, Debian rootfs hoặc BusyBox. BusyBox gom nhiều tiện ích Unix vào một executable, thường tiết kiệm dung lượng nhưng không phải mọi option đều giống GNU coreutils.</p>
+<h3 id="s65">49. Kernel image, Rootfs image và Firmware image</h3>
+<p>Kernel image như <code>Image</code>, <code>zImage</code>, <code>uImage</code> chứa kernel theo định dạng boot phù hợp. Rootfs image như <code>rootfs.ext4</code> hoặc <code>rootfs.squashfs</code> chứa filesystem user space. Firmware image có thể là gói gồm bootloader, kernel, DTB, rootfs và metadata update. Không có một định dạng chung cho mọi board.</p>
+<h3 id="s66">50. UART Console — đường cứu hộ</h3>
+<p>Khi board không lên màn hình và SSH chưa chạy, UART console thường cho thấy log từ U-Boot và kernel. Kết nối mức logic phù hợp:</p>
+<pre><code class="language-text">Board TX  ---&gt; USB-UART RX
+Board RX  &lt;--- USB-UART TX
+Board GND ---- USB-UART GND
+</code></pre>
+<p>Phải kiểm tra mức điện áp UART, tuyệt đối không đưa tín hiệu RS-232 hoặc điện áp không tương thích vào chân SoC. <code>115200 8N1</code> là cấu hình phổ biến nhưng không phải mặc định mọi board. SSH phụ thuộc network stack và sshd; UART có thể hoạt động sớm hơn nhiều.</p>
+<h3 id="s67">51. Phân tích lỗi boot trên board</h3>
+<p>Nếu log dừng sau <code>Starting kernel ...</code>, có thể kernel lỗi sớm <strong>hoặc</strong> console được cấu hình sai. Nếu thấy <code>VFS: Cannot open root device</code>, kiểm tra <code>root=</code>, driver storage, filesystem, initramfs và thiết bị được nhận diện. Đừng kết luận khi thiếu bằng chứng.</p>
+<h3 id="s68">52. VM Snapshot và Firmware Recovery</h3>
+<p>Snapshot VM lưu trạng thái disk/RAM theo hypervisor. Firmware recovery có thể flash lại SD/eMMC, boot recovery hoặc sử dụng slot A/B. Flash lại image không nhất thiết khôi phục calibration hay partition dữ liệu riêng.</p>
+<h3 id="s69">53. A/B Update</h3>
+<p>A/B update duy trì hai slot. Thiết bị chạy A, ghi firmware mới vào B, thử boot B, xác nhận health check; nếu lỗi, bootloader có thể rollback A. Thiết kế thực tế cần metadata boot, cơ chế xác nhận và tương thích dữ liệu khi rollback. Mô phỏng tương tác bên dưới.</p>
+<h3 id="s70">54. Lab Cross-Compilation ARM32</h3>
+<pre><code class="language-bash">uname -m
+sudo apt update
+sudo apt install gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf file
+mkdir -p ~/linux-lab/arm-test
+cd ~/linux-lab/arm-test
+</code></pre>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(void) { printf(&quot;Hello from ARM target!\\n&quot;); return 0; }
+</code></pre>
+<pre><code class="language-bash">gcc main.c -o hello_x86
+arm-linux-gnueabihf-gcc main.c -o hello_arm
+file hello_x86 hello_arm
+readelf -h hello_x86
+arm-linux-gnueabihf-readelf -h hello_arm
+arm-linux-gnueabihf-readelf -l hello_arm
+</code></pre>
+<p>So sánh ELF <code>Class</code>, <code>Machine</code>, <code>Entry point</code> và <code>Requesting program interpreter</code>. Nếu binary dynamic yêu cầu linker/thư viện không có trên board, nó có thể không chạy dù đúng ISA.</p>
+<h3 id="s71">55. Câu hỏi phản biện Embedded Linux</h3>
+<ol>
+<li>Vì sao VM x86-64 hữu ích khi target ARM? 2. Cross-compiler khác native thế nào? 3. Vì sao đúng ISA chưa đủ? 4. Boot ROM, SPL, U-Boot khác nhau ra sao? 5. Device Tree có thay driver không? 6. Vì sao UART quan trọng khi boot? 7. Kernel image khác rootfs? 8. Snapshot có tương đương reflash? 9. A/B rollback có luôn an toàn? 10. Kernel không mount được rootfs phải kiểm tra gì?</li>
+</ol>
+<h3 id="s72">56. Tổng kết Embedded Linux</h3>
+<p>Development host: compiler, toolchain, build system, source code → artifacts: bootloader, kernel, DTB, rootfs → deploy → target: boot ROM, bootloader, kernel, rootfs, init → debug/test/update. Kỹ sư Embedded Linux cần hiểu cả host development và target hardware.</p>
+<h2 id="s73">Phần XVI — Lab nâng cao và kiểm tra đạt</h2>
+<h3 id="s74">Lab 1 — Nhận diện hệ thống</h3>
+<pre><code class="language-bash">uname -m
+uname -r
+cat /etc/os-release
+lsblk -f
+findmnt /
+ps -p 1 -o comm=
+</code></pre>
+<p>Hãy giải thích kiến trúc, kernel, root filesystem và PID 1. Nếu rootfs không mount được, hãy nghĩ đến boot arguments, driver và initramfs.</p>
+<h3 id="s75">Lab 2 — Phân tích RAM</h3>
+<pre><code class="language-bash">free -h
+cat /proc/meminfo
+</code></pre>
+<p>Phân biệt <code>MemTotal</code>, <code>MemFree</code>, <code>MemAvailable</code>, cache và swap. Đừng kết luận thiếu RAM chỉ từ <code>MemFree</code>.</p>
+<h3 id="s76">Lab 3 — Phân tích filesystem</h3>
+<pre><code class="language-bash">lsblk -f
+df -hT
+df -i
+findmnt
+</code></pre>
+<p>Phân biệt block device, partition, filesystem, mount point, block và inode.</p>
+<h3 id="s77">Lab 4 — Phân tích mạng</h3>
+<pre><code class="language-bash">ip -br link
+ip -br addr
+ip route
+getent hosts debian.org
+</code></pre>
+<p>Nếu interface có IP nhưng không có default route hoặc route cụ thể tới đích ngoài subnet, kernel có thể không tìm được đường đi.</p>
+<h3 id="s78">Lab 5 — Restore có kiểm chứng</h3>
+<p>Tạo snapshot → tạo marker → xác nhận tồn tại → tắt VM → restore → boot lại → xác nhận marker biến mất. Chỉ thử với dữ liệu không cần giữ.</p>
+<h2 id="s79">Checklist cuối bài</h2>
+<p>VM boot từ disk; biết ISA/virtualization/emulation; kiểm tra distro/kernel/user/sudo; xác định rootfs; kiểm tra mạng và repository; hiểu NAT/Bridged/Host-only; tạo baseline-clean; restore thành công; lưu inventory; giải thích vì sao container không thay VM; phân biệt VM và board ARM.</p>
+<h2 id="s80">Tài liệu tham khảo</h2>
+<ul>
+<li><a href="https://www.debian.org/releases/stable/amd64/">Debian Installation Guide</a></li>
+<li><a href="https://ubuntu.com/server/docs">Ubuntu Server Documentation</a></li>
+<li><a href="https://www.qemu.org/docs/master/">QEMU Documentation</a></li>
+<li><a href="https://docs.u-boot.org/">U-Boot Documentation</a></li>
+</ul>
+<p><strong>Kết luận:</strong> Một lab đáng tin phải tái lập được, quan sát được, cô lập được và khôi phục được. Điều quan trọng không phải chỉ cài Ubuntu thành công mà là hiểu từng tầng từ firmware đến user space và biết chẩn đoán dựa trên bằng chứng.</p>
+</article><section class="panel" id="diagrams"><h2>Sơ đồ tổng hợp — Không phụ thuộc hình ảnh ngoài</h2><h3>Máy thật / VM / Container</h3><div class="slots"><div class="slot"><b>VM</b><div class="node">Application</div><div class="node">Guest Kernel</div><div class="node">Virtual Hardware</div><div class="node">Hypervisor</div><div class="node">Host Hardware</div></div><div class="slot"><b>Container</b><div class="node">Application A | B</div><div class="node">Namespaces / cgroups</div><div class="node">Shared Host Kernel</div><div class="node">Host Hardware</div></div></div><h3>Quy trình boot Embedded Linux</h3><div class="flowchart"><div class="node">Power On</div><div class="arrow">↓</div><div class="node">Boot ROM</div><div class="arrow">↓</div><div class="node">SPL / Firmware (nếu có)</div><div class="arrow">↓</div><div class="node">U-Boot / Bootloader</div><div class="arrow">↓</div><div class="node">Linux Kernel</div><div class="arrow">↓</div><div class="node">Root Filesystem</div><div class="arrow">↓</div><div class="node">Init / Applications</div><div class="arrow">↓</div></div><h3>Phương pháp troubleshooting</h3><div class="flowchart"><div class="node">Quan sát triệu chứng</div><div class="arrow">↓</div><div class="node">Thu thập bằng chứng</div><div class="arrow">↓</div><div class="node">Xác định tầng lỗi</div><div class="arrow">↓</div><div class="node">Đặt giả thuyết</div><div class="arrow">↓</div><div class="node">Thử kiểm chứng</div><div class="arrow">↓</div><div class="node">Sửa tối thiểu</div><div class="arrow">↓</div><div class="node">Xác minh và ghi nhận</div><div class="arrow">↓</div></div><h3>Host → Cross-Compiler → Target</h3><div class="flowchart"><div class="node">PC x86-64 / Linux VM</div><div class="arrow">↓</div><div class="node">Cross-Compiler ARM + Sysroot</div><div class="arrow">↓</div><div class="node">ARM ELF / Kernel / DTB / Rootfs</div><div class="arrow">↓</div><div class="node">Board ARM: Boot → Run → Debug</div></div></section><section class="panel" id="interactive"><h2>Phòng mô phỏng tương tác</h2><p>Các mô phỏng này chạy hoàn toàn bằng JavaScript trong file HTML, không cần Internet.</p><h3>1. Boot Linux từng bước</h3><div class="flex" id="bootStages"><button class="bootstep" onclick="setBoot(0)">1. Firmware</button><button class="bootstep" onclick="setBoot(1)">2. Bootloader</button><button class="bootstep" onclick="setBoot(2)">3. Kernel</button><button class="bootstep" onclick="setBoot(3)">4. Init</button><button class="bootstep" onclick="setBoot(4)">5. Shell</button></div><div class="description"><b id="bootTitle"></b><p id="bootDesc"></p></div><button id="bootPrev" onclick="setBoot(bootN-1)">← Trước</button> <button id="bootNext" onclick="setBoot(bootN+1)">Tiếp →</button><h3>2. Chọn mô hình mạng</h3><label><input type="radio" name="net" value="nat" checked onchange="drawNet()"> NAT</label>　<label><input type="radio" name="net" value="bridge" onchange="drawNet()"> Bridged</label>　<label><input type="radio" name="net" value="host" onchange="drawNet()"> Host-only/Internal</label><div class="description"><b id="netTitle"></b><p id="netDesc"></p><p><b>Ứng dụng:</b> <span id="netUse"></span></p></div><h3>3. Snapshot và restore</h3><div class="flowchart"><div class="node">Base Disk: baseline-clean</div><div class="arrow">↓</div><div class="node" id="snapMarker">marker.txt: NOT FOUND</div></div><p id="snapStatus"></p><div class="flex"><button onclick="setSnap(0)">Baseline</button><button onclick="setSnap(1)">Tạo marker</button><button onclick="setSnap(2)">Restore</button></div><h3>4. A/B Firmware Update</h3><div class="slots"><div class="slot" id="boxA"><b>Slot A</b><p id="slotA"></p></div><div class="slot" id="boxB"><b>Slot B</b><p id="slotB"></p></div></div><p id="abDesc"></p><div class="flex"><button onclick="setAB(1)">Ghi B</button><button onclick="setAB(2)">Thử boot B</button><button onclick="setAB(3)">Xác nhận</button><button onclick="setAB(4)">Rollback</button><button onclick="setAB(0)">Reset</button></div><h3>5. Kiểm tra kiến thức</h3><div id="quizItems"></div><p id="quizScore"></p><button onclick="grade()">Kiểm tra đáp án</button><button onclick="quizInit();$('quizScore').textContent=''">Làm lại</button><h3>6. Checklist thực hành</h3><p id="checkText"></p><div class="progress"><div id="checkBar"></div></div><div id="checkItems"></div></section><footer>Tài liệu độc lập UTF-8 · CSS/JS/SVG tích hợp · Các link tài liệu tham khảo cần Internet để mở.</footer></main></div><script>const $=id=>document.getElementById(id);const boot=[['Firmware','Khởi tạo phần cứng và chọn thiết bị boot'],['Bootloader','Nạp kernel và initramfs nếu cần'],['Kernel','Khởi tạo bộ nhớ, scheduler, driver'],['Init / systemd','Khởi động user space và service'],['Login / Shell','Đăng nhập và tương tác với hệ thống']];let bootN=0;function bootDraw(){ $('bootTitle').textContent=boot[bootN][0];$('bootDesc').textContent=boot[bootN][1];document.querySelectorAll('.bootstep').forEach((x,i)=>x.classList.toggle('active',i===bootN));$('bootPrev').disabled=bootN===0;$('bootNext').disabled=bootN===4}function setBoot(i){bootN=Math.max(0,Math.min(4,i));bootDraw()}const net={nat:['NAT','VM thường truy cập Internet qua host; inbound thường cần port forwarding.','Lab CLI và cập nhật package'],bridge:['Bridged','VM tham gia LAN vật lý, có thể nhận IP LAN; cần firewall và quyền truy cập.','SSH, server và board thật'],host:['Host-only / Internal','Mạng lab cô lập; không mặc định có Internet qua interface này.','Thử nghiệm nhiều node và firewall']};function drawNet(){let v=document.querySelector('input[name=net]:checked').value; $('netTitle').textContent=net[v][0];$('netDesc').textContent=net[v][1];$('netUse').textContent=net[v][2]}let snap=0;function setSnap(v){snap=v;$('snapStatus').textContent=['Baseline sạch, chưa tạo marker.','Marker đã tạo sau snapshot; filesystem đã thay đổi.','Restore baseline: marker không còn trong trạng thái được khôi phục.'][v];$('snapMarker').textContent=v===1?'marker.txt: EXISTS':'marker.txt: NOT FOUND'}let ab=0;const abdata=[['Active v1.0','Empty / Older','Đang chạy slot A.'],['Active v1.0','Staged v1.1','Ghi firmware mới vào slot B.'],['Fallback v1.0','Trial boot v1.1','Bootloader thử slot B và chờ xác nhận.'],['Fallback v1.0','Active v1.1','Health check thành công; xác nhận slot B.'],['Active v1.0','Failed v1.1','Thử boot thất bại; rollback về A.']];function setAB(n){ab=n;$('slotA').textContent=abdata[n][0];$('slotB').textContent=abdata[n][1];$('abDesc').textContent=abdata[n][2];$('boxA').classList.toggle('on',[0,1,4].includes(n));$('boxB').classList.toggle('on',n===3)}const quiz=[['Binary x86-64 có chạy trực tiếp trên ARM không?',['Có, vì đều là Linux','Không, cần binary tương thích hoặc emulation','Chỉ cần thêm RAM'],1,'ISA khác nhau nên CPU ARM không thực thi trực tiếp chỉ thị x86-64.'],['Cấp nhiều vCPU có luôn tăng hiệu năng?',['Luôn luôn','Không, phụ thuộc workload và host','Chỉ khi dùng SSD'],1,'Cần xét mức song song và contention.'],['Snapshot có thay thế backup độc lập?',['Có','Không','Có nếu tạo hàng ngày'],1,'Snapshot có thể phụ thuộc base disk và cùng storage.'],['Mất Internet nên sửa DNS ngay?',['Có','Cài lại OS','Kiểm tra NIC, IP, route rồi DNS'],2,'Chẩn đoán từ tầng thấp đến tầng cao.'],['Container thông thường có kernel riêng?',['Có','Không, chia sẻ kernel môi trường host','Kernel nằm trong image'],1,'Container thường chia sẻ kernel của môi trường host Linux.']];function quizInit(){ $('quizItems').innerHTML=quiz.map((q,i)=>`<div class="quizq"><b>Câu ${i+1}. ${q[0]}</b>${q[1].map((x,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${x}</label>`).join('')}<div id="ans${i}" class="answer"></div></div>`).join('')}function grade(){let score=0;quiz.forEach((q,i)=>{let c=document.querySelector(`input[name=q${i}]:checked`);let ok=c&&Number(c.value)===q[2];if(ok)score++;$(`ans${i}`).textContent=(ok?'✓ Đúng. ':'✗ Đáp án: '+q[1][q[2]]+'. ')+q[3]});$('quizScore').textContent=`Kết quả: ${score}/${quiz.length}`}const checks=['VM boot từ disk, không quay lại ISO','Phân biệt ISA, virtualization, emulation','Kiểm tra distro và kernel','Sử dụng user thường và sudo','Xác định root filesystem','Kiểm tra IP, route, DNS và repository','Hiểu NAT, Bridged, mạng cô lập','Tạo baseline-clean','Restore marker thành công','Hiểu VM khác container và board ARM'];function checkInit(){$('checkItems').innerHTML=checks.map((s,i)=>`<label class="checkrow"><input type="checkbox" class="task"> ${s}</label>`).join('');document.querySelectorAll('.task').forEach(x=>x.addEventListener('change',checkDraw));checkDraw()}function checkDraw(){let n=document.querySelectorAll('.task:checked').length;$('checkText').textContent=`${n}/${checks.length}`;$('checkBar').style.width=`${100*n/checks.length}%`}document.querySelectorAll('pre').forEach(pre=>{let b=document.createElement('button');b.className='copy';b.textContent='Copy';b.onclick=async()=>{try{await navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));b.textContent='Đã sao chép'}catch(e){b.textContent='Chọn code để copy'}setTimeout(()=>b.textContent='Copy',1600)};pre.appendChild(b)});function filterTOC(v){document.querySelectorAll('aside a').forEach(a=>a.classList.toggle('hide',!a.textContent.toLowerCase().includes(v.toLowerCase())))}function toggleTheme(){document.body.classList.toggle('light')}bootDraw();drawNet();setSnap(0);setAB(0);quizInit();checkInit();</script><script src="assets/lesson-theme.js" defer></script></body></html>

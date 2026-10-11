@@ -1,0 +1,425 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Bài 01 — Nền tảng máy tính và hệ điều hành | Bản HTML tương tác</title><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f7fa;color:#17263a;font:16px/1.78 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}body.dark{background:#0c1422;color:#e5edf8}a{color:#087b84;text-decoration:none}a:hover{text-decoration:underline}.layout{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1560px;margin:auto}.sidebar{height:100vh;overflow:auto;position:sticky;top:0;padding:28px 18px;background:#fff;border-right:1px solid #dbe3eb}.dark .sidebar{background:#101e30;border-color:#334155}.brand{font-size:20px;font-weight:800;line-height:1.3;margin-bottom:20px}.nav a{display:block;padding:8px 10px;border-radius:8px;color:inherit;font-size:13px;line-height:1.5}.nav a:hover{background:#e7f5f4}.dark .nav a:hover{background:#1d3644}.content{padding:38px clamp(22px,5vw,80px);max-width:1150px;width:100%;margin:auto}.hero{padding:38px 42px;border-radius:18px;background:linear-gradient(125deg,#073e48,#116c72);color:white;margin-bottom:32px}.hero h1{font-size:clamp(30px,4vw,48px);line-height:1.18;margin:0 0 18px}.hero p{opacity:.9}.eyebrow{font-size:13px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}.section{background:white;border:1px solid #dce5ed;border-radius:16px;padding:clamp(20px,3vw,38px);margin:22px 0;box-shadow:0 3px 16px #0d25450b}.dark .section{background:#132237;border-color:#2b4058}.section h2{font-size:clamp(22px,2.6vw,30px);line-height:1.3;color:#086e72;margin:0 0 24px}.dark .section h2{color:#5fd6cb}h3{font-size:20px;line-height:1.4;margin:30px 0 12px}h4{font-size:16px;margin:0 0 12px}p{margin:12px 0 18px}pre{background:#0d1c2b;color:#e7f2f6;padding:18px 20px;border-radius:10px;overflow:auto;line-height:1.55;font-size:13px;white-space:pre}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}p code,td code{background:#eaf0f4;color:#0b6672;padding:2px 5px;border-radius:4px;font-size:.9em}.dark p code,.dark td code{background:#243b4b;color:#8de8df}table{border-collapse:collapse;width:100%;margin:18px 0 26px;font-size:14px;display:block;overflow:auto}th,td{border:1px solid #d6e0e9;padding:10px 12px;text-align:left;vertical-align:top}th{background:#eaf3f5;color:#12505b}.dark th{background:#1e3847;color:#c4eee9}.dark th,.dark td{border-color:#365066}.diagram{background:#f0f6f8;border:1px solid #d3e5e9;padding:20px;border-radius:14px;margin:22px 0;text-align:center}.dark .diagram{background:#152c3c;border-color:#36566b}.node{background:#fff;border:1px solid #cbdce5;border-radius:9px;padding:13px 10px;text-align:center;font-weight:600}.dark .node{background:#1b3447;border-color:#476175}.node small{display:block;font-size:12px;color:#607486;font-weight:400}.dark .node small{color:#a9c4d0}.node.accent{background:#d9f3ee;border-color:#69bcb0;color:#0b5b58}.dark .node.accent{background:#174f4b;color:#d7fffa}.arrow{color:#168b8a;font-weight:700;padding:6px}.grid{display:grid;gap:10px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(4,minmax(0,1fr))}.formula{text-align:center;padding:22px;font-size:23px;font-weight:700;background:#e9f4f2;border-radius:12px;margin:20px 0}.dark .formula{background:#1c4040}.interactive{border:1px solid #c7dfe0;border-radius:14px;background:#f7fbfa;padding:22px;margin:22px 0}.dark .interactive{background:#152b35;border-color:#42646c}.interactive label{display:block;font-weight:600;font-size:14px;margin:12px 0 3px}.interactive input[type=range]{width:100%;accent-color:#128c86;cursor:pointer}.stat{text-align:center;background:#e7f3f1;border-radius:12px;padding:18px;margin:18px 0}.dark .stat{background:#204441}.stat small,.stat span{display:block}.stat strong{display:block;font-size:36px;line-height:1.5;color:#087b74}.dark .stat strong{color:#7fe5d7}.buttons{display:flex;gap:8px;flex-wrap:wrap}.buttons button,.quiz button,#themeBtn,#printBtn{border:1px solid #9cb7bb;background:white;border-radius:8px;padding:8px 13px;cursor:pointer;font:inherit;font-size:13px;color:#145760}.buttons button.active{background:#0f7976;color:white;border-color:#0f7976}.timeline{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;margin:16px 0}.timeline span{display:grid;place-items:center;color:white;font-weight:700;min-height:52px;border-radius:4px}.memory-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:14px 0}.memory-grid span{border:1px solid #c9d7df;border-radius:5px;text-align:center;padding:8px;background:white}.memory-grid span.on{background:#c2eae0;border-color:#24a39c;color:#084a46;font-weight:700}.muted,small{color:#607587}.dark .muted,.dark small{color:#b0c4d2}.pyramid{display:flex;align-items:center;flex-direction:column;gap:5px;margin:25px 0}.pyramid div{text-align:center;background:#cfe9e5;border:1px solid #9fcfca;padding:10px 0;border-radius:7px;font-weight:650}.dark .pyramid div{background:#225453}.quiz-item{border:1px solid #d5e2e5;border-radius:10px;padding:15px;margin:10px 0}.quiz-item button{margin-top:10px}.answer{display:none;padding:10px 0}.answer.open{display:block}.checkrow{display:flex;gap:10px;align-items:start;margin:11px 0}.checkrow input{accent-color:#0c8781;margin-top:7px}.progress{height:9px;border-radius:12px;background:#dce6e8;overflow:hidden}.progress div{height:100%;background:#138b82;width:0%;transition:width .2s}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.toolbar button{padding:8px 12px;border:1px solid #aac9cc;border-radius:8px;background:white;cursor:pointer}.source{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.6;max-height:500px;overflow:auto;background:#edf2f6;padding:20px;border-radius:10px}.dark .source{background:#0e1d2e}.footer{text-align:center;padding:30px;color:#6d8291}@media(max-width:900px){.layout{display:block}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid #ddd}.nav{max-height:160px;overflow:auto}.content{padding:20px}.hero{padding:26px}.four{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.two,.three,.four{grid-template-columns:1fr}.section{padding:17px}.memory-grid{grid-template-columns:repeat(4,1fr)}.timeline span{min-height:36px;font-size:11px}}@media print{body{background:white!important;color:black!important}.sidebar,.toolbar{display:none!important}.layout{display:block}.content{max-width:none;padding:0}.hero{background:#fff;color:#111;border-bottom:3px solid #147e7a;border-radius:0}.section{break-inside:auto;box-shadow:none;border:0;padding:10px 0}.interactive{break-inside:avoid}pre{white-space:pre-wrap}.source{max-height:none}}</style><link rel="stylesheet" href="assets/lesson-theme.css"></head><body class="lesson-page" data-lesson="01"><div class="layout"><aside class="sidebar"><div class="brand">📘 Linux từ nền tảng đến chuyên sâu</div><p class="muted">Bài 01 · Phiên bản HTML độc lập</p><div class="toolbar"><button id="themeBtn" type="button">◐ Giao diện</button><button id="printBtn" type="button">⎙ In / PDF</button></div><nav class="nav"><a href="#part1">Phần I — Nhìn máy tính như một hệ thống hoàn chỉnh</a><a href="#part2">Phần II — CPU thực sự thực thi chương trình như thế nào?</a><a href="#part3">Phần III — Program, Process và Thread</a><a href="#part4">Phần IV — CPU Core, Logical CPU và Scheduling</a><a href="#part5">Phần V — Thứ bậc bộ nhớ và Cache</a><a href="#part6">Phần VI — RAM, Virtual Memory, Page Fault và Swap</a><a href="#part7">Phần VII — Storage và Page Cache</a><a href="#part8">Phần VIII — Interrupt, Timer và DMA</a><a href="#part9">Phần IX — Hệ điều hành thực sự làm gì?</a><a href="#part10">Phần X — Phân tích toàn bộ quá trình chạy cat hello.txt</a><a href="#part11">Phần XI — Lab: lập hồ sơ máy Linux</a><a href="#part12">Phần XII — Latency và Throughput</a><a href="#part13">Phần XIII — Những lỗi tư duy thường gặp</a><a href="#part14">Phần XIV — Case study: Embedded Linux nhận CAN bị mất dữ liệu</a><a href="#part15">Phần XV — Tự kiểm tra kiến thức</a><a href="#part16">Phần XVI — Phương pháp học theo tư duy Senior</a><a href="#original">Phụ lục: toàn văn Markdown gốc</a></nav></aside><main class="content"><header class="hero"><div class="eyebrow">Linux · Embedded Linux · Computer Architecture</div><h1>Bài 01 — Nền tảng máy tính và hệ điều hành</h1><p>Giải thích chuyên sâu theo tư duy Senior Linux / Embedded Linux Engineer</p><p>CPU · Process · Thread · Memory · Scheduler · Page Cache · Interrupt · Timer · DMA · Kernel · Lab</p></header><p>Bài học giải thích mối quan hệ giữa phần cứng và Linux, sử dụng ví dụ xuyên suốt <code>cat hello.txt</code>, câu hỏi phản biện, sơ đồ, code và các mô phỏng tương tác. Mọi thành phần hoạt động ngoại tuyến trong một file HTML, không dùng thư viện hay tài nguyên mạng.</p><section class="section" id="part1"><h2>Phần I — Nhìn máy tính như một hệ thống hoàn chỉnh</h2>
+<h3>1. Tại sao cần học kiến trúc máy tính trước khi học Linux?</h3>
+<p>Giả sử bạn đang phát triển hệ thống Embedded Linux đọc cảm biến, nhận CAN, ghi log và gửi dữ liệu Ethernet. Cứ sau vài phút dữ liệu lại trễ 200 ms, trong khi CPU chỉ sử dụng 15%. Liệu CPU thấp chứng minh hệ thống không có vấn đề? <strong>Không.</strong> Thread có thể đang chờ I/O, bị scheduler trì hoãn, bị khóa mutex, chịu cache miss hoặc interrupt. Hiểu mối quan hệ giữa phần cứng và hệ điều hành giúp tìm đúng nút thắt.</p>
+<h3>2. Mô hình tổng thể của máy tính</h3>
+<div class="diagram"><div class="node">Ứng dụng — User Space<br><small>cat, Python, C/C++, ứng dụng cảm biến</small></div><div class="arrow">↕ System calls / API</div><div class="node accent"><strong>Linux Kernel</strong><br><small>Scheduler · Memory Management · VFS · Device Drivers · Networking · Interrupt Handling</small></div><div class="arrow">↕ Điều khiển và giao tiếp phần cứng</div><div class="grid four"><div class="node">CPU</div><div class="node">RAM</div><div class="node">SSD</div><div class="node">I/O</div></div></div>
+<p><strong>Ví dụ nhà hàng:</strong> CPU là đầu bếp, RAM là bàn chuẩn bị, cache là nguyên liệu trong tầm tay, SSD là kho, scheduler là người điều phối và kernel là hệ thống quản lý. Nếu đầu bếp đang chờ nguyên liệu, thuê thêm đầu bếp chưa chắc giải quyết vấn đề.</p>
+<table><tr><th>Máy tính</th><th>Nhà hàng</th></tr><tr><td>CPU</td><td>Đầu bếp</td></tr><tr><td>RAM</td><td>Bàn chuẩn bị</td></tr><tr><td>Cache</td><td>Nguyên liệu trong tầm tay</td></tr><tr><td>SSD</td><td>Kho lưu trữ</td></tr><tr><td>Process</td><td>Đơn hàng đang được xử lý</td></tr><tr><td>Scheduler</td><td>Người điều phối</td></tr><tr><td>Kernel</td><td>Hệ thống quản lý</td></tr><tr><td>Driver</td><td>Bộ phận vận hành thiết bị chuyên dụng</td></tr></table>
+</section><section class="section" id="part2"><h2>Phần II — CPU thực sự thực thi chương trình như thế nào?</h2>
+<h3>3. CPU có hiểu ngôn ngữ C, Python hay Bash không?</h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(void) {
+    int a = 10;
+    int b = 20;
+    printf("%d\n", a + b);
+    return 0;
+}</code></pre>
+<p>CPU <strong>không hiểu cú pháp C</strong>. CPU thực thi lệnh máy của ISA (Instruction Set Architecture), ví dụ x86-64, ARM64 hoặc RISC-V. Các thao tác bao gồm nạp dữ liệu, cộng, so sánh, nhảy và truy cập bộ nhớ.</p>
+<div class="diagram"><div class="node">Source code — main.c</div><div class="arrow">↓</div><div class="node">Compiler / Linker</div><div class="arrow">↓</div><div class="node">Executable ELF</div><div class="arrow">↓</div><div class="node">Kernel + Loader</div><div class="arrow">↓</div><div class="node accent">CPU thực thi machine instructions</div></div>
+<p>Quan sát mã máy:</p><pre><code>gcc -O0 -g main.c -o main
+objdump -d -M intel ./main</code></pre>
+<p>Ví dụ assembly minh họa (không bảo đảm compiler sinh chính xác):</p><pre><code>mov eax, 10
+add eax, 20</code></pre>
+<p><strong>Phản biện:</strong> Nếu CPU chỉ hiểu machine code, tại sao Python chạy được? Vì Python interpreter bản thân là chương trình mã máy. CPython thường biên dịch Python thành bytecode rồi interpreter thực thi; mọi công việc cuối cùng vẫn được thực hiện bằng lệnh máy.</p>
+<div class="grid two"><div class="node">C → Compiler → Machine code → CPU</div><div class="node">Python → Interpreter/Bytecode → Mã máy interpreter → CPU</div></div>
+<h3>4. Chu trình thực thi CPU</h3>
+<div class="grid four"><div class="node">1. Fetch<br><small>Lấy lệnh</small></div><div class="node">2. Decode<br><small>Giải mã</small></div><div class="node">3. Execute<br><small>Thực hiện</small></div><div class="node">4. Retire<br><small>Ghi nhận</small></div></div>
+<p>CPU hiện đại có pipeline, branch prediction và out-of-order execution, vì vậy đây là mô hình khái niệm chứ không phải mỗi lần chỉ có một lệnh. <strong>Register</strong> giữ toán hạng và trạng thái: Program Counter / Instruction Pointer, Stack Pointer, general-purpose registers, status flags và control registers. Quy tắc gọi hàm liên quan đến ABI.</p>
+<pre><code>void foo(void) { int x = 10; }</code></pre>
+<p>CPU cần biết vị trí hàm, cách chuyển điều khiển và cách quay lại. Register và cache nhanh hơn RAM nên CPU không muốn lấy mọi toán hạng trực tiếp từ RAM. Đây là cầu nối đến memory hierarchy.</p>
+</section><section class="section" id="part3"><h2>Phần III — Program, Process và Thread</h2>
+<h3>5. Tại sao có file chương trình rồi vẫn cần process?</h3>
+<p><code>/usr/bin/cat</code> là file chương trình. Hai terminal chạy <code>cat hello.txt</code> thường tạo hai process riêng. <strong>Program</strong> là mã/dữ liệu được lưu; <strong>process</strong> là thực thể thực thi có không gian địa chỉ và tài nguyên do kernel quản lý. Ví dụ: công thức nấu ăn là program; mỗi đầu bếp nấu theo công thức là một lần thực thi.</p>
+<h3>6. Bên trong một process có những gì?</h3>
+<div class="diagram"><div class="node">Stack — lời gọi hàm, biến cục bộ</div><div class="node">Memory mappings — thư viện, mmap</div><div class="node">Heap — malloc / new</div><div class="node">Data / BSS — biến global/static</div><div class="node">Text — mã chương trình</div><small>Minh họa vùng địa chỉ ảo; bố trí thực tế phụ thuộc ASLR, kiến trúc và chương trình.</small></div>
+<pre><code class="language-c">#include &lt;stdlib.h&gt;
+void example(void) {
+    int a = 10;
+    int *p = malloc(100 * sizeof(int));
+    if (p != NULL) { p[0] = a; free(p); }
+}</code></pre>
+<p>Biến cục bộ có thể ở stack hoặc register. Bộ nhớ <code>malloc</code> là vùng cấp phát động, không đồng nghĩa kernel lập tức cấp đủ RAM vật lý. Allocator có thể tái sử dụng vùng cũ; trang vật lý có thể chỉ được cấp khi chạm vào trang. <strong>Câu hỏi:</strong> malloc(1 GB) thành công có chắc chiếm 1 GB RAM? <strong>Không.</strong> Phụ thuộc overcommit và việc truy cập trang.</p>
+<h3>7. Thread là gì? Khác process ở đâu?</h3>
+<div class="diagram"><div class="node accent">Process: Sensor Gateway<br><small>Không gian địa chỉ và file descriptor chia sẻ</small></div><div class="grid four"><div class="node">Thread A<br><small>Cảm biến</small></div><div class="node">Thread B<br><small>CAN</small></div><div class="node">Thread C<br><small>Log</small></div><div class="node">Thread D<br><small>Ethernet</small></div></div><div class="node">Heap · Globals · Mappings dùng chung<br><small>Mỗi thread có stack và trạng thái thực thi riêng</small></div></div>
+<table><tr><th>Đặc điểm</th><th>Hai process</th><th>Hai thread cùng process</th></tr><tr><td>Không gian địa chỉ</td><td>Thông thường riêng</td><td>Chung</td></tr><tr><td>Heap / global</td><td>Thông thường riêng</td><td>Chung</td></tr><tr><td>Stack</td><td>Riêng</td><td>Riêng</td></tr><tr><td>CPU state</td><td>Theo thread</td><td>Theo thread</td></tr><tr><td>File descriptors</td><td>Có thể kế thừa/chia sẻ</td><td>Thường chia sẻ</td></tr><tr><td>Trao đổi dữ liệu</td><td>IPC/shared memory</td><td>Bộ nhớ dùng chung</td></tr><tr><td>Race condition</td><td>Khi chia sẻ tài nguyên</td><td>Rất đáng chú ý</td></tr></table>
+<p>1.000 thread CPU-bound trên 4 logical CPU không đồng nghĩa chạy nhanh hơn: có context switch, stack overhead, tranh chấp lock/cache. Nhưng 1.000 thread chờ I/O khác 1.000 thread tiêu thụ CPU. <strong>Trước khi tăng thread, xác định CPU-bound, I/O-bound hay bị giới hạn đồng bộ.</strong></p>
+</section><section class="section" id="part4"><h2>Phần IV — CPU Core, Logical CPU và Scheduling</h2>
+<h3>8. Socket, core và hardware thread</h3><pre><code>Socket(s):             1
+Core(s) per socket:    4
+Thread(s) per core:    2
+CPU(s):                8</code></pre>
+<p>1 socket × 4 core × 2 thread/core = <strong>8 logical CPU</strong>. SMT cho phép hai hardware thread chia sẻ một phần tài nguyên core; 8 logical CPU không tương đương 8 core độc lập.</p>
+<div class="diagram"><div class="node accent">1 CPU Socket</div><div class="grid two"><div class="node">Core 1 → Logical 0, 1</div><div class="node">Core 2 → Logical 2, 3</div><div class="node">Core 3 → Logical 4, 5</div><div class="node">Core 4 → Logical 6, 7</div></div></div>
+<p>SMT có thể tận dụng tài nguyên rảnh khi một hardware thread chờ bộ nhớ, nhưng hai thread cũng có thể cạnh tranh tài nguyên. Trong VM, topology mà <code>lscpu</code> thấy có thể do hypervisor trình bày.</p>
+<h3>8.2. Amdahl's Law — vì sao thêm core không tự động nhanh gấp N?</h3><div class="formula">S(N) = 1 / ((1 − P) + P / N)</div>
+<p>P là tỷ lệ song song hóa; N là số core; S(N) là mức tăng tốc lý tưởng. Nếu 80% tuần tự và chỉ 20% song song, dù có vô hạn core, tăng tốc tối đa vẫn chỉ 1,25×.</p>
+<div class="interactive"><h4>Thử nghiệm Amdahl's Law</h4><label>Số core: <output id="coresOut">8</output></label><input id="cores" type="range" min="1" max="64" value="8"><label>Phần việc song song: <output id="parallelOut">20%</output></label><input id="parallel" type="range" min="0" max="100" step="5" value="20"><div class="stat"><small>Mức tăng tốc lý tưởng</small><strong id="speedOut">1.22×</strong><span id="timeOut"></span></div></div>
+<h3>9. Scheduler và context switch</h3>
+<p>Scheduler chọn thread runnable nào được chạy trên logical CPU. Khi chuyển từ thread A sang B, hệ thống lưu/khôi phục trạng thái cần thiết: một phần của context switch. User → kernel mode không tự động đồng nghĩa chuyển thread; interrupt cũng không chắc dẫn đến context switch.</p>
+<div class="interactive"><h4>Mô phỏng lập lịch một logical CPU</h4><div class="buttons"><button id="roundBtn" class="active" type="button">Luân phiên</button><button id="blockBtn" type="button">Theo khối</button></div><div id="timeline" class="timeline"></div><p id="schedText" class="muted"></p><small>Đây là mô hình minh họa, không phải CFS/EEVDF thật.</small></div>
+<p>CPU thấp không chứng minh latency thấp: thread có thể chờ <code>read()</code>, mutex hoặc I/O và không tiêu thụ CPU trong lúc chờ.</p>
+</section><section class="section" id="part5"><h2>Phần V — Thứ bậc bộ nhớ và Cache</h2>
+<h3>10. CPU GHz nhưng tại sao vẫn phải chờ?</h3><p>CPU 3 GHz có chu kỳ khoảng 0,333 ns, nhưng không có nghĩa mỗi lệnh hay truy cập dữ liệu đều hoàn tất trong một chu kỳ. Truy cập RAM có thể mất hàng chục đến hàng trăm ns. Memory hierarchy giúp giảm khoảng cách tốc độ.</p>
+<h3>11. Register, cache, RAM và storage</h3><div class="pyramid"><div style="width:35%">Registers</div><div style="width:46%">L1 Cache</div><div style="width:58%">L2 Cache</div><div style="width:72%">L3 / LLC</div><div style="width:86%">RAM</div><div style="width:100%">SSD / HDD</div></div>
+<p>Ví dụ sửa chữa: register là linh kiện trên tay, cache là linh kiện sát bên, RAM là ngăn kéo, SSD là kho. CPU cache thường dùng SRAM, còn RAM chính thường dùng DRAM. Đây là các loại phần cứng khác nhau.</p>
+<h3>12. Cache hit và cache miss</h3><p><strong>Cache hit</strong>: dữ liệu đã ở tầng cache đang kiểm tra. <strong>Cache miss</strong>: phải tìm ở tầng khác. L1 miss chưa chắc phải đọc RAM vì có thể hit ở L2/L3. Nhiều CPU có cache line 64 byte: với int 4 byte, một line có thể chứa 16 phần tử liền nhau.</p>
+<h3>13. Temporal locality và spatial locality</h3><p><strong>Temporal locality:</strong> dữ liệu vừa dùng có thể sớm dùng lại. <strong>Spatial locality:</strong> dữ liệu ở địa chỉ gần nhau có thể được truy cập kế tiếp.</p>
+<pre><code class="language-c">for (int i = 0; i &lt; 1000; i++) sum += arr[i];
+// Duyệt liên tiếp thường thuận lợi cho cache hơn
+// lần theo con trỏ node nằm rải rác trong RAM.</code></pre>
+<div class="interactive"><h4>Mô phỏng tính cục bộ</h4><div class="buttons"><button id="seqBtn" class="active" type="button">Tuần tự</button><button id="randomBtn" type="button">Rải rác</button></div><div id="memoryGrid" class="memory-grid"></div><p id="accessText" class="muted"></p><small>Chỉ minh họa vị trí truy cập, không đo cache hit/miss thực tế.</small></div>
+<p>Trong Embedded Linux, buffer liên tục thường thuận lợi cho locality khi xử lý dữ liệu CAN/UART/Ethernet. Tuy nhiên, array không luôn tốt hơn linked list trong mọi thuật toán: phải xét yêu cầu và benchmark thực tế.</p>
+</section><section class="section" id="part6"><h2>Phần VI — RAM, Virtual Memory, Page Fault và Swap</h2>
+<h3>14. Vì sao process không dùng trực tiếp địa chỉ RAM vật lý?</h3><p>Hai process có thể cùng thấy địa chỉ ảo <code>0x1000</code> nhưng ánh xạ đến hai trang vật lý khác nhau. MMU dịch địa chỉ ảo qua page table và kiểm tra quyền; TLB lưu đệm thông tin dịch địa chỉ, khác với data cache.</p>
+<div class="diagram"><div class="grid two"><div class="node">Process A<br>Virtual 0x1000<br>↓ MMU / page table<br><strong>Physical Page 5</strong></div><div class="node">Process B<br>Virtual 0x1000<br>↓ MMU / page table<br><strong>Physical Page 19</strong></div></div></div>
+<h3>15. Page fault có phải lỗi chương trình?</h3><p>Không nhất thiết. Trang hợp lệ nhưng chưa hiện diện có thể tạo page fault; kernel xử lý rồi cho process tiếp tục. Truy cập bất hợp lệ có thể gây SIGSEGV. <strong>Minor page fault</strong> giải quyết không cần I/O lấy trang từ storage; <strong>major page fault</strong> cần I/O.</p><pre><code>/usr/bin/time -v ./my_program</code></pre>
+<h3>16. Swap có phải RAM mở rộng?</h3><p>Swap hỗ trợ quản lý trang khi thiếu bộ nhớ nhưng storage thường chậm hơn RAM. zram có thể tạo swap nén trong RAM. Swap thrashing có thể làm hệ thống chậm nghiêm trọng.</p>
+<pre><code>               total    used    free  buff/cache  available
+Mem:            8Gi     5Gi   500Mi      2.5Gi       3Gi</code></pre>
+<p><code>free</code> thấp chưa chắc thiếu RAM. Linux dùng RAM cho cache và có thể thu hồi. Cần xem <code>available</code>, swap, reclaim, PSI và ảnh hưởng thực tế.</p>
+</section><section class="section" id="part7"><h2>Phần VII — Storage và Page Cache</h2>
+<h3>17. Tại sao đọc file lần hai thường nhanh hơn?</h3><p>Linux giữ dữ liệu file trong page cache. Lần đầu có thể cần storage I/O; lần tiếp theo có thể đọc từ RAM nếu cache còn tồn tại.</p>
+<div class="grid two"><div class="diagram"><strong>Lần đọc đầu</strong><div class="node">Application read()</div><div class="arrow">↓</div><div class="node">Kernel / page cache miss</div><div class="arrow">↓</div><div class="node">Filesystem / Storage</div><div class="arrow">↓</div><div class="node accent">RAM → Application</div></div><div class="diagram"><strong>Lần đọc sau</strong><div class="node">Application read()</div><div class="arrow">↓</div><div class="node">Kernel / page cache hit</div><div class="arrow">↓</div><div class="node accent">RAM → Application</div></div></div>
+<h3>18. write() thành công đã an toàn trên SSD chưa?</h3><pre><code class="language-c">write(fd, buffer, size);
+fsync(fd);</code></pre><p><code>write()</code> thành công không bảo đảm dữ liệu đã bền vững trên thiết bị. Buffering, page cache và writeback có thể trì hoãn ghi. <code>fsync()</code> yêu cầu đồng bộ, nhưng độ bền thực tế còn phụ thuộc filesystem, controller, cache thiết bị và flush. Với thiết bị ghi log dễ mất điện, cần cân bằng durability, latency và write amplification; gọi fsync sau mỗi bản ghi có thể tốn kém.</p>
+</section><section class="section" id="part8"><h2>Phần VIII — Interrupt, Timer và DMA</h2>
+<h3>19–20. Polling là gì?</h3><p>CPU có thể liên tục hỏi thiết bị đã sẵn sàng chưa (polling), hoặc thiết bị báo sự kiện (interrupt).</p><pre><code class="language-c">while (!(STATUS_REG &amp; RX_READY)) {
+    // Busy-wait
+}
+read_data();</code></pre>
+<p>Polling có thể lãng phí CPU khi chờ lâu, nhưng có lợi trong một số workload tốc độ cao. Linux networking sử dụng cơ chế phối hợp như NAPI.</p>
+<h3>21–22. Interrupt và context switch</h3><div class="diagram"><div class="node">CAN Controller nhận frame</div><div class="arrow">↓ IRQ</div><div class="node">CPU / Interrupt Controller</div><div class="arrow">↓</div><div class="node">Kernel interrupt handler / Driver</div><div class="arrow">↓</div><div class="node accent">Đánh thức tác vụ nhận dữ liệu</div></div>
+<p>Interrupt giống chuông cửa: thay vì liên tục kiểm tra cửa, bạn phản ứng khi có chuông. Nhưng quá nhiều interrupt cũng gây overhead. Interrupt không nhất thiết là context switch: sau handler, thread đang chạy có thể tiếp tục.</p>
+<h3>23. Timer dùng để làm gì?</h3><p>Timer hỗ trợ timeout, đánh thức thread, các tác vụ định kỳ và scheduling. <code>nanosleep()</code> yêu cầu ngủ một khoảng nhưng không bảo đảm thread chạy lại đúng thời điểm tuyệt đối.</p><pre><code class="language-c">struct timespec ts = { .tv_sec = 0, .tv_nsec = 10000000 };
+nanosleep(&amp;ts, NULL);</code></pre>
+<h3>24. DMA là gì? Vì sao vẫn cần driver?</h3><div class="diagram"><div class="grid three"><div class="node">NIC / Peripheral</div><div class="node accent">⇄ DMA ⇄</div><div class="node">RAM / Buffers</div></div><div class="node">CPU + Driver: descriptor · buffer · mapping · sync · completion</div></div>
+<p>DMA cho phép thiết bị truyền dữ liệu với bộ nhớ mà CPU không phải copy từng byte. Driver vẫn cấp buffer, thiết lập descriptor, DMA mapping, quản lý ownership và cache coherency. Trên một số ARM không coherent, đồng bộ sai có thể khiến CPU thấy dữ liệu cũ.</p>
+<p><strong>Liên hệ CAN/TWAI ESP32:</strong> CAN controller xử lý giao thức, transceiver chuyển đổi tín hiệu điện, CPU/driver quản lý truyền nhận. Không được suy ra mọi CAN controller đều dùng DMA.</p>
+</section><section class="section" id="part9"><h2>Phần IX — Hệ điều hành thực sự làm gì?</h2>
+<h3>25. Vì sao cần hệ điều hành?</h3><p>Nếu không có OS, mỗi ứng dụng phải tự quản lý sector đĩa, RAM, CPU, thiết bị và quyền truy cập. Linux cung cấp <strong>abstraction</strong>, <strong>resource management</strong> và <strong>isolation/protection</strong>.</p>
+<h3>26. Abstraction — trừu tượng hóa thiết bị</h3><pre><code class="language-c">int fd = open("hello.txt", O_RDONLY);
+int tty = open("/dev/ttyUSB0", O_RDWR);</code></pre>
+<div class="diagram"><div class="node">Application: open / read / write / close</div><div class="arrow">↓</div><div class="node accent">Linux Kernel: VFS / I/O subsystems</div><div class="arrow">↓</div><div class="grid three"><div class="node">Filesystem</div><div class="node">TTY Driver</div><div class="node">Device Driver</div></div></div>
+<p>Không phải thiết bị nào cũng có ngữ nghĩa file thường: có <code>ioctl()</code>, <code>mmap()</code>, socket. SocketCAN thường truy cập qua socket thay vì mở <code>/dev/can0</code>. Abstraction không xóa giới hạn vật lý.</p>
+<h3>27. Resource management</h3><p>Kernel lập lịch thread, quản lý bộ nhớ, I/O, quyền và thu hồi tài nguyên. Phần lớn mã ứng dụng vẫn chạy trong user mode.</p>
+<h3>28. Isolation và user/kernel mode</h3><pre><code class="language-c">int *p = NULL;
+*p = 10; // Thường gây lỗi truy cập, có thể nhận SIGSEGV</code></pre>
+<table><tr><th>User mode</th><th>Kernel mode</th></tr><tr><td>Chạy phần lớn mã ứng dụng</td><td>Chạy mã kernel</td></tr><tr><td>Quyền bị giới hạn</td><td>Thao tác đặc quyền</td></tr><tr><td>Dùng system call yêu cầu dịch vụ</td><td>Kiểm tra và thực hiện yêu cầu</td></tr></table>
+<p>Process root vẫn chạy mã ứng dụng trong user mode; root không đồng nghĩa luôn chạy ở CPU kernel mode.</p>
+</section><section class="section" id="part10"><h2>Phần X — Phân tích toàn bộ quá trình chạy cat hello.txt</h2>
+<h3>29. Từ một dòng lệnh đến hoạt động phần cứng</h3><pre><code>cat hello.txt
+# Hello Linux</code></pre>
+<div class="diagram"><div class="node">1. Shell phân tích cat và hello.txt</div><div class="arrow">↓</div><div class="node">2. Tạo/chạy process</div><div class="arrow">↓</div><div class="node">3. Kernel chuẩn bị address space / loader</div><div class="arrow">↓</div><div class="node">4. CPU thực thi mã cat</div><div class="arrow">↓</div><div class="node accent">5. open/read → page cache hoặc storage</div><div class="arrow">↓</div><div class="node">6. write → stdout / terminal</div><div class="arrow">↓</div><div class="node">7. Process kết thúc; shell tiếp tục</div></div>
+<h3>30. Shell và PATH</h3><pre><code>echo "$PATH"
+command -v cat
+# /usr/bin/cat  (ví dụ)</code></pre><p>PATH giúp shell tìm chương trình mà không cần nhập đường dẫn tuyệt đối.</p>
+<h3>31. fork() và execve()</h3><div class="diagram"><div class="node">Shell process</div><div class="arrow">↓ fork()</div><div class="node">Child process</div><div class="arrow">↓ execve()</div><div class="node accent">Chạy chương trình cat</div></div>
+<p><code>fork()</code> tạo tiến trình con; <code>execve()</code> thay thế hình ảnh chương trình của tiến trình hiện tại và không tự tạo PID mới. Một số shell có thể dùng <code>posix_spawn()</code> hoặc tối ưu khác.</p>
+<h3>32. Khi cat gọi read()</h3><pre><code class="language-c">ssize_t n = read(fd, buffer, sizeof(buffer));</code></pre>
+<div class="diagram"><div class="node">User Space: cat → read(fd,...)</div><div class="arrow">↓ syscall</div><div class="node">Kernel: fd lookup → VFS → Filesystem</div><div class="grid two"><div class="node">Cache hit → RAM</div><div class="node">Cache miss → Storage I/O</div></div><div class="arrow">↓</div><div class="node accent">Trả dữ liệu cho ứng dụng</div></div>
+<h3>33. strace hữu ích thế nào?</h3><pre><code>strace -o trace.log cat hello.txt
+less trace.log
+strace -T -e trace=openat,read,write cat hello.txt</code></pre><pre><code>execve(...)
+openat(...)
+read(...)
+write(...)
+close(...)
+exit_group(...)</code></pre>
+<p>strace theo dõi system calls, lỗi, tín hiệu và thời gian lời gọi; không quan sát toàn bộ machine instructions. Dùng <code>gdb</code> để debug, <code>perf</code> để profiling, <code>ftrace</code> cho kernel tracing, <code>bpftrace</code> cho eBPF, <code>objdump</code> cho disassembly.</p>
+</section><section class="section" id="part11"><h2>Phần XI — Lab: lập hồ sơ máy Linux</h2>
+<h3>34. Mục tiêu</h3><p>Ghi môi trường vật lý/VM/container; socket/core/logical CPU; RAM total/available; nguồn của root filesystem.</p>
+<h3>35. CPU với lscpu</h3><pre><code>lscpu
+cat /proc/cpuinfo | head -n 25</code></pre><pre><code>Architecture:           x86_64
+CPU(s):                 8
+Thread(s) per core:     2
+Core(s) per socket:     4
+Socket(s):              1</code></pre><p>Trong VM, topology có thể là cấu hình hypervisor cung cấp. <code>/proc</code> là pseudo-filesystem do kernel cung cấp.</p>
+<h3>36. RAM với free</h3><pre><code>free -h
+cat /proc/meminfo | head</code></pre><p>Quan sát MemTotal, MemFree, MemAvailable, Buffers, Cached, SwapTotal và SwapFree. RAM used cao chưa đủ chứng minh thiếu bộ nhớ.</p>
+<h3>37. Storage với lsblk</h3><pre><code>lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS</code></pre><pre><code>NAME        SIZE TYPE FSTYPE MOUNTPOINTS
+sda         100G disk
+├─sda1        1G part vfat   /boot/efi
+└─sda2       99G part ext4   /</code></pre><p>Disk → partition → filesystem → mountpoint, nhưng có thể thêm LVM, dm-crypt, RAID và các lớp khác.</p>
+<h3>38. Root filesystem</h3><pre><code>findmnt -no SOURCE,TARGET /
+# /dev/sda2 /  (ví dụ)</code></pre><p>Trong container có thể là overlay. Trên SBC như Odroid XU4, bootloader, kernel và rootfs không nhất thiết nằm trên cùng SD/eMMC.</p>
+</section><section class="section" id="part12"><h2>Phần XII — Latency và Throughput</h2>
+<h3>39. Tại sao xử lý nhiều yêu cầu mà vẫn phản hồi chậm?</h3><p><strong>Latency</strong> là thời gian một yêu cầu hoàn tất. <strong>Throughput</strong> là lượng công việc mỗi đơn vị thời gian. Trạm thu phí 10 làn xử lý nhiều xe/phút, nhưng thời gian một xe qua làn không tự giảm.</p>
+<h3>Little's Law</h3><div class="formula">L = λ × W</div><p>L là số công việc trung bình trong hệ thống; λ là tốc độ hoàn thành; W là thời gian trung bình. Ví dụ 100 request/s × 0,2 s = 20 request trung bình đang trong hệ thống, khi thỏa điều kiện áp dụng.</p>
+</section><section class="section" id="part13"><h2>Phần XIII — Những lỗi tư duy thường gặp</h2>
+<h3>40. Những kết luận sai cần tránh</h3><table><tr><th>Kết luận vội</th><th>Phân tích đúng hơn</th></tr><tr><td>CPU 100% chắc chắn lỗi</td><td>Có thể là workload tính toán bình thường</td></tr><tr><td>CPU thấp nghĩa không nghẽn</td><td>Có thể chờ I/O hoặc lock</td></tr><tr><td>RAM used cao nghĩa hết RAM</td><td>Xem available, pressure và swap</td></tr><tr><td>SSD 1 TB như thêm 1 TB RAM</td><td>Storage khác RAM về chức năng và latency</td></tr><tr><td>8 logical CPU = 8 core</td><td>SMT chia sẻ tài nguyên</td></tr><tr><td>Nhiều thread luôn nhanh hơn</td><td>Phụ thuộc song song hóa và overhead</td></tr><tr><td>Page fault luôn là lỗi</td><td>Demand paging có page fault bình thường</td></tr><tr><td>Interrupt luôn context switch</td><td>Không nhất thiết đổi thread</td></tr><tr><td>DMA không cần driver</td><td>Driver vẫn quản lý mapping và completion</td></tr><tr><td>write thành công là bền</td><td>Dữ liệu có thể ở buffer/cache</td></tr><tr><td>Throughput tăng thì latency giảm</td><td>Hai thước đo khác nhau</td></tr></table>
+</section><section class="section" id="part14"><h2>Phần XIV — Case study: Embedded Linux nhận CAN bị mất dữ liệu</h2>
+<h3>41. Gateway CAN bị drop frame dù CPU chỉ 30%</h3><div class="diagram"><div class="node">CAN Bus</div><div class="arrow">↓</div><div class="node">CAN Controller</div><div class="arrow">↓</div><div class="node">Linux CAN Driver</div><div class="arrow">↓</div><div class="node">SocketCAN</div><div class="arrow">↓</div><div class="node">Application</div><div class="arrow">↓</div><div class="node accent">Log File</div></div>
+<p>Không thể vội kết luận driver lỗi. Phân tích phần cứng (bus error, RX overrun, FIFO), kernel/driver (drop, interrupt), socket buffer (đầy) và application (xử lý hoặc ghi log chậm).</p>
+<pre><code class="language-c">while (1) {
+    receive_can_frame();
+    process_frame();
+    write_log_to_disk();
+}</code></pre>
+<p>Nếu ghi log làm thread chờ, nhận frame có thể bị trì hoãn. Có thể tách receive thread và log writer bằng bounded queue, nhưng queue không sửa được mất cân bằng tốc độ bền vững.</p>
+<div class="diagram"><div class="node">CAN Receive Thread</div><div class="arrow">↓</div><div class="node accent">Bounded Queue</div><div class="arrow">↓</div><div class="node">Log Writer Thread</div><div class="arrow">↓</div><div class="node">Storage</div></div>
+<p>Ví dụ 2.000 frame/s đến, xử lý 1.500 frame/s, queue 5.000 frame: backlog tăng 500 frame/s, đầy sau 10 giây nếu ban đầu rỗng.</p>
+<div class="interactive"><h4>Mô phỏng queue nhận CAN</h4><label>Tốc độ frame đến: <output id="arrivalOut">2000</output> frame/s</label><input id="arrival" type="range" min="500" max="5000" step="100" value="2000"><label>Tốc độ xử lý: <output id="serviceOut">1500</output> frame/s</label><input id="service" type="range" min="500" max="5000" step="100" value="1500"><label>Dung lượng queue: <output id="capacityOut">5000</output> frame</label><input id="capacity" type="range" min="1000" max="20000" step="1000" value="5000"><div class="stat"><small id="queueLabel">Thời gian queue đầy</small><strong id="queueTime">10.0 giây</strong><span id="queueDelta">Tăng 500 frame/s</span></div><small>Giả định tốc độ không đổi, queue ban đầu rỗng; bỏ qua burst và overhead.</small></div>
+<p><strong>Kết luận:</strong> Buffer giúp chịu burst ngắn, nhưng không thể giải quyết hệ thống có tốc độ xử lý lâu dài thấp hơn tốc độ đầu vào.</p>
+</section><section class="section" id="part15"><h2>Phần XV — Tự kiểm tra kiến thức</h2>
+<h3>42. Câu hỏi phản biện — mở đáp án để tự kiểm tra</h3><div id="quiz"></div>
+</section><section class="section" id="part16"><h2>Phần XVI — Phương pháp học theo tư duy Senior</h2>
+<h3>43. Làm sao biết mình đã hiểu?</h3><p>Không chỉ thuộc định nghĩa. Khi ứng dụng đọc file chậm nhưng CPU thấp, hãy: (1) kiểm tra có chờ read không; (2) page cache hay storage; (3) latency và throughput I/O; (4) thread runnable hay blocked; (5) lock và giới hạn tài nguyên; (6) đo lại để xác nhận giả thuyết.</p>
+<h3>44. Checklist thực hành</h3><div class="interactive"><div class="progress"><div id="progressFill"></div></div><p id="progressText" class="muted">0/8 hoàn thành</p><div id="checklist"></div></div>
+<h3>45. Học tiếp gì?</h3><table><tr><th>Chủ đề</th><th>Giải quyết</th></tr><tr><td>Linux và distro</td><td>Kernel, user space, distribution</td></tr><tr><td>Process/thread</td><td>fork, exec, pthread, scheduler</td></tr><tr><td>Virtual memory</td><td>MMU, page table, TLB, mmap</td></tr><tr><td>System call / VFS</td><td>Đường đi của file I/O</td></tr><tr><td>Interrupt / driver</td><td>Phần cứng tương tác kernel</td></tr><tr><td>DMA / coherency</td><td>Driver Embedded Linux</td></tr><tr><td>Performance</td><td>Profiling, memory pressure, I/O latency</td></tr><tr><td>Real-time Linux</td><td>Scheduling latency, deadline</td></tr></table>
+<h3>Tổng kết</h3><p><strong>1.</strong> Program khác process; thread là luồng thực thi trong process. <strong>2.</strong> CPU nhanh không bảo đảm ứng dụng nhanh: cache, RAM, I/O, thuật toán và khả năng song song đều quan trọng. <strong>3.</strong> Kernel quản lý, cách ly và cung cấp giao diện truy cập tài nguyên, không chạy thay ứng dụng mọi lúc. <strong>4.</strong> Interrupt, DMA và scheduling là cơ chế khác nhau nhưng phối hợp với nhau. <strong>5.</strong> Khi debug, phải xác định thread đang thực thi, đang chờ hay bị giới hạn bởi tài nguyên nào.</p>
+</section><section class="section" id="original"><h2>Phụ lục — Toàn văn tài liệu gốc Bài 01</h2><p>Giữ nguyên toàn bộ nội dung Markdown đã đính kèm để đối chiếu với bài giải thích mở rộng phía trên.</p><div class="source">**# Bài 01 — Nền tảng máy tính và hệ điều hành**
+
+
+
+[Mục lục]\(../README.md) · [Bài 02 →]\(02-linux-va-distro.md)
+
+
+
+**## Mục tiêu và chuẩn bị**
+
+
+
+Không yêu cầu kiến thức Linux trước đó. Sau bài này, bạn phải giải thích được CPU thực thi chương trình, bộ nhớ giữ dữ liệu và hệ điều hành chia sẻ tài nguyên như thế nào. Phần lệnh có thể thực hiện sau khi cài VM ở bài 05.
+
+
+
+Hãy giữ một ví dụ xuyên suốt: bạn chạy chương trình đọc một file rồi in nội dung ra màn hình. CPU thực thi lệnh của chương trình; RAM chứa lệnh và dữ liệu đang dùng; kernel giúp chương trình tìm file, truy cập thiết bị và chia CPU với các chương trình khác.
+
+
+
+**## 1. Từ chương trình đến CPU**
+
+
+
+Chương trình trên đĩa là dữ liệu. Khi chạy, hệ điều hành tạo tiến trình và thiết lập không gian địa chỉ để CPU lấy lệnh, giải mã rồi thực thi. Thanh ghi giữ trạng thái đang xử lý: vị trí lệnh, toán hạng, con trỏ stack. CPU không trực tiếp hiểu Python hoặc Bash; interpreter của chúng là chương trình mã máy đang thực thi.
+
+
+
+**\*\*Chương trình\*\*** là mã và dữ liệu được lưu trong file; **\*\*tiến trình\*\*** là một lần chương trình đang chạy, có không gian địa chỉ và tài nguyên do hệ điều hành quản lý. Một chương trình có thể có nhiều tiến trình. **\*\*Thread\*\*** là luồng thực thi bên trong tiến trình: các thread chia sẻ nhiều tài nguyên của tiến trình nhưng mỗi thread có trạng thái thực thi và stack riêng.
+
+
+
+Ví dụ, với \`cat hello.txt\`, shell yêu cầu khởi chạy \`cat\`; CPU thực thi mã máy của \`cat\`. Khi \`cat\` cần mở và đọc file rồi ghi ra terminal, nó gọi **\*\*system call\*\*** để kernel xử lý phần cần quyền truy cập tài nguyên. Python interpreter cũng là một chương trình mã máy: nó đọc và thực hiện ý nghĩa mã Python, chứ CPU không tự hiểu cú pháp Python. Mã và dữ liệu được ánh xạ vào không gian địa chỉ; các trang cần thiết có thể được nạp theo nhu cầu, không phải toàn bộ chương trình luôn nằm trong cache.
+
+
+
+**### Diễn giải từng bước: chạy \`cat hello.txt\`**
+
+
+
+1\. Shell đọc dòng lệnh bạn nhập. Nó phân tích \`cat\` là tên chương trình và \`hello.txt\` là đối số. Shell tìm file thực thi tương ứng với \`cat\` theo \`PATH\`.
+
+2\. Shell yêu cầu kernel tạo một tiến trình con và chạy chương trình \`cat\`. Kernel chuẩn bị không gian địa chỉ ảo, ánh xạ mã chương trình và thư viện cần thiết, tạo stack ban đầu rồi đặt trạng thái để CPU bắt đầu thực thi.
+
+3\. CPU thực thi các lệnh máy của \`cat\`. Khi cần dữ liệu, CPU tìm trong thanh ghi và cache; nếu không có, nó lấy từ tầng thấp hơn. Nếu trang bộ nhớ cần dùng chưa có trong RAM, có thể xảy ra **\*\*page fault\*\*** để kernel xử lý. Page fault không mặc nhiên là lỗi chương trình; nó có thể là một phần bình thường của cơ chế nạp trang theo nhu cầu.
+
+4\. \`cat\` yêu cầu kernel mở và đọc file. Dữ liệu có thể đã nằm trong page cache của RAM, hoặc kernel phải nhờ tầng filesystem và driver lấy từ thiết bị lưu trữ.
+
+5\. Sau khi nhận dữ liệu, \`cat\` yêu cầu ghi ra terminal và kết thúc. Kernel thu hồi tài nguyên của tiến trình; shell tiếp tục nhận lệnh mới.
+
+
+
+Đường đi thực tế có thể khác ở từng hệ thống: thư viện thường bọc system call, file có thể được đọc thành nhiều lần, và CPU có thể tạm dừng \`cat\` để chạy thread khác. Điều quan trọng là phân biệt **\*\*lệnh máy CPU thực thi\*\*** với **\*\*dịch vụ kernel cung cấp\*\***.
+
+
+
+Một socket CPU có thể chứa nhiều core. Một core có thể cung cấp nhiều hardware thread nhờ SMT, nhưng các thread đó vẫn chia sẻ một số tài nguyên thực thi. Vì thế 8 logical CPU không mặc nhiên bằng 8 core vật lý. Trong VM, vCPU còn phải được hypervisor lập lịch lên tài nguyên host.
+
+
+
+Ví dụ **\*\*1 socket × 4 core/socket × 2 thread/core = 8 logical CPU\*\***. Một thread phần mềm thường chỉ thực thi trên một logical CPU tại mỗi thời điểm; thêm logical CPU không tự làm phần việc tuần tự nhanh gấp đôi. Trong VM, thông tin topology mà \`lscpu\` thấy là cấu hình được trình bày cho guest, không nhất thiết là topology vật lý của host.
+
+
+
+**\*\*Lập lịch CPU\*\*** nghĩa là kernel chọn thread nào được chạy trên logical CPU nào. Nếu số thread sẵn sàng chạy nhiều hơn số logical CPU, chúng phải thay phiên. Khi đổi từ thread này sang thread khác, hệ thống phải lưu và khôi phục trạng thái thực thi; đó là một phần của **\*\*context switch\*\***. Vì việc chuyển đổi có chi phí, tạo thật nhiều thread không tự động làm chương trình nhanh hơn. Ngược lại, nếu một thread đang chờ đọc dữ liệu, CPU có thể chạy thread khác trong thời gian chờ.
+
+
+
+Ví dụ một phép tính gồm 80% công việc tuần tự và 20% có thể chia đều cho nhiều core. Dù có thêm rất nhiều core, phần 80% tuần tự vẫn phải chạy; vì vậy tổng thời gian không thể giảm tuyến tính theo số core. Đây là cách tự kiểm tra một lời quảng cáo kiểu “8 logical CPU nên chương trình nhanh gấp 8 lần”.
+
+
+
+**## 2. Thứ bậc bộ nhớ**
+
+
+
+\`\`\`text
+
+Register → cache L1/L2/L3 → RAM → SSD/HDD
+
+  thường nhanh, nhỏ             thường chậm hơn, lớn hơn
+
+\`\`\`
+
+
+
+Cache giữ bản sao dữ liệu để giảm thời gian chờ RAM. Nếu CPU phải chờ RAM, chưa thể kết luận ổ đĩa chậm: RAM và storage là các tầng khác nhau.
+
+
+
+Cache tận dụng hai kiểu **\*\*locality\*\***: theo thời gian (vừa dùng một giá trị thì có thể dùng lại sớm) và theo không gian (vừa dùng một địa chỉ thì có thể dùng tiếp địa chỉ gần đó). Bởi vậy, duyệt mảng liên tiếp thường thuận lợi cho cache hơn lần theo con trỏ rải rác. Đây là xu hướng, không phải bảo đảm cho mọi workload. RAM và storage trao đổi dữ liệu qua bộ điều khiển và bus; ổ đĩa 1 TB không làm máy có thêm 1 TB RAM. Swap có thể dùng storage hỗ trợ khi thiếu RAM nhưng thường chậm hơn RAM vật lý.
+
+
+
+Hãy tưởng tượng bạn đọc một cuốn sách: thông tin đang nhớ trong đầu giống dữ liệu rất gần CPU; trang sách đang mở giống cache; sách trên bàn giống RAM; sách cất trong tủ giống storage. Ví dụ này chỉ giúp hình dung **\*\*chi phí lấy dữ liệu\*\***: cấu trúc phần cứng thật phức tạp hơn và dữ liệu không nhất thiết đi qua từng tầng theo đúng một hàng thẳng.
+
+
+
+**\*\*Latency\*\*** là thời gian chờ một lần truy cập hoặc một yêu cầu hoàn tất. **\*\*Throughput\*\*** là tổng lượng công việc hoàn thành trong một khoảng thời gian. Một thiết bị có thể xử lý rất nhiều yêu cầu cùng lúc nhưng từng yêu cầu vẫn phải chờ lâu. Khi phân tích hiệu năng, hãy hỏi rõ đang đo thời gian của *\*một yêu cầu\** hay số yêu cầu *\*mỗi giây\**.
+
+
+
+RAM lưu trạng thái đang hoạt động và thường mất dữ liệu khi mất điện. Storage giữ dữ liệu lâu dài, nhưng ghi vào bộ đệm RAM chưa đồng nghĩa dữ liệu đã bền vững trên thiết bị. Bài 23 sẽ giải thích writeback và \`fsync\`.
+
+
+
+Linux còn dùng RAM làm **\*\*page cache\*\*** cho dữ liệu file. Lần đầu đọc một file có thể cần truy cập thiết bị; lần sau đọc cùng nội dung có thể được phục vụ từ RAM. Vì cache có thể được thu hồi khi ứng dụng cần bộ nhớ, \`free\` báo nhiều RAM \`used\` không tự nó chứng minh máy thiếu RAM. Cần nhìn thêm \`available\`, hoạt động swap và tình trạng ứng dụng.
+
+
+
+**## 3. Interrupt, timer và DMA**
+
+
+
+Interrupt cho phép thiết bị báo sự kiện để CPU xử lý, thay vì CPU luôn hỏi thiết bị đã xong chưa. Một số đường I/O vẫn dùng polling tùy thiết bị và tải công việc. Timer tạo cơ sở để hệ điều hành theo dõi thời gian, đánh thức tác vụ và đánh giá việc chuyển task; một sự kiện timer không đồng nghĩa chắc chắn có chuyển tiến trình ngay lúc đó. DMA cho phép thiết bị truyền dữ liệu với bộ nhớ mà CPU không phải sao chép từng byte; CPU và driver vẫn thiết lập buffer, đồng bộ khi cần và xử lý hoàn tất.
+
+
+
+Hệ điều hành cung cấp ba chức năng cốt lõi: trừu tượng hóa thiết bị, phân phối tài nguyên và cách ly hoạt động. Tiến trình nhìn thấy file thay cho chi tiết sector, không gian địa chỉ riêng thay cho toàn bộ RAM vật lý.
+
+
+
+\- **\*\*Trừu tượng hóa:\*\*** ứng dụng làm việc với file và socket thay vì tự điều khiển sector đĩa hoặc thanh ghi thiết bị.
+
+\- **\*\*Phân phối tài nguyên:\*\*** scheduler chọn thread chạy trên CPU; kernel quản lý RAM và yêu cầu I/O của nhiều tiến trình.
+
+\- **\*\*Cách ly và kiểm soát:\*\*** mỗi tiến trình có không gian địa chỉ ảo riêng; quyền truy cập và ranh giới user/kernel giới hạn tác động của chương trình lên chương trình khác. Địa chỉ ảo không phải địa chỉ RAM vật lý mà ứng dụng trực tiếp quản lý.
+
+
+
+**### Nối các khái niệm bằng một lần đọc file**
+
+
+
+\`\`\`text
+
+cat hello.txt
+
+  → shell khởi chạy tiến trình cat
+
+  → CPU chạy mã cat; dữ liệu cần dùng nằm trong cache/RAM
+
+  → cat gọi kernel để mở và đọc file
+
+  → kernel/filesystem/driver lấy dữ liệu từ page cache hoặc thiết bị
+
+  → thiết bị có thể dùng DMA và báo hoàn tất
+
+  → kernel trả dữ liệu; cat yêu cầu ghi ra terminal
+
+\`\`\`
+
+
+
+Nếu file đã nằm trong page cache, lần đọc có thể không cần truy cập ổ đĩa. Nếu tiến trình đang chờ I/O, scheduler có thể cho thread khác chạy. Vì thế cần phân biệt **\*\*CPU đang xử lý\*\*** với **\*\*tiến trình đang chờ\*\***.
+
+
+
+**## 4. Lab: lập hồ sơ máy**
+
+
+
+Trong terminal Linux, chạy các lệnh chỉ đọc:
+
+
+
+\`\`\`bash
+
+lscpu
+
+free -h
+
+lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS
+
+findmnt -no SOURCE,TARGET /
+
+cat /proc/cpuinfo | head -n 25
+
+cat /proc/meminfo | head
+
+\`\`\`
+
+
+
+Ghi số socket, core/socket, thread/core, logical CPU; tổng RAM; nguồn của filesystem gắn tại \`/\`. Nếu trường topology không xuất hiện trong VM, ghi rõ giới hạn quan sát thay vì suy ra cấu hình host. \`lsblk\` cũ có thể dùng \`MOUNTPOINT\` thay \`MOUNTPOINTS\`; môi trường tối giản thiếu \`findmnt\` có thể xem \`/proc/mounts\`.
+
+
+
+Đọc \`free -h\` ở hai cột \`total\` và \`available\`. \`available\` ước lượng bộ nhớ có thể cấp cho ứng dụng mới mà không phải swap mạnh; \`used\` cao chưa đủ chứng minh máy sắp hết RAM vì Linux còn dùng RAM làm cache. Dùng \`findmnt\` xác định nguồn của \`/\`, rồi \`lsblk\` lần theo disk → partition → filesystem → mountpoint. Nguồn \`/\` có thể là LVM, thiết bị mã hóa hoặc thiết bị ảo; trong container có thể không thấy storage host.
+
+
+
+\| Mục trong hồ sơ | Giá trị cần ghi | Nguồn |
+
+\|---|---|---|
+
+\| Môi trường | Máy vật lý, VM hay container; chỉ ghi điều biết chắc | Quan sát thực tế |
+
+\| Socket / core mỗi socket / thread mỗi core | Số quan sát được hoặc “không rõ” | \`lscpu\` |
+
+\| Logical CPU | Số CPU mà hệ điều hành nhìn thấy | \`lscpu\` |
+
+\| RAM tổng / available | Dung lượng và đơn vị | \`free -h\` |
+
+\| Nguồn của \`/\` | Thiết bị hoặc lớp lưu trữ được báo | \`findmnt\`, \`lsblk\` |
+
+
+
+Đầu ra cần nộp là sơ đồ máy cùng bảng cấu hình. Giải thích vì sao dung lượng đĩa không cộng vào RAM và vì sao tăng logical CPU không đảm bảo ứng dụng nhanh tuyến tính.
+
+
+
+**## 5. Mẹo và lỗi thường gặp**
+
+
+
+\- Phân biệt MB (1.000.000 byte) với MiB (1.048.576 byte) khi so sánh số liệu; công cụ có thể dùng hệ đơn vị khác nhau.
+
+\- Latency là thời gian một yêu cầu mất để hoàn tất; throughput là lượng công việc hoàn thành trong một khoảng thời gian.
+
+\- Phần trăm CPU phụ thuộc công cụ: một tiến trình đa luồng có thể vượt 100% khi 100% tương ứng một logical CPU.
+
+\- Tăng throughput không luôn giảm latency của từng yêu cầu; phải đọc đúng phép đo và tải thử nghiệm.
+
+\- Dữ liệu ứng dụng đã ghi chưa chắc đã bền trên đĩa vì có thể còn ở buffer của ứng dụng, kernel hoặc thiết bị.
+
+
+
+**## 6. Tự kiểm tra**
+
+
+
+1\. CPU chờ RAM có nghĩa là ổ đĩa chậm không? **\*\*Không; đó là các tầng khác nhau.\*\***
+
+2\. Vì sao DMA vẫn cần driver? **\*\*Driver cấu hình giao dịch và xử lý đồng bộ/hoàn tất.\*\***
+
+3\. Một chương trình chỉ dùng một thread có tận dụng toàn bộ 8 core không? **\*\*Không tự động; cần phần việc song song và phần mềm hỗ trợ.\*\***
+
+4\. Máy báo 8 logical CPU từ 4 core có nghĩa hiệu năng gấp đôi 4 core không? **\*\*Không; SMT chia sẻ tài nguyên, kết quả phụ thuộc workload.\*\***
+
+5\. \`free\` báo RAM \`used\` cao có chắc máy sắp hết RAM không? **\*\*Không; cần xem \`available\`, cache và dấu hiệu thiếu bộ nhớ.\*\***
+
+6\. Khi \`cat\` đọc file đã có trong page cache, có bắt buộc đọc SSD lần nữa không? **\*\*Không; kernel có thể trả dữ liệu từ RAM.\*\***
+
+
+
+**## Đọc thêm**
+
+
+
+Tra \`man lscpu\`, \`man free\`, \`man lsblk\`, \`man findmnt\`; xem định nghĩa trường trong manual trước khi diễn giải số liệu.
+</div></section><footer class="footer">Hết Bài 01 — Nền tảng máy tính và hệ điều hành</footer></main></div><script>const $=id=>document.getElementById(id);function calcAmdahl(){let n=+$('cores').value,p=+$('parallel').value/100,s=1/((1-p)+p/n);$('coresOut').textContent=n;$('parallelOut').textContent=Math.round(p*100)+'%';$('speedOut').textContent=s.toFixed(2)+'×';$('timeOut').textContent='100 giây ban đầu → '+(100/s).toFixed(1)+' giây lý tưởng';}['cores','parallel'].forEach(id=>$(id).addEventListener('input',calcAmdahl));calcAmdahl();
+function scheduling(mode){let seq=mode==='round'?['A','B','C','A','B','C','A','B','C','A','B','C']:['A','A','A','A','B','B','B','B','C','C','C','C'];$('timeline').innerHTML=seq.map(t=>'<span style="background:'+({A:'#2563eb',B:'#0d9488',C:'#d97706'}[t])+'">'+t+'</span>').join('');$('schedText').textContent=mode==='round'?'Ba thread luân phiên sử dụng CPU; mỗi lần chuyển có thể tốn context switch.':'Mỗi thread chạy liên tiếp lâu hơn: ít lần chuyển nhưng thread khác có thể phải chờ lâu.';$('roundBtn').classList.toggle('active',mode==='round');$('blockBtn').classList.toggle('active',mode==='block');}$('roundBtn').onclick=()=>scheduling('round');$('blockBtn').onclick=()=>scheduling('block');scheduling('round');
+function memory(mode){let arr=mode==='sequential'?[0,1,2,3,4,5,6,7]:[0,12,3,15,7,9,2,14];$('memoryGrid').innerHTML=Array.from({length:16},(_,i)=>'<span class="'+(arr.includes(i)?'on':'')+'">'+i+'</span>').join('');$('accessText').textContent='Thứ tự truy cập: '+arr.join(' → ')+'. '+(mode==='sequential'?'Tuần tự thường có lợi cho cache line và prefetch.':'Rải rác có thể tăng số cache line phải lấy.');$('seqBtn').classList.toggle('active',mode==='sequential');$('randomBtn').classList.toggle('active',mode==='random');}$('seqBtn').onclick=()=>memory('sequential');$('randomBtn').onclick=()=>memory('random');memory('sequential');
+function queue(){let a=+$('arrival').value,s=+$('service').value,c=+$('capacity').value,d=a-s;$('arrivalOut').textContent=a.toLocaleString('vi-VN');$('serviceOut').textContent=s.toLocaleString('vi-VN');$('capacityOut').textContent=c.toLocaleString('vi-VN');$('queueLabel').textContent=d>0?'Thời gian ước tính queue đầy':'Trạng thái tải ổn định trong mô hình';$('queueTime').textContent=d>0?(c/d).toFixed(1)+' giây':'Không tăng backlog';$('queueDelta').textContent=d>0?'Queue tăng '+d.toLocaleString('vi-VN')+' frame/s':'Tốc độ xử lý ≥ tốc độ đến';}['arrival','service','capacity'].forEach(id=>$(id).addEventListener('input',queue));queue();
+const quizData=[["CPU chờ RAM có nghĩa SSD chậm không?", "Không. Cache, RAM và storage là những tầng khác nhau."], ["Vì sao DMA vẫn cần driver?", "Driver thiết lập buffer, descriptor, DMA mapping, đồng bộ và completion."], ["Một chương trình một thread có dùng hết 8 core không?", "Không tự động; một thread thường chạy trên một logical CPU tại mỗi thời điểm."], ["4 core / 8 logical CPU có chắc gấp đôi hiệu năng?", "Không. SMT chia sẻ tài nguyên; hiệu quả tùy workload."], ["RAM used cao có chắc thiếu RAM?", "Không. Cần xem available, cache, swap và pressure."], ["File đã ở page cache có bắt buộc đọc SSD nữa không?", "Không. Kernel có thể trả dữ liệu từ RAM."], ["System call luôn gây context switch giữa thread?", "Không. Chuyển mode không đồng nghĩa chuyển thread."], ["write() thành công có chắc bền sau mất điện?", "Không. Dữ liệu có thể vẫn ở buffer/cache; cần chiến lược đồng bộ phù hợp."]];const tasks=["Dùng lscpu xác định CPU topology và giải thích logical CPU.", "Dùng free -h phân biệt used, free và available.", "Dùng lsblk và findmnt xác định nguồn root filesystem.", "Biên dịch C và xem assembly bằng objdump.", "Chạy strace với cat để tìm openat, read và write.", "Viết chương trình hai thread và quan sát bằng top -H.", "Đọc file hai lần, đo thời gian và phân tích page cache.", "Giải thích tại sao blocked thread có latency cao dù CPU thấp."];quizData.forEach(([q,a],i)=>{let el=document.createElement('div');el.className='quiz-item';let question=document.createElement('strong');question.textContent=(i+1)+'. '+q;let btn=document.createElement('button');btn.type='button';btn.textContent='Xem đáp án';let ans=document.createElement('div');ans.className='answer';ans.textContent=a;btn.onclick=()=>{let open=ans.classList.toggle('open');btn.textContent=open?'Ẩn đáp án':'Xem đáp án';};el.append(question,document.createElement('br'),btn,ans);$('quiz').append(el);});tasks.forEach((t,i)=>{let label=document.createElement('label');label.className='checkrow';let inp=document.createElement('input');inp.type='checkbox';inp.onchange=()=>{let n=document.querySelectorAll('#checklist input:checked').length;$('progressText').textContent=n+'/'+tasks.length+' hoàn thành';$('progressFill').style.width=(100*n/tasks.length)+'%';};let span=document.createElement('span');span.textContent=t;label.append(inp,span);$('checklist').append(label);});$('themeBtn').onclick=()=>document.body.classList.toggle('dark');$('printBtn').onclick=()=>window.print();</script><script src="assets/lesson-theme.js" defer></script></body></html>
