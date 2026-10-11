@@ -1,11 +1,9 @@
-# Giáo trình Linux: từ cơ bản đến năng lực senior
-
+# Giáo trình Linux: Cơ bản
 Giáo trình gồm **40 bài, chia thành 8 chặng**, theo trình tự:
 
 **Kiến trúc → sử dụng hệ thống → quản trị → cơ chế kernel → mạng và lưu trữ → bảo mật → hiệu năng → thiết kế và xử lý sự cố.**
 
-Định hướng chính là **Linux System Engineer/SRE**, đồng thời xây dựng nền tảng để đi tiếp sang embedded Linux hoặc kernel development. Năng lực senior được đánh giá qua khả năng giải thích cơ chế, tìm nguyên nhân bằng bằng chứng và đưa ra quyết định kỹ thuật có cân nhắc; không chỉ qua số lượng lệnh biết dùng.
-
+Định hướng chính là **Linux System Engineer/SRE**, đồng thời xây dựng nền tảng để đi tiếp sang embedded Linux hoặc kernel development. 
 Mỗi bài có **file Markdown riêng** với giải thích cơ chế, ví dụ, lab, kết quả cần kiểm chứng, lỗi thường gặp và câu hỏi tự kiểm tra. Một bài chuyên sâu có thể cần nhiều buổi.
 
 **Môi trường thực hành mặc định:** VM Debian/Ubuntu, Bash, systemd; các nhánh phụ thuộc distro hoặc kernel được ghi trong từng bài. Lệnh có `sudo` chỉ chạy trong VM lab đã chuẩn bị. Các placeholder như `PID`, `DEVICE`, `IP_SERVER` phải được thay bằng giá trị đã xác minh.
